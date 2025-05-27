@@ -1,0 +1,43 @@
+path-constant pmpmesh-prj-dir : . ;
+path-constant pmpmesh-prj-headers-dir : $(pmpmesh-prj-dir)/include ;
+path-constant pmpmesh-prj-src-dir : $(pmpmesh-prj-dir)/src ;
+
+argv = [ modules.peek : ARGV ] ;
+
+if [ MATCH ^(cleanall)$ : $(argv) ]
+{
+	echo "cleanall ..." ;
+	cmd = "rm -rf `find $(pmpmesh-prj-dir) -name bin`" ;
+	echo $(cmd) ;
+	SHELL $(cmd) ;
+	exit ;
+}
+
+echo "Build pmpmesh ..." ;
+
+constant
+	pmpmesh-prj-headers
+:
+	pmpmesh/pmpmesh.hpp
+;
+
+#|
+msvc untest:
+/EHsc /wd\"4996\" /W3 /fp:fast /WX- /Zc:inline /Gm /errorReport:prompt
+/O1 /Ot /MP
+|#
+
+common-cppflags = -Wall -O1 -march=native ;
+
+project
+	pmpmesh
+:
+	requirements
+		<include>$(pmpmesh-prj-headers-dir)
+		<cxxflags>$(common-cppflags)
+:
+	default-build
+		<cxxstd>26
+;
+
+build-project src ;

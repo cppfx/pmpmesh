@@ -1,0 +1,41 @@
+pmpmesh-prj-srcs =
+	lwo/clip.cpp
+	lwo/envelope.cpp
+	lwo/list.cpp
+	lwo/lwio.cpp
+	lwo/lwo2.cpp
+	lwo/lwob.cpp
+	lwo/pntspols.cpp
+	lwo/surface.cpp
+	lwo/vecmath.cpp
+	lwo/vmap.cpp
+
+	picointernal.cpp
+	picomodel.cpp
+	picomodules.cpp
+	pm_3ds.cpp
+	pm_ase.cpp
+	pm_fm.cpp
+	pm_lwo.cpp
+	pm_md2.cpp
+	pm_md3.cpp
+	pm_mdc.cpp
+	pm_mdl.cpp
+	pm_ms3d.cpp
+	pm_obj.cpp
+	pm_terrain.cpp
+;
+pmpmesh-prj-srcs = src/$(pmpmesh-prj-srcs) ;
+pmpmesh-prj-srcs = $(pmpmesh-prj-src-dir)/$(pmpmesh-prj-srcs) ;
+
+pmpmesh-prj-src-headers-dir = ./include ;
+pmpmesh-prj-src-headers-dir = $(pmpmesh-prj-src-dir)/$(pmpmesh-prj-src-headers-dir) ;
+
+
+lib
+	pmpmesh
+:
+	$(pmpmesh-prj-srcs)
+:
+	<include>$(pmpmesh-prj-src-headers-dir)
+;
