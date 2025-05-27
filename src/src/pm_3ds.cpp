@@ -294,7 +294,7 @@ static int GetMeshVertices( T3dsLoaderPers *pers ){
 		v[2] = GetFloat( pers );    /* ydnar: unflipped and negated */
 
 		/* add current vertex */
-		pmm::pp_set_surface_x_y_z( pers->surface,i,v );
+		pmm::pp_set_surface_xyz( pers->surface,i,v );
 		pmm::pp_set_surface_color( pers->surface,0,i,white ); /* ydnar */
 
 #ifdef DEBUG_PM_3DS_EX
@@ -327,7 +327,7 @@ static int GetMeshFaces( T3dsLoaderPers *pers ){
 		face.b       = GetWord( pers );   /* ydnar: flipped order */
 		face.visible = GetWord( pers );
 
-		/* copy indexes */
+		/* copy indices */
 		pmm::pp_set_surface_index( pers->surface, ( i * 3 + 0 ), (pmm::index_t)face.a );
 		pmm::pp_set_surface_index( pers->surface, ( i * 3 + 1 ), (pmm::index_t)face.b );
 		pmm::pp_set_surface_index( pers->surface, ( i * 3 + 2 ), (pmm::index_t)face.c );
@@ -363,7 +363,7 @@ static int GetMeshTexCoords( T3dsLoaderPers *pers ){
 		}
 
 		/* add current uv */
-		pmm::pp_set_surface_s_t( pers->surface,0,i,uv );
+		pmm::pp_set_surface_st( pers->surface,0,i,uv );
 
 #ifdef DEBUG_PM_3DS_EX
 		printf( "u: %f v: %f\n",uv[0],uv[1] );
@@ -581,7 +581,7 @@ static int DoNextEditorDataChunk( T3dsLoaderPers *pers, long endofs ){
 			pmm::shader_t *shader;
 
 			/* allocate a pico shader */
-			shader = pp_new_shader( pers->model );  /* ydnar */
+			shader = pmm::pp_new_shader( pers->model );  /* ydnar */
 			if ( shader == NULL ) {
 				pers->shader = NULL;
 				return 0; /* this is bad too */
@@ -759,7 +759,7 @@ static pmm::model_t *_3ds_load( PM_PARAMS_LOAD ){
 }
 
 /* pico file format module definition */
-const pmm::module_t picoModule3DS =
+extern const pmm::module_t picoModule3DS =
 {
 	"0.86-b",                   /* module version string */
 	"Autodesk 3Dstudio",        /* module display name */

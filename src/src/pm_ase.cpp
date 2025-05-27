@@ -295,9 +295,9 @@ pmm::surface_t* PicoModelFindOrAddSurface( pmm::model_t *model, pmm::shader_t* s
    and submit them to the model for proper processing
 
    The following still holds from ydnar's _ase_make_surface:
-   indexes 0 1 2 = vert indexes
-   indexes 3 4 5 = st indexes
-   indexes 6 7 8 = color indexes (new)
+   indices 0 1 2 = vert indices
+   indices 3 4 5 = st indices
+   indices 6 7 8 = color indices (new)
  */
 
 #if 0
@@ -387,17 +387,17 @@ static void _ase_submit_triangles_unshared( pmm::model_t* model, aseMaterial_t* 
 				pmm::index_t size = (pmm::index_t)aseUniqueIndices_size( &indices );
 				pmm::index_t unique = aseUniqueIndices_insertUniqueVertex( &indices, index );
 
-				pmm::index_t numVertexes = pmm::pp_get_surface_num_vertexes( surface );
-				pmm::index_t numIndexes = pmm::pp_get_surface_num_indexes( surface );
+				pmm::index_t numVertexes = pmm::pp_get_surface_num_vertices( surface );
+				pmm::index_t numIndexes = pmm::pp_get_surface_num_indices( surface );
 
 				aseUniqueIndices_pushBack( &remap, numIndexes );
 
 				pmm::pp_set_surface_index( surface, numIndexes, remap.data[unique] );
 
 				if ( unique == size ) {
-					pmm::pp_set_surface_x_y_z( surface, numVertexes, vertices[( *i ).indices[j]].xyz );
+					pmm::pp_set_surface_xyz( surface, numVertexes, vertices[( *i ).indices[j]].xyz );
 					pmm::pp_set_surface_normal( surface, numVertexes, vertices[( *i ).indices[j]].normal );
-					pmm::pp_set_surface_s_t( surface, 0, numVertexes, texcoords[( *i ).indices[j + 3]].texcoord );
+					pmm::pp_set_surface_st( surface, 0, numVertexes, texcoords[( *i ).indices[j + 3]].texcoord );
 
 					if ( ( *i ).indices[j + 6] >= 0 ) {
 						pmm::pp_set_surface_color( surface, 0, numVertexes, colors[( *i ).indices[j + 6]].color );
@@ -664,7 +664,7 @@ static pmm::model_t *_ase_load( PM_PARAMS_LOAD ){
 		}
 		/* model mesh face */
 		else if ( !_pico_stricmp( p->token,"*mesh_face" ) ) {
-			pmm::index_t indexes[3];
+			pmm::index_t indices[3];
 			int index;
 
 			if ( numFaces == 0 ) {
@@ -678,19 +678,19 @@ static pmm::model_t *_ase_load( PM_PARAMS_LOAD ){
 
 			/* get 1st vertex index */
 			_pico_parse( p,0 );
-			if ( !_pico_parse_int( p,&indexes[0] ) ) {
+			if ( !_pico_parse_int( p,&indices[0] ) ) {
 				_ase_error_return( "Face parse error" );
 			}
 
 			/* get 2nd vertex index */
 			_pico_parse( p,0 );
-			if ( !_pico_parse_int( p,&indexes[1] ) ) {
+			if ( !_pico_parse_int( p,&indices[1] ) ) {
 				_ase_error_return( "Face parse error" );
 			}
 
 			/* get 3rd vertex index */
 			_pico_parse( p,0 );
-			if ( !_pico_parse_int( p,&indexes[2] ) ) {
+			if ( !_pico_parse_int( p,&indices[2] ) ) {
 				_ase_error_return( "Face parse error" );
 			}
 
@@ -709,9 +709,9 @@ static pmm::model_t *_ase_load( PM_PARAMS_LOAD ){
 			}
 
 			faces[index].materialId = 0;
-			faces[index].indices[0] = indexes[2];
-			faces[index].indices[1] = indexes[1];
-			faces[index].indices[2] = indexes[0];
+			faces[index].indices[0] = indices[2];
+			faces[index].indices[1] = indices[1];
+			faces[index].indices[2] = indices[0];
 		}
 		/* model texture vertex */
 		else if ( !_pico_stricmp( p->token,"*mesh_tvert" ) ) {
@@ -741,7 +741,7 @@ static pmm::model_t *_ase_load( PM_PARAMS_LOAD ){
 		}
 		/* ydnar: model mesh texture face */
 		else if ( !_pico_stricmp( p->token, "*mesh_tface" ) ) {
-			pmm::index_t indexes[3];
+			pmm::index_t indices[3];
 			int index;
 
 			if ( numFaces == 0 ) {
@@ -754,23 +754,23 @@ static pmm::model_t *_ase_load( PM_PARAMS_LOAD ){
 			}
 
 			/* get 1st vertex index */
-			if ( !_pico_parse_int( p,&indexes[0] ) ) {
+			if ( !_pico_parse_int( p,&indices[0] ) ) {
 				_ase_error_return( "Texture face parse error" );
 			}
 
 			/* get 2nd vertex index */
-			if ( !_pico_parse_int( p,&indexes[1] ) ) {
+			if ( !_pico_parse_int( p,&indices[1] ) ) {
 				_ase_error_return( "Texture face parse error" );
 			}
 
 			/* get 3rd vertex index */
-			if ( !_pico_parse_int( p,&indexes[2] ) ) {
+			if ( !_pico_parse_int( p,&indices[2] ) ) {
 				_ase_error_return( "Texture face parse error" );
 			}
 
-			faces[index].indices[3] = indexes[2];
-			faces[index].indices[4] = indexes[1];
-			faces[index].indices[5] = indexes[0];
+			faces[index].indices[3] = indices[2];
+			faces[index].indices[4] = indices[1];
+			faces[index].indices[5] = indices[0];
 		}
 		/* model color vertex */
 		else if ( !_pico_stricmp( p->token,"*mesh_vertcol" ) ) {
@@ -809,7 +809,7 @@ static pmm::model_t *_ase_load( PM_PARAMS_LOAD ){
 		}
 		/* model color face */
 		else if ( !_pico_stricmp( p->token,"*mesh_cface" ) ) {
-			pmm::index_t indexes[3];
+			pmm::index_t indices[3];
 			int index;
 
 			if ( numFaces == 0 ) {
@@ -823,25 +823,25 @@ static pmm::model_t *_ase_load( PM_PARAMS_LOAD ){
 
 			/* get 1st cvertex index */
 			//			_pico_parse( p,0 );
-			if ( !_pico_parse_int( p,&indexes[0] ) ) {
+			if ( !_pico_parse_int( p,&indices[0] ) ) {
 				_ase_error_return( "Face parse error" );
 			}
 
 			/* get 2nd cvertex index */
 			//			_pico_parse( p,0 );
-			if ( !_pico_parse_int( p,&indexes[1] ) ) {
+			if ( !_pico_parse_int( p,&indices[1] ) ) {
 				_ase_error_return( "Face parse error" );
 			}
 
 			/* get 3rd cvertex index */
 			//			_pico_parse( p,0 );
-			if ( !_pico_parse_int( p,&indexes[2] ) ) {
+			if ( !_pico_parse_int( p,&indices[2] ) ) {
 				_ase_error_return( "Face parse error" );
 			}
 
-			faces[index].indices[6] = indexes[2];
-			faces[index].indices[7] = indexes[1];
-			faces[index].indices[8] = indexes[0];
+			faces[index].indices[6] = indices[2];
+			faces[index].indices[7] = indices[1];
+			faces[index].indices[8] = indices[0];
 		}
 		/* model material */
 		else if ( !_pico_stricmp( p->token, "*material" ) ) {
@@ -921,7 +921,7 @@ static pmm::model_t *_ase_load( PM_PARAMS_LOAD ){
 					/* allocate new pico shader */
 					_pico_parse_int( p, &subMtlId );
 
-					shader = pp_new_shader( model );
+					shader = pmm::pp_new_shader( model );
 					if ( shader == NULL ) {
 						pmm::pp_free_model( model );
 						return NULL;
@@ -1071,7 +1071,7 @@ static pmm::model_t *_ase_load( PM_PARAMS_LOAD ){
 
 			if ( subMaterial == NULL ) {
 				/* allocate new pico shader */
-				shader = pp_new_shader( model );
+				shader = pmm::pp_new_shader( model );
 				if ( shader == NULL ) {
 					pmm::pp_free_model( model );
 					return NULL;
@@ -1167,7 +1167,7 @@ static pmm::model_t *_ase_load( PM_PARAMS_LOAD ){
 }
 
 /* pico file format module definition */
-const pmm::module_t picoModuleASE =
+extern const pmm::module_t picoModuleASE =
 {
 	"1.0",                  /* module version string */
 	"Autodesk 3DSMAX ASCII",    /* module display name */

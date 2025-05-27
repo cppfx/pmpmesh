@@ -403,7 +403,7 @@ static pmm::model_t *_fm_load( PM_PARAMS_LOAD ){
 
 	pmm::pp_set_surface_type( picoSurface, pmm::st_triangles );
 	pmm::pp_set_surface_name( picoSurface, frame->header.name );
-	picoShader = pp_new_shader( picoModel );
+	picoShader = pmm::pp_new_shader( picoModel );
 	if ( picoShader == NULL ) {
 		_pico_printf( pmm::pl_error, "Unable to allocate a new model shader" );
 		pmm::pp_free_model( picoModel );
@@ -574,7 +574,7 @@ static pmm::model_t *_fm_load( PM_PARAMS_LOAD ){
 		xyz[ 0 ] = vert->v[0] * frame->header.scale[0] + frame->header.translate[0];
 		xyz[ 1 ] = vert->v[1] * frame->header.scale[1] + frame->header.translate[1];
 		xyz[ 2 ] = vert->v[2] * frame->header.scale[2] + frame->header.translate[2];
-		pmm::pp_set_surface_x_y_z( picoSurface, i, xyz );
+		pmm::pp_set_surface_xyz( picoSurface, i, xyz );
 
 		/* set normal */
 		normal[ 0 ] = fm_normals[vert->lightnormalindex][0];
@@ -585,7 +585,7 @@ static pmm::model_t *_fm_load( PM_PARAMS_LOAD ){
 		/* set st coords */
 		st[ 0 ] =  ( ( texCoord[p_index_LUT[i].ST].s ) / ( (float)fm_head->skinWidth ) );
 		st[ 1 ] =  ( texCoord[p_index_LUT[i].ST].t / ( (float)fm_head->skinHeight ) );
-		pmm::pp_set_surface_s_t( picoSurface, 0, i, st );
+		pmm::pp_set_surface_st( picoSurface, 0, i, st );
 	}
 
 	if ( dups ) {
@@ -596,7 +596,7 @@ static pmm::model_t *_fm_load( PM_PARAMS_LOAD ){
 			xyz[ 0 ] = frame->verts[j].v[0] * frame->header.scale[0] + frame->header.translate[0];
 			xyz[ 1 ] = frame->verts[j].v[1] * frame->header.scale[1] + frame->header.translate[1];
 			xyz[ 2 ] = frame->verts[j].v[2] * frame->header.scale[2] + frame->header.translate[2];
-			pmm::pp_set_surface_x_y_z( picoSurface, i + fm_head->numXYZ, xyz );
+			pmm::pp_set_surface_xyz( picoSurface, i + fm_head->numXYZ, xyz );
 
 			/* set normal */
 			normal[ 0 ] = fm_normals[frame->verts[j].lightnormalindex][0];
@@ -607,7 +607,7 @@ static pmm::model_t *_fm_load( PM_PARAMS_LOAD ){
 			/* set st coords */
 			st[ 0 ] =  ( ( texCoord[p_index_LUT_DUPS[i].ST].s ) / ( (float)fm_head->skinWidth ) );
 			st[ 1 ] =  ( texCoord[p_index_LUT_DUPS[i].ST].t / ( (float)fm_head->skinHeight ) );
-			pmm::pp_set_surface_s_t( picoSurface, 0, i + fm_head->numXYZ, st );
+			pmm::pp_set_surface_st( picoSurface, 0, i + fm_head->numXYZ, st );
 		}
 	}
 
@@ -645,7 +645,7 @@ static pmm::model_t *_fm_load( PM_PARAMS_LOAD ){
 
 
 /* pico file format module definition */
-const pmm::module_t picoModuleFM =
+extern const pmm::module_t picoModuleFM =
 {
 	"0.85",                     /* module version string */
 	"Heretic 2 FM",             /* module display name */

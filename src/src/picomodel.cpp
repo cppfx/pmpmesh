@@ -336,7 +336,7 @@ void pmm::pp_free_model( pmm::model_t *model ){
 
 	/* free shaders */
 	for ( i = 0; i < model->num_shaders; i++ )
-		pp_free_shader( model->shader[ i ] );
+		pmm::pp_free_shader( model->shader[ i ] );
 	free( model->shader );
 
 	/* free surfaces */
@@ -410,11 +410,11 @@ int pmm::pp_adjust_model( pmm::model_t *model, int num_shaders, int num_surfaces
    ---------------------------------------------------------------------------- */
 
 /*
-   pp_new_shader()
+   pmm::pp_new_shader()
    creates a new pico shader and returns its index. -sea
  */
 
-pmm::shader_t *pp_new_shader( pmm::model_t *model ){
+pmm::shader_t *pmm::pp_new_shader( pmm::model_t *model ){
 	pmm::shader_t    *shader;
 
 
@@ -454,11 +454,11 @@ pmm::shader_t *pp_new_shader( pmm::model_t *model ){
 
 
 /*
-   pp_free_shader()
+   pmm::pp_free_shader()
    frees a shader and all associated data -sea
  */
 
-void pp_free_shader( pmm::shader_t *shader ){
+void pmm::pp_free_shader( pmm::shader_t *shader ){
 	/* dummy check */
 	if ( shader == NULL ) {
 		return;
@@ -628,7 +628,7 @@ int pmm::pp_adjust_surface( pmm::surface_t *surface, int numVertexes, int numSTA
 		numIndexes = 1;
 	}
 
-	/* additional vertexes? */
+	/* additional vertices? */
 	while ( numVertexes > surface->maxVertexes ) /* fix */
 	{
 		surface->maxVertexes += PICO_GROW_VERTEXES;
@@ -686,7 +686,7 @@ int pmm::pp_adjust_surface( pmm::surface_t *surface, int numVertexes, int numSTA
 		}
 	}
 
-	/* additional indexes? */
+	/* additional indices? */
 	while ( numIndexes > surface->maxIndexes ) /* fix */
 	{
 		surface->maxIndexes += PICO_GROW_INDEXES;
@@ -951,7 +951,7 @@ void pmm::pp_set_surface_shader( pmm::surface_t *surface, pmm::shader_t *shader 
 
 
 
-void pmm::pp_set_surface_x_y_z( pmm::surface_t *surface, int num, pmm::vec3_t xyz ){
+void pmm::pp_set_surface_xyz( pmm::surface_t *surface, int num, pmm::vec3_t xyz ){
 	if ( surface == NULL || num < 0 || xyz == NULL ) {
 		return;
 	}
@@ -978,7 +978,7 @@ void pmm::pp_set_surface_normal( pmm::surface_t *surface, int num, pmm::vec3_t n
 
 
 
-void pmm::pp_set_surface_s_t( pmm::surface_t *surface, int array, int num, pmm::vec2_t st ){
+void pmm::pp_set_surface_st( pmm::surface_t *surface, int array, int num, pmm::vec2_t st ){
 	if ( surface == NULL || num < 0 || st == NULL ) {
 		return;
 	}
@@ -1018,7 +1018,7 @@ void pmm::pp_set_surface_index( pmm::surface_t *surface, int num, pmm::index_t i
 
 
 
-void pmm::pp_set_surface_indexes( pmm::surface_t *surface, int num, pmm::index_t *index, int count ){
+void pmm::pp_set_surface_indices( pmm::surface_t *surface, int num, pmm::index_t *index, int count ){
 	if ( num < 0 || index == NULL || count < 1 ) {
 		return;
 	}
@@ -1170,7 +1170,7 @@ pmm::surface_t *pmm::pp_get_model_surface( pmm::model_t *model, int num ){
 
 
 
-int pmm::pp_get_model_total_vertexes( pmm::model_t *model ){
+int pmm::pp_get_model_total_vertices( pmm::model_t *model ){
 	int i, count;
 
 
@@ -1183,14 +1183,14 @@ int pmm::pp_get_model_total_vertexes( pmm::model_t *model ){
 
 	count = 0;
 	for ( i = 0; i < model->num_surfaces; i++ )
-		count += pmm::pp_get_surface_num_vertexes( model->surface[ i ] );
+		count += pmm::pp_get_surface_num_vertices( model->surface[ i ] );
 
 	return count;
 }
 
 
 
-int pmm::pp_get_model_total_indexes( pmm::model_t *model ){
+int pmm::pp_get_model_total_indices( pmm::model_t *model ){
 	int i, count;
 
 
@@ -1203,7 +1203,7 @@ int pmm::pp_get_model_total_indexes( pmm::model_t *model ){
 
 	count = 0;
 	for ( i = 0; i < model->num_surfaces; i++ )
-		count += pmm::pp_get_surface_num_indexes( model->surface[ i ] );
+		count += pmm::pp_get_surface_num_indices( model->surface[ i ] );
 
 	return count;
 }
@@ -1318,7 +1318,7 @@ pmm::shader_t *pmm::pp_get_surface_shader( pmm::surface_t *surface ){
 
 
 
-int pmm::pp_get_surface_num_vertexes( pmm::surface_t *surface ){
+int pmm::pp_get_surface_num_vertices( pmm::surface_t *surface ){
 	if ( surface == NULL ) {
 		return 0;
 	}
@@ -1327,7 +1327,7 @@ int pmm::pp_get_surface_num_vertexes( pmm::surface_t *surface ){
 
 
 
-pmm::vec_t *pmm::pp_get_surface_x_y_z( pmm::surface_t *surface, int num ){
+pmm::vec_t *pmm::pp_get_surface_xyz( pmm::surface_t *surface, int num ){
 	if ( surface == NULL || num < 0 || num > surface->numVertexes ) {
 		return NULL;
 	}
@@ -1345,7 +1345,7 @@ pmm::vec_t *pmm::pp_get_surface_normal( pmm::surface_t *surface, int num ){
 
 
 
-pmm::vec_t *pmm::pp_get_surface_s_t( pmm::surface_t *surface, int array, int num  ){
+pmm::vec_t *pmm::pp_get_surface_st( pmm::surface_t *surface, int array, int num  ){
 	if ( surface == NULL || array < 0 || array > surface->numSTArrays || num < 0 || num > surface->numVertexes ) {
 		return NULL;
 	}
@@ -1363,7 +1363,7 @@ pmm::byte_t *pmm::pp_get_surface_color( pmm::surface_t *surface, int array, int 
 
 
 
-int pmm::pp_get_surface_num_indexes( pmm::surface_t *surface ){
+int pmm::pp_get_surface_num_indices( pmm::surface_t *surface ){
 	if ( surface == NULL ) {
 		return 0;
 	}
@@ -1381,7 +1381,7 @@ pmm::index_t pmm::pp_get_surface_index( pmm::surface_t *surface, int num ){
 
 
 
-pmm::index_t *pmm::pp_get_surface_indexes( pmm::surface_t *surface, int num ){
+pmm::index_t *pmm::pp_get_surface_indices( pmm::surface_t *surface, int num ){
 	if ( surface == NULL || num < 0 || num > surface->numIndexes ) {
 		return NULL;
 	}
@@ -2286,7 +2286,7 @@ void pmm::pp_add_triangle_to_model( pmm::model_t *model, pmm::vec3_t** xyz, pmm:
 	for ( i = 0 ; i < 3 ; i++ )
 	{
 		/* get the next free spot in the index array */
-		int newVertIndex = pmm::pp_get_surface_num_indexes( workSurface );
+		int newVertIndex = pmm::pp_get_surface_num_indices( workSurface );
 
 		/* get the index of the vertex that we're going to store at newVertIndex */
 		vertDataIndex = pmm::pp_find_surface_vertex_num( workSurface, *xyz[i], *normals[i], numSTs, st[i], numColors, colors[i], smoothingGroup[i] );
@@ -2294,10 +2294,10 @@ void pmm::pp_add_triangle_to_model( pmm::model_t *model, pmm::vec3_t** xyz, pmm:
 		/* the vertex wasn't found, so create a new vertex in the pool from the data we have */
 		if ( vertDataIndex == -1 ) {
 			/* find the next spot for a new vertex */
-			vertDataIndex = pmm::pp_get_surface_num_vertexes( workSurface );
+			vertDataIndex = pmm::pp_get_surface_num_vertices( workSurface );
 
 			/* assign the data to it */
-			pmm::pp_set_surface_x_y_z( workSurface,vertDataIndex, *xyz[i] );
+			pmm::pp_set_surface_xyz( workSurface,vertDataIndex, *xyz[i] );
 			pmm::pp_set_surface_normal( workSurface, vertDataIndex, *normals[i] );
 
 			/* make sure to copy over all available ST's and colors for the vertex */
@@ -2307,7 +2307,7 @@ void pmm::pp_add_triangle_to_model( pmm::model_t *model, pmm::vec3_t** xyz, pmm:
 			}
 			for ( j = 0 ; j < numSTs ; j++ )
 			{
-				pmm::pp_set_surface_s_t( workSurface, j, vertDataIndex, st[i][j] );
+				pmm::pp_set_surface_st( workSurface, j, vertDataIndex, st[i][j] );
 			}
 
 			pmm::pp_set_surface_smoothing_group( workSurface, vertDataIndex, smoothingGroup[i] );

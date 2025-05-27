@@ -222,7 +222,7 @@ static pmm::model_t *_lwo_load( PM_PARAMS_LOAD ){
 		pmm::pp_set_surface_name( picoSurface, surface->name );
 
 		/* create new pico shader */
-		picoShader = pp_new_shader( picoModel );
+		picoShader = pmm::pp_new_shader( picoModel );
 		if ( picoShader == NULL ) {
 			_pico_printf( pmm::pl_error, "Unable to allocate a new model shader" );
 			pmm::pp_free_model( picoModel );
@@ -360,7 +360,7 @@ static pmm::model_t *_lwo_load( PM_PARAMS_LOAD ){
 					}
 
 					/* add the vertex to this surface */
-					pmm::pp_set_surface_x_y_z( picoSurface, numverts, xyz );
+					pmm::pp_set_surface_xyz( picoSurface, numverts, xyz );
 
 					/* set dummy normal */
 					pmm::pp_set_surface_normal( picoSurface, numverts, normal );
@@ -369,7 +369,7 @@ static pmm::model_t *_lwo_load( PM_PARAMS_LOAD ){
 					pmm::pp_set_surface_color( picoSurface, 0, numverts, color );
 
 					/* set st coords */
-					pmm::pp_set_surface_s_t( picoSurface, 0, numverts, st );
+					pmm::pp_set_surface_st( picoSurface, 0, numverts, st );
 
 					/* set index */
 					pmm::pp_set_surface_index( picoSurface, ( i * 3 + j ), (pmm::index_t) numverts );
@@ -404,7 +404,7 @@ static pmm::model_t *_lwo_load( PM_PARAMS_LOAD ){
 }
 
 /* pico file format module definition */
-const pmm::module_t picoModuleLWO =
+extern const pmm::module_t picoModuleLWO =
 {
 	"1.0",                      /* module version string */
 	"LightWave Object",         /* module display name */

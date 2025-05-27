@@ -347,7 +347,7 @@ static pmm::model_t *_ms3d_load( PM_PARAMS_LOAD ){
 				vertex = (TMsVertex *)( ptrToVerts + ( sizeof( TMsVertex ) * vertexIndex ) );
 
 				/* store vertex origin */
-				pmm::pp_set_surface_x_y_z( surface,vertexIndex,vertex->xyz );
+				pmm::pp_set_surface_xyz( surface,vertexIndex,vertex->xyz );
 
 				/* store vertex color */
 				pmm::pp_set_surface_color( surface,0,vertexIndex,white );
@@ -363,7 +363,7 @@ static pmm::model_t *_ms3d_load( PM_PARAMS_LOAD ){
 				texCoord[ 1 ] = -triangle->t[ m ];  /* flip t */
 
 				/* store texture vertex coord */
-				pmm::pp_set_surface_s_t( surface,0,vertexIndex,texCoord );
+				pmm::pp_set_surface_st( surface,0,vertexIndex,texCoord );
 			}
 		}
 		/* store material */
@@ -406,7 +406,7 @@ static pmm::model_t *_ms3d_load( PM_PARAMS_LOAD ){
 		_pico_strrtrim( material->alphamap );
 
 		/* create new pico shader */
-		shader = pp_new_shader( model );
+		shader = pmm::pp_new_shader( model );
 		if ( shader == NULL ) {
 			pmm::pp_free_model( model );
 			_pico_free( bufptr0 );
@@ -479,7 +479,7 @@ static pmm::model_t *_ms3d_load( PM_PARAMS_LOAD ){
 }
 
 /* pico file format module definition */
-const pmm::module_t picoModuleMS3D =
+extern const pmm::module_t picoModuleMS3D =
 {
 	"0.4-a",                    /* module version string */
 	"Milkshape 3D",             /* module display name */

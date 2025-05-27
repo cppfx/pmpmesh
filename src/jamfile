@@ -12,7 +12,7 @@ pmpmesh-prj-srcs =
 
 	picointernal.cpp
 	picomodel.cpp
-	picomodules.cpp
+
 	pm_3ds.cpp
 	pm_ase.cpp
 	pm_fm.cpp
@@ -24,6 +24,8 @@ pmpmesh-prj-srcs =
 	pm_ms3d.cpp
 	pm_obj.cpp
 	pm_terrain.cpp
+
+	picomodules.cpp
 ;
 pmpmesh-prj-srcs = src/$(pmpmesh-prj-srcs) ;
 pmpmesh-prj-srcs = $(pmpmesh-prj-src-dir)/$(pmpmesh-prj-srcs) ;

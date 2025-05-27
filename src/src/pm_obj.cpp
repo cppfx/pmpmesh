@@ -294,7 +294,7 @@ static int _obj_mtl_load( pmm::model_t *model ){
 				_obj_mtl_error_return;
 			}
 			/* create a new pico shader */
-			shader = pp_new_shader( model );
+			shader = pmm::pp_new_shader( model );
 			if ( shader == NULL ) {
 				_obj_mtl_error_return;
 			}
@@ -324,7 +324,7 @@ static int _obj_mtl_load( pmm::model_t *model ){
 				_obj_mtl_error_return;
 			}
 			/* create a new pico shader */
-			shader = pp_new_shader( model );
+			shader = pmm::pp_new_shader( model );
 			if ( shader == NULL ) {
 				_obj_mtl_error_return;
 			}
@@ -858,8 +858,8 @@ static pmm::model_t *_obj_load( PM_PARAMS_LOAD ){
 				/* assign all surface information */
 				for ( i = 0; i < max; i++ )
 				{
-					/*if( has_v  )*/ pmm::pp_set_surface_x_y_z( curSurface,  ( curVertex + i ), verts  [ i ] );
-					/*if( has_vt )*/ pmm::pp_set_surface_s_t( curSurface,0,( curVertex + i ), coords [ i ] );
+					/*if( has_v  )*/ pmm::pp_set_surface_xyz( curSurface,  ( curVertex + i ), verts  [ i ] );
+					/*if( has_vt )*/ pmm::pp_set_surface_st( curSurface,0,( curVertex + i ), coords [ i ] );
 					/*if( has_vn )*/ pmm::pp_set_surface_normal( curSurface,  ( curVertex + i ), normals[ i ] );
 				}
 				/* add our triangle (A B C) */
@@ -904,7 +904,7 @@ static pmm::model_t *_obj_load( PM_PARAMS_LOAD ){
 					_pico_printf( pmm::pl_warning,"Undefined material name in OBJ, line %d. Making a default shader.",p->curLine );
 
 					/* create a new pico shader */
-					shader = pp_new_shader( model );
+					shader = pmm::pp_new_shader( model );
 					if ( shader != NULL ) {
 						pmm::pp_set_shader_name( shader,name );
 						pmm::pp_set_shader_map_name( shader,name );
@@ -929,7 +929,7 @@ static pmm::model_t *_obj_load( PM_PARAMS_LOAD ){
 }
 
 /* pico file format module definition */
-const pmm::module_t picoModuleOBJ =
+extern const pmm::module_t picoModuleOBJ =
 {
 	"0.6-b",                    /* module version string */
 	"Wavefront ASCII",          /* module display name */

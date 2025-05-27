@@ -497,7 +497,7 @@ static pmm::model_t *_mdl_load(PM_PARAMS_LOAD) {
 	pmm::pp_set_surface_type(picoSurface, pmm::st_triangles);
 
 	/* create new pico shader */
-	picoShader = pp_new_shader(picoModel);
+	picoShader = pmm::pp_new_shader(picoModel);
 	if (picoShader == NULL) {
 		_pico_printf(pmm::pl_error, "Unable to allocate a new model shader");
 		pmm::pp_free_model(picoModel);
@@ -566,7 +566,7 @@ static pmm::model_t *_mdl_load(PM_PARAMS_LOAD) {
 			xyz[0] = vertex->v[0] * mdlHeader->scale[0] + mdlHeader->scaleOrigin[0];
 			xyz[1] = vertex->v[1] * mdlHeader->scale[1] + mdlHeader->scaleOrigin[1];
 			xyz[2] = vertex->v[2] * mdlHeader->scale[2] + mdlHeader->scaleOrigin[2];
-			pmm::pp_set_surface_x_y_z(picoSurface, iCurrent, xyz);
+			pmm::pp_set_surface_xyz(picoSurface, iCurrent, xyz);
 
 			/* add texture coordinate */
 			st[0] = _pico_little_long(textCoord->s);
@@ -578,7 +578,7 @@ static pmm::model_t *_mdl_load(PM_PARAMS_LOAD) {
 			/* Scale s and t to range from 0.0 to 1.0 */
 			st[0] = (st[0] + 0.5f) / mdlHeader->skinWidth;
 			st[1] = 1.0f - (st[1] + 0.5f) / mdlHeader->skinHeight;
-			pmm::pp_set_surface_s_t(picoSurface, 0, iCurrent, st);
+			pmm::pp_set_surface_st(picoSurface, 0, iCurrent, st);
 
 			/* copy normal */
 			pmm::pp_set_surface_normal(picoSurface, iCurrent, mdpl_normals[vertex->normalIndex]);
@@ -595,7 +595,7 @@ static pmm::model_t *_mdl_load(PM_PARAMS_LOAD) {
 
 
 /* pico file format module definition */
-const pmm::module_t picoModuleMDL =
+extern const pmm::module_t picoModuleMDL =
 {
 	"1.0",                      /* module version string */
 	"Quake Model Format",       /* module display name */

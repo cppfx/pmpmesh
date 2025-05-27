@@ -486,8 +486,8 @@ public:
 	int dim;
 	int nverts;
 	int perpoly;
-	int           *vindex;             /* array of point indexes */
-	int           *pindex;             /* array of polygon indexes */
+	int           *vindex;             /* array of point indices */
+	int           *pindex;             /* array of polygon indices */
 	float        **val;
 };
 
@@ -506,7 +506,7 @@ class lwPoint
 public:
 	float pos[ 3 ];
 	int npols;                         /* number of polygons sharing the point */
-	int           *pol;                /* array of polygon indexes */
+	int           *pol;                /* array of polygon indices */
 	int nvmaps;
 	lwVMapPt      *vm;                 /* array of vmap references */
 };

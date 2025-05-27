@@ -306,7 +306,7 @@ void lwGetPolyNormals( lwPointList *point, lwPolygonList *polygon ){
    ======================================================================
    lwGetPointPolygons()
 
-   For each point, fill in the indexes of the polygons that share the
+   For each point, fill in the indices of the polygons that share the
    point.  Returns 0 if any of the memory allocations fail, otherwise
    returns 1.
    ====================================================================== */
@@ -351,7 +351,7 @@ int lwGetPointPolygons( lwPointList *point, lwPolygonList *polygon ){
    ======================================================================
    lwResolvePolySurfaces()
 
-   Convert tag indexes into actual lwSurface pointers.  If any polygons
+   Convert tag indices into actual lwSurface pointers.  If any polygons
    point to tags for which no corresponding surface can be found, a
    default surface is created.
    ====================================================================== */

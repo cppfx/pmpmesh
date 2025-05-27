@@ -253,12 +253,12 @@ void                        pp_set_surface_data( pmm::surface_t *surface, void *
 void                        pp_set_surface_type( pmm::surface_t *surface, pmm::surface_type type );
 void                        pp_set_surface_name( pmm::surface_t *surface, const char *name );
 void                        pp_set_surface_shader( pmm::surface_t *surface, pmm::shader_t *shader );
-void                        pp_set_surface_x_y_z( pmm::surface_t *surface, int num, pmm::vec3_t xyz );
+void                        pp_set_surface_xyz( pmm::surface_t *surface, int num, pmm::vec3_t xyz );
 void                        pp_set_surface_normal( pmm::surface_t *surface, int num, pmm::vec3_t normal );
-void                        pp_set_surface_s_t( pmm::surface_t *surface, int array, int num, pmm::vec2_t st );
+void                        pp_set_surface_st( pmm::surface_t *surface, int array, int num, pmm::vec2_t st );
 void                        pp_set_surface_color( pmm::surface_t *surface, int array, int num, pmm::color_t color );
 void                        pp_set_surface_index( pmm::surface_t *surface, int num, pmm::index_t index );
-void                        pp_set_surface_indexes( pmm::surface_t *surface, int num, pmm::index_t *index, int count );
+void                        pp_set_surface_indices( pmm::surface_t *surface, int num, pmm::index_t *index, int count );
 void                        pp_set_face_normal( pmm::surface_t *surface, int num, pmm::vec3_t normal );
 void                        pp_set_surface_special( pmm::surface_t *surface, int num, int special );
 void                        pp_set_surface_smoothing_group( pmm::surface_t *surface, int num, pmm::index_t smoothingGroup );
@@ -273,8 +273,8 @@ int                         pp_get_model_num_shaders( pmm::model_t *model );
 pmm::shader_t                *pp_get_model_shader( pmm::model_t *model, int num ); /* sea */
 int                         pp_get_model_num_surfaces( pmm::model_t *model );
 pmm::surface_t               *pp_get_model_surface( pmm::model_t *model, int num );
-int                         pp_get_model_total_vertexes( pmm::model_t *model );
-int                         pp_get_model_total_indexes( pmm::model_t *model );
+int                         pp_get_model_total_vertices( pmm::model_t *model );
+int                         pp_get_model_total_indices( pmm::model_t *model );
 
 char                        *pp_get_shader_name( pmm::shader_t *shader );
 char                        *pp_get_shader_map_name( pmm::shader_t *shader );
@@ -288,14 +288,14 @@ void                        *pp_get_surface_data( pmm::surface_t *surface );
 char                        *pp_get_surface_name( pmm::surface_t *surface );      /* sea */
 pmm::surface_type           pp_get_surface_type( pmm::surface_t *surface );
 pmm::shader_t                *pp_get_surface_shader( pmm::surface_t *surface );    /* sea */
-int                         pp_get_surface_num_vertexes( pmm::surface_t *surface );
-pmm::vec_t                   *pp_get_surface_x_y_z( pmm::surface_t *surface, int num );
+int                         pp_get_surface_num_vertices( pmm::surface_t *surface );
+pmm::vec_t                   *pp_get_surface_xyz( pmm::surface_t *surface, int num );
 pmm::vec_t                   *pp_get_surface_normal( pmm::surface_t *surface, int num );
-pmm::vec_t                   *pp_get_surface_s_t( pmm::surface_t *surface, int array, int num );
+pmm::vec_t                   *pp_get_surface_st( pmm::surface_t *surface, int array, int num );
 pmm::byte_t                  *pp_get_surface_color( pmm::surface_t *surface, int array, int num );
-int                         pp_get_surface_num_indexes( pmm::surface_t *surface );
+int                         pp_get_surface_num_indices( pmm::surface_t *surface );
 pmm::index_t                 pp_get_surface_index( pmm::surface_t *surface, int num );
-pmm::index_t                 *pp_get_surface_indexes( pmm::surface_t *surface, int num );
+pmm::index_t                 *pp_get_surface_indices( pmm::surface_t *surface, int num );
 pmm::vec_t                   *pp_get_face_normal( pmm::surface_t *surface, int num );
 int                         pp_get_surface_special( pmm::surface_t *surface, int num );
 

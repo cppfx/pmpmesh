@@ -458,7 +458,7 @@ static pmm::model_t *_md2_load( PM_PARAMS_LOAD ){
 
 	pmm::pp_set_surface_type( picoSurface, pmm::st_triangles );
 	pmm::pp_set_surface_name( picoSurface, frame->name );
-	picoShader = pp_new_shader( picoModel );
+	picoShader = pmm::pp_new_shader( picoModel );
 	if ( picoShader == NULL ) {
 		_pico_printf( pmm::pl_error, "Unable to allocate a new model shader" );
 		pmm::pp_free_model( picoModel );
@@ -576,7 +576,7 @@ static pmm::model_t *_md2_load( PM_PARAMS_LOAD ){
 		xyz[ 0 ] = vertex->v[0] * frame->scale[0] + frame->translate[0];
 		xyz[ 1 ] = vertex->v[1] * frame->scale[1] + frame->translate[1];
 		xyz[ 2 ] = vertex->v[2] * frame->scale[2] + frame->translate[2];
-		pmm::pp_set_surface_x_y_z( picoSurface, i, xyz );
+		pmm::pp_set_surface_xyz( picoSurface, i, xyz );
 
 		/* set normal */
 		normal[ 0 ] = md2_normals[vertex->lightnormalindex][0];
@@ -587,7 +587,7 @@ static pmm::model_t *_md2_load( PM_PARAMS_LOAD ){
 		/* set st coords */
 		st[ 0 ] =  ( ( texCoord[p_index_LUT[i].ST].s ) / ( (float)md2->skinWidth ) );
 		st[ 1 ] =  ( texCoord[p_index_LUT[i].ST].t / ( (float)md2->skinHeight ) );
-		pmm::pp_set_surface_s_t( picoSurface, 0, i, st );
+		pmm::pp_set_surface_st( picoSurface, 0, i, st );
 	}
 
 	if ( dups ) {
@@ -598,7 +598,7 @@ static pmm::model_t *_md2_load( PM_PARAMS_LOAD ){
 			xyz[ 0 ] = frame->verts[j].v[0] * frame->scale[0] + frame->translate[0];
 			xyz[ 1 ] = frame->verts[j].v[1] * frame->scale[1] + frame->translate[1];
 			xyz[ 2 ] = frame->verts[j].v[2] * frame->scale[2] + frame->translate[2];
-			pmm::pp_set_surface_x_y_z( picoSurface, i + md2->numXYZ, xyz );
+			pmm::pp_set_surface_xyz( picoSurface, i + md2->numXYZ, xyz );
 
 			/* set normal */
 			normal[ 0 ] = md2_normals[frame->verts[j].lightnormalindex][0];
@@ -609,7 +609,7 @@ static pmm::model_t *_md2_load( PM_PARAMS_LOAD ){
 			/* set st coords */
 			st[ 0 ] =  ( ( texCoord[p_index_LUT_DUPS[i].ST].s ) / ( (float)md2->skinWidth ) );
 			st[ 1 ] =  ( texCoord[p_index_LUT_DUPS[i].ST].t / ( (float)md2->skinHeight ) );
-			pmm::pp_set_surface_s_t( picoSurface, 0, i + md2->numXYZ, st );
+			pmm::pp_set_surface_st( picoSurface, 0, i + md2->numXYZ, st );
 		}
 	}
 
@@ -647,7 +647,7 @@ static pmm::model_t *_md2_load( PM_PARAMS_LOAD ){
 
 
 /* pico file format module definition */
-const pmm::module_t picoModuleMD2 =
+extern const pmm::module_t picoModuleMD2 =
 {
 	"0.875",                        /* module version string */
 	"Quake 2 MD2",                  /* module display name */

@@ -356,7 +356,7 @@ public:
 class mdcTriangle_t
 {
 public:
-	int indexes[ 3 ];
+	int indices[ 3 ];
 };
 
 class mdcTexCoord_t
@@ -540,9 +540,9 @@ static pmm::model_t *_mdc_load( PM_PARAMS_LOAD ){
 		for ( j = 0; j < surface->numTriangles; j++, triangle++ )
 		{
 			/* sea: swaps fixed */
-			triangle->indexes[ 0 ] = _pico_little_long( triangle->indexes[ 0 ] );
-			triangle->indexes[ 1 ] = _pico_little_long( triangle->indexes[ 1 ] );
-			triangle->indexes[ 2 ] = _pico_little_long( triangle->indexes[ 2 ] );
+			triangle->indices[ 0 ] = _pico_little_long( triangle->indices[ 0 ] );
+			triangle->indices[ 1 ] = _pico_little_long( triangle->indices[ 1 ] );
+			triangle->indices[ 2 ] = _pico_little_long( triangle->indices[ 2 ] );
 		}
 
 		/* swap st coords */
@@ -628,7 +628,7 @@ static pmm::model_t *_mdc_load( PM_PARAMS_LOAD ){
 		pmm::pp_set_surface_name( picoSurface, surface->name );
 
 		/* create new pico shader -sea */
-		picoShader = pp_new_shader( picoModel );
+		picoShader = pmm::pp_new_shader( picoModel );
 		if ( picoShader == NULL ) {
 			_pico_printf( pmm::pl_error, "Unable to allocate a new model shader" );
 			pmm::pp_free_model( picoModel );
@@ -645,17 +645,17 @@ static pmm::model_t *_mdc_load( PM_PARAMS_LOAD ){
 		/* associate current surface with newly created shader */
 		pmm::pp_set_surface_shader( picoSurface, picoShader );
 
-		/* copy indexes */
+		/* copy indices */
 		triangle = (mdcTriangle_t *) ( (pmm::byte_t*) surface + surface->ofsTriangles );
 
 		for ( j = 0; j < surface->numTriangles; j++, triangle++ )
 		{
-			pmm::pp_set_surface_index( picoSurface, ( j * 3 + 0 ), (pmm::index_t) triangle->indexes[ 0 ] );
-			pmm::pp_set_surface_index( picoSurface, ( j * 3 + 1 ), (pmm::index_t) triangle->indexes[ 1 ] );
-			pmm::pp_set_surface_index( picoSurface, ( j * 3 + 2 ), (pmm::index_t) triangle->indexes[ 2 ] );
+			pmm::pp_set_surface_index( picoSurface, ( j * 3 + 0 ), (pmm::index_t) triangle->indices[ 0 ] );
+			pmm::pp_set_surface_index( picoSurface, ( j * 3 + 1 ), (pmm::index_t) triangle->indices[ 1 ] );
+			pmm::pp_set_surface_index( picoSurface, ( j * 3 + 2 ), (pmm::index_t) triangle->indices[ 2 ] );
 		}
 
-		/* copy vertexes */
+		/* copy vertices */
 		texCoord = (mdcTexCoord_t*) ( (pmm::byte_t *) surface + surface->ofsSt );
 		mdcShort = (short *) ( (pmm::byte_t *) surface + surface->ofsXyzNormals ) + ( (int)*( (short *) ( (pmm::byte_t *) surface + surface->ofsFrameBaseFrames ) + frameNum ) * surface->numVerts * 4 );
 		if ( surface->numCompFrames > 0 ) {
@@ -678,7 +678,7 @@ static pmm::model_t *_mdc_load( PM_PARAMS_LOAD ){
 				xyz[ 0 ] += ( (float) ( ( vertexComp->ofsVec ) & 255 ) - MDC_MAX_OFS ) * MDC_DIST_SCALE;
 				xyz[ 1 ] += ( (float) ( ( vertexComp->ofsVec >> 8 ) & 255 ) - MDC_MAX_OFS ) * MDC_DIST_SCALE;
 				xyz[ 2 ] += ( (float) ( ( vertexComp->ofsVec >> 16 ) & 255 ) - MDC_MAX_OFS ) * MDC_DIST_SCALE;
-				pmm::pp_set_surface_x_y_z( picoSurface, j, xyz );
+				pmm::pp_set_surface_xyz( picoSurface, j, xyz );
 
 				normal[ 0 ] = (float) mdcNormals[ ( vertexComp->ofsVec >> 24 ) ][ 0 ];
 				normal[ 1 ] = (float) mdcNormals[ ( vertexComp->ofsVec >> 24 ) ][ 1 ];
@@ -689,7 +689,7 @@ static pmm::model_t *_mdc_load( PM_PARAMS_LOAD ){
 			}
 			else
 			{
-				pmm::pp_set_surface_x_y_z( picoSurface, j, xyz );
+				pmm::pp_set_surface_xyz( picoSurface, j, xyz );
 
 				/* decode lat/lng normal to 3 float normal */
 				lat = (float) ( ( *( mdcShort + 3 ) >> 8 ) & 0xff );
@@ -705,7 +705,7 @@ static pmm::model_t *_mdc_load( PM_PARAMS_LOAD ){
 			/* set st coords */
 			st[ 0 ] = texCoord->st[ 0 ];
 			st[ 1 ] = texCoord->st[ 1 ];
-			pmm::pp_set_surface_s_t( picoSurface, 0, j, st );
+			pmm::pp_set_surface_st( picoSurface, 0, j, st );
 
 			/* set color */
 			pmm::pp_set_surface_color( picoSurface, 0, j, color );
@@ -723,7 +723,7 @@ static pmm::model_t *_mdc_load( PM_PARAMS_LOAD ){
 
 
 /* pico file format module definition */
-const pmm::module_t picoModuleMDC =
+extern const pmm::module_t picoModuleMDC =
 {
 	"1.3",                          /* module version string */
 	"RtCW MDC",                     /* module display name */

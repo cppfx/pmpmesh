@@ -486,7 +486,7 @@ static pmm::model_t *_terrain_load( PM_PARAMS_LOAD ) {
 	pmm::pp_set_surface_name( picoSurface, "picoterrain" );
 
 	/* create new pico shader */
-	picoShader = pp_new_shader( picoModel );
+	picoShader = pmm::pp_new_shader( picoModel );
 	if ( picoShader == NULL ) {
 		_pico_printf( pmm::pl_error, "Unable to allocate a new model shader" );
 		pmm::pp_free_model( picoModel );
@@ -522,7 +522,7 @@ static pmm::model_t *_terrain_load( PM_PARAMS_LOAD ) {
 			_pico_set_vec( xyz, origin[ 0 ] + scale[ 0 ] * i,
 						   origin[ 1 ] + scale[ 1 ] * j,
 						   origin[ 2 ] + scale[ 2 ] * heightPixel[ 0 ] );
-			pmm::pp_set_surface_x_y_z( picoSurface, v, xyz );
+			pmm::pp_set_surface_xyz( picoSurface, v, xyz );
 
 			/* set normal */
 			pmm::pp_set_surface_normal( picoSurface, v, normal );
@@ -530,7 +530,7 @@ static pmm::model_t *_terrain_load( PM_PARAMS_LOAD ) {
 			/* set st */
 			st[ 0 ] = (float) i;
 			st[ 1 ] = (float) j;
-			pmm::pp_set_surface_s_t( picoSurface, 0, v, st );
+			pmm::pp_set_surface_st( picoSurface, 0, v, st );
 
 			/* set color */
 			if ( colorPixel != NULL ) {
@@ -543,7 +543,7 @@ static pmm::model_t *_terrain_load( PM_PARAMS_LOAD ) {
 
 			/* set triangles (zero alpha in heightmap suppresses this quad) */
 			if ( i < ( w - 1 ) && j < ( h - 1 ) && heightPixel[ 3 ] >= 128 ) {
-				/* set indexes */
+				/* set indices */
 				pw[ 0 ] = i + ( j * w );
 				pw[ 1 ] = i + ( ( j + 1 ) * w );
 				pw[ 2 ] = i + 1 + ( ( j + 1 ) * w );
@@ -578,7 +578,7 @@ static pmm::model_t *_terrain_load( PM_PARAMS_LOAD ) {
 
 
 /* pico file format module definition */
-const pmm::module_t picoModuleTerrain =
+extern const pmm::module_t picoModuleTerrain =
 {
 	"1.3",                      /* module version string */
 	"PicoTerrain",              /* module display name */
