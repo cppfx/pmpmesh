@@ -71,7 +71,7 @@ static int add_clip( char *s, lwClip **clist, int *nclips ){
 	clip->saturation.val = 1.0f;
 	clip->gamma.val = 1.0f;
 
-	if ( ( p = strstr( s, "(sequence)" ) ) != NULL ) {
+	if ( ( p = strstr( s, "(sequence)" ) ) != nullptr ) {
 		p[ -1 ] = 0;
 		clip->type = ID_ISEQ;
 		clip->source.seq.prefix = s;
@@ -152,7 +152,7 @@ static lwTexture *get_texture( char *s ){
 
 	tex = reinterpret_cast<decltype(tex)>(_pico_calloc(1, sizeof(lwTexture)));
 	if ( !tex ) {
-		return NULL;
+		return nullptr;
 	}
 
 	tex->tmap.size.val[ 0 ] =
@@ -200,8 +200,8 @@ static lwTexture *get_texture( char *s ){
 
 lwSurface *lwGetSurface5( picoMemStream_t *fp, int cksize, lwObject *obj ){
 	lwSurface *surf;
-	lwTexture *tex = NULL;
-	lwPlugin *shdr = NULL;
+	lwTexture *tex = nullptr;
+	lwPlugin *shdr = nullptr;
 	char *s;
 	float v[ 3 ];
 	unsigned int id, flags;
@@ -380,7 +380,7 @@ lwSurface *lwGetSurface5( picoMemStream_t *fp, int cksize, lwObject *obj ){
 			break;
 
 		case ID_TFLG:
-			if( tex == NULL ) {
+			if( tex == nullptr ) {
 				goto Fail;
 			}
 
@@ -588,7 +588,7 @@ Fail:
 	if ( surf ) {
 		lwFreeSurface( surf );
 	}
-	return NULL;
+	return nullptr;
 }
 
 
@@ -684,7 +684,7 @@ Fail:
    ======================================================================
    getLWObject5()
 
-   Returns the contents of an LWOB, given its filename, or NULL if the
+   Returns the contents of an LWOB, given its filename, or nullptr if the
    file couldn't be loaded.  On failure, failID and failpos can be used
    to diagnose the cause.
 
@@ -698,7 +698,7 @@ Fail:
    3.  If the file couldn't be opened, or an error occurs while reading
     the first 12 bytes, both failID and failpos will be unchanged.
 
-   If you don't need this information, failID and failpos can be NULL.
+   If you don't need this information, failID and failpos can be nullptr.
    ====================================================================== */
 
 lwObject *lwGetObject5( const char *filename, picoMemStream_t *fp, unsigned int *failID, int *failpos ){
@@ -711,7 +711,7 @@ lwObject *lwGetObject5( const char *filename, picoMemStream_t *fp, unsigned int 
 	/* open the file */
 
 	if ( !fp ) {
-		return NULL;
+		return nullptr;
 	}
 
 	/* read the first 12 bytes */
@@ -721,7 +721,7 @@ lwObject *lwGetObject5( const char *filename, picoMemStream_t *fp, unsigned int 
 	formsize = getU4( fp );
 	type     = getU4( fp );
 	if ( 12 != get_flen() ) {
-		return NULL;
+		return nullptr;
 	}
 
 	/* LWOB? */
@@ -730,7 +730,7 @@ lwObject *lwGetObject5( const char *filename, picoMemStream_t *fp, unsigned int 
 		if ( failpos ) {
 			*failpos = 12;
 		}
-		return NULL;
+		return nullptr;
 	}
 
 	/* allocate an object and a default layer */
@@ -834,7 +834,7 @@ Fail:
 		}
 	}
 	lwFreeObject( object );
-	return NULL;
+	return nullptr;
 }
 
 int lwValidateObject5( const char *filename, picoMemStream_t *fp, unsigned int *failID, int *failpos ){

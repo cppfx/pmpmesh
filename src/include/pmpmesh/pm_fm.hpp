@@ -169,8 +169,8 @@ public:
 class fm_vert_normal_t
 {
 public:
-	pmm::byte_t v[3];                          //	scaled by header info
-	pmm::byte_t lightnormalindex;              //	index in canned table of closest vertex normal
+	pmm::ub8_t v[3];                          //	scaled by header info
+	pmm::ub8_t lightnormalindex;              //	index in canned table of closest vertex normal
 };
 
 class fm_framehdr_t

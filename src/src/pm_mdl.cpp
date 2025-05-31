@@ -265,7 +265,7 @@ class mdl_skin_t
 {
 public:
 	int group; /* 0 = single, 1 = group */
-	pmm::byte_t *data; /* texture data */
+	pmm::ub8_t *data; /* texture data */
 };
 
 /* Group of pictures */
@@ -275,7 +275,7 @@ public:
 	int group; /* 1 = group */
 	int numTextures; /* number of pics */
 	float *time; /* time duration for each pic */
-	pmm::byte_t **data; /* texture data */
+	pmm::ub8_t **data; /* texture data */
 };
 
 /* Simple frame description */
@@ -380,13 +380,13 @@ static pmm::model_t *_mdl_load(PM_PARAMS_LOAD) {
 	pmm::surface_t *picoSurface;
 	pmm::shader_t *picoShader;
 	mdl_header_t *mdlHeader;
-	pmm::byte_t *ptr, *buff;
+	pmm::ub8_t *ptr, *buff;
 	pmm::vec2_t st;
 	pmm::vec3_t xyz;
 	mdl_skin_t *skin;
 	mdl_texcoord_t *ofsSt;
 	mdl_triangle_t *ofsTriangles;
-	mdl_vertex_t *ofsVerts = NULL;
+	mdl_vertex_t *ofsVerts = nullptr;
 	mdl_frame_t *frame;
 	int i;
 	char texturePath[256];
@@ -396,7 +396,7 @@ static pmm::model_t *_mdl_load(PM_PARAMS_LOAD) {
 	------------------------------------------------- */
 
 	/* set as mdl */
-	buff = ptr = (pmm::byte_t*)_pico_alloc(bufSize);
+	buff = ptr = (pmm::ub8_t*)_pico_alloc(bufSize);
 	memcpy(ptr, buffer, bufSize);
 	mdlHeader = (mdl_header_t*)ptr;
 
@@ -404,7 +404,7 @@ static pmm::model_t *_mdl_load(PM_PARAMS_LOAD) {
 	if (mdlHeader->ident != *((int*)MDL_ident) || _pico_little_long(mdlHeader->version) != MDL_version) {
 		_pico_printf(pmm::pl_error, "%s is not an MDL File!", fileName);
 		_pico_free(buff);
-		return NULL;
+		return nullptr;
 	}
 
 	/* swap header */
@@ -430,13 +430,13 @@ static pmm::model_t *_mdl_load(PM_PARAMS_LOAD) {
 	if (mdlHeader->numFrames < 1) {
 		_pico_printf(pmm::pl_error, "MDL with 0 frames");
 		_pico_free(buff);
-		return NULL;
+		return nullptr;
 	}
 
 	if (frameNum < 0 || frameNum >= mdlHeader->numFrames) {
 		_pico_printf(pmm::pl_error, "Invalid or out-of-range MDL frame specified");
 		_pico_free(buff);
-		return NULL;
+		return nullptr;
 	}
 
 	if (mdlHeader->skinHeight > MAX_LBM_HEIGHT) {
@@ -469,10 +469,10 @@ static pmm::model_t *_mdl_load(PM_PARAMS_LOAD) {
 
 	/* create new pico model */
 	picoModel = pmm::pp_new_model();
-	if (picoModel == NULL) {
+	if (picoModel == nullptr) {
 		_pico_printf(pmm::pl_error, "Unable to allocate a new model");
 		_pico_free(buff);
-		return NULL;
+		return nullptr;
 	}
 
 	/* do model setup */
@@ -486,11 +486,11 @@ static pmm::model_t *_mdl_load(PM_PARAMS_LOAD) {
 
 	/* allocate new pico surface */
 	picoSurface = pmm::pp_new_surface(picoModel);
-	if (picoSurface == NULL) {
+	if (picoSurface == nullptr) {
 		_pico_printf(pmm::pl_error, "Unable to allocate a new model surface");
 		pmm::pp_free_model(picoModel);
 		_pico_free(buff);
-		return NULL;
+		return nullptr;
 	}
 
 	/* md3 model surfaces are all triangle meshes */
@@ -498,11 +498,11 @@ static pmm::model_t *_mdl_load(PM_PARAMS_LOAD) {
 
 	/* create new pico shader */
 	picoShader = pmm::pp_new_shader(picoModel);
-	if (picoShader == NULL) {
+	if (picoShader == nullptr) {
 		_pico_printf(pmm::pl_error, "Unable to allocate a new model shader");
 		pmm::pp_free_model(picoModel);
 		_pico_free(buff);
-		return NULL;
+		return nullptr;
 	}
 
 	pmm::pp_set_shader_name(picoShader, _make_texture_path(fileName, texturePath));
@@ -602,10 +602,10 @@ extern const pmm::module_t picoModuleMDL =
 	"ryven",                    /* author's name */
 	"2018 ryven.mt@gmail.com",  /* module copyright */
 {
-	"mdl", NULL, NULL, NULL     /* default extensions to use */
+	"mdl", nullptr, nullptr, nullptr     /* default extensions to use */
 },
 _mdl_canload,               /* validation routine */
 _mdl_load,                  /* load routine */
-NULL,                       /* save validation routine */
-NULL                        /* save routine */
+nullptr,                       /* save validation routine */
+nullptr                        /* save routine */
 };

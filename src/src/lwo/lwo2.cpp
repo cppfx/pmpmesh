@@ -60,7 +60,7 @@ void lwFreeObject( lwObject *object ){
    lwGetObject()
 
    Returns the contents of a LightWave object, given its filename, or
-   NULL if the file couldn't be loaded.  On failure, failID and failpos
+   nullptr if the file couldn't be loaded.  On failure, failID and failpos
    can be used to diagnose the cause.
 
    1.  If the file isn't an LWO2 or an LWOB, failpos will contain 12 and
@@ -73,7 +73,7 @@ void lwFreeObject( lwObject *object ){
    3.  If the file couldn't be opened, or an error occurs while reading
     the first 12 bytes, both failID and failpos will be unchanged.
 
-   If you don't need this information, failID and failpos can be NULL.
+   If you don't need this information, failID and failpos can be nullptr.
    ====================================================================== */
 
 lwObject *lwGetObject( const char *filename, picoMemStream_t *fp, unsigned int *failID, int *failpos ){
@@ -86,7 +86,7 @@ lwObject *lwGetObject( const char *filename, picoMemStream_t *fp, unsigned int *
 	/* open the file */
 
 	if ( !fp ) {
-		return NULL;
+		return nullptr;
 	}
 
 	/* read the first 12 bytes */
@@ -96,7 +96,7 @@ lwObject *lwGetObject( const char *filename, picoMemStream_t *fp, unsigned int *
 	formsize = getU4( fp );
 	type     = getU4( fp );
 	if ( 12 != get_flen() ) {
-		return NULL;
+		return nullptr;
 	}
 
 	/* is this a LW object? */
@@ -105,7 +105,7 @@ lwObject *lwGetObject( const char *filename, picoMemStream_t *fp, unsigned int *
 		if ( failpos ) {
 			*failpos = 12;
 		}
-		return NULL;
+		return nullptr;
 	}
 
 	if ( type != ID_LWO2 ) {
@@ -116,7 +116,7 @@ lwObject *lwGetObject( const char *filename, picoMemStream_t *fp, unsigned int *
 			if ( failpos ) {
 				*failpos = 12;
 			}
-			return NULL;
+			return nullptr;
 		}
 	}
 
@@ -317,7 +317,7 @@ Fail:
 		}
 	}
 	lwFreeObject( object );
-	return NULL;
+	return nullptr;
 }
 
 int lwValidateObject( const char *filename, picoMemStream_t *fp, unsigned int *failID, int *failpos ){

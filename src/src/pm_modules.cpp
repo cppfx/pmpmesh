@@ -66,7 +66,7 @@ const pmm::module_t *picoModules[] =
 	&picoModuleTerrain, /* picoterrain object */
 	&picoModuleOBJ,     /* wavefront object */
 	&picoModuleMDL,     /* quake mdl */
-	NULL                /* arnold */
+	nullptr                /* arnold */
 };
 
 
@@ -75,13 +75,13 @@ const pmm::module_t *picoModules[] =
    pmm::pp_module_list()
    returns a pointer to the module list and optionally stores
    the number of supported modules in 'numModules'. Note that
-   this param can be NULL when the count is not needed.
+   this param can be nullptr when the count is not needed.
  */
 
 const pmm::module_t **pmm::pp_module_list( int *numModules ){
 	/* get module count */
-	if ( numModules != NULL ) {
-		for ( ( *numModules ) = 0; picoModules[ *numModules ] != NULL; ( *numModules )++ ) ;
+	if ( numModules != nullptr ) {
+		for ( ( *numModules ) = 0; picoModules[ *numModules ] != nullptr; ( *numModules )++ ) ;
 	}
 
 	/* return list of modules */

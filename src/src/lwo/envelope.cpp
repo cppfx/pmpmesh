@@ -43,7 +43,7 @@ static int compare_keys( lwKey *k1, lwKey *k2 ){
 
 lwEnvelope *lwGetEnvelope( picoMemStream_t *fp, int cksize ){
 	lwEnvelope *env;
-	lwKey *key = NULL;
+	lwKey *key = nullptr;
 	lwPlugin *plug;
 	unsigned int id;
 	unsigned short sz;
@@ -193,7 +193,7 @@ lwEnvelope *lwGetEnvelope( picoMemStream_t *fp, int cksize ){
 
 Fail:
 	lwFreeEnvelope( env );
-	return NULL;
+	return nullptr;
 }
 
 
@@ -223,7 +223,7 @@ lwEnvelope *lwFindEnvelope( lwEnvelope *list, int index ){
    range()
 
    Given the value v of a periodic function, returns the equivalent value
-   v2 in the principal interval [lo, hi].  If i isn't NULL, it receives
+   v2 in the principal interval [lo, hi].  If i isn't nullptr, it receives
    the number of wavelengths between v and v2.
 
    v2 = v - i * (hi - lo)
@@ -538,7 +538,7 @@ float evalEnvelope( lwEnvelope *env, float time ){
 			return skey->value;
 
 		case BEH_REPEAT:
-			time = range( time, skey->time, ekey->time, NULL );
+			time = range( time, skey->time, ekey->time, nullptr );
 			break;
 
 		case BEH_OSCILLATE:
@@ -572,7 +572,7 @@ float evalEnvelope( lwEnvelope *env, float time ){
 			return ekey->value;
 
 		case BEH_REPEAT:
-			time = range( time, skey->time, ekey->time, NULL );
+			time = range( time, skey->time, ekey->time, nullptr );
 			break;
 
 		case BEH_OSCILLATE:

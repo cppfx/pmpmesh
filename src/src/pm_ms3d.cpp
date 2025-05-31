@@ -186,8 +186,8 @@ static int _ms3d_canload( PM_PARAMS_CANLOAD ){
 }
 
 static unsigned char *GetWord( unsigned char *bufptr, int *out ){
-	if ( bufptr == NULL ) {
-		return NULL;
+	if ( bufptr == nullptr ) {
+		return nullptr;
 	}
 	*out = _pico_little_short( *(unsigned short *)bufptr );
 	return( bufptr + 2 );
@@ -211,8 +211,8 @@ static pmm::model_t *_ms3d_load( PM_PARAMS_LOAD ){
 
 	/* create new pico model */
 	model = pmm::pp_new_model();
-	if ( model == NULL ) {
-		return NULL;
+	if ( model == nullptr ) {
+		return nullptr;
 	}
 
 	/* do model setup */
@@ -220,7 +220,7 @@ static pmm::model_t *_ms3d_load( PM_PARAMS_LOAD ){
 	pmm::pp_set_model_name( model, fileName );
 	pmm::pp_set_model_file_name( model, fileName );
 
-	bufptr0 = bufptr = (pmm::byte_t*) _pico_alloc( bufSize );
+	bufptr0 = bufptr = (pmm::ub8_t*) _pico_alloc( bufSize );
 	memcpy( bufptr, buffer, bufSize );
 	/* skip header */
 	bufptr += sizeof( TMsHeader );
@@ -284,7 +284,7 @@ static pmm::model_t *_ms3d_load( PM_PARAMS_LOAD ){
 				_pico_printf( pmm::pl_error,"Vertex %d index %d out of range (%d, max %d)",i,k,triangle->vertexIndices[k],numVerts - 1 );
 				pmm::pp_free_model( model );
 				_pico_free( bufptr0 );
-				return NULL; /* yuck */
+				return nullptr; /* yuck */
 			}
 		}
 	}
@@ -314,10 +314,10 @@ static pmm::model_t *_ms3d_load( PM_PARAMS_LOAD ){
 
 		/* create new pico surface */
 		surface = pmm::pp_new_surface( model );
-		if ( surface == NULL ) {
+		if ( surface == nullptr ) {
 			pmm::pp_free_model( model );
 			_pico_free( bufptr0 );
-			return NULL;
+			return nullptr;
 		}
 		/* do surface setup */
 		pmm::pp_set_surface_type( surface,pmm::st_triangles );
@@ -407,17 +407,17 @@ static pmm::model_t *_ms3d_load( PM_PARAMS_LOAD ){
 
 		/* create new pico shader */
 		shader = pmm::pp_new_shader( model );
-		if ( shader == NULL ) {
+		if ( shader == nullptr ) {
 			pmm::pp_free_model( model );
 			_pico_free( bufptr0 );
-			return NULL;
+			return nullptr;
 		}
 		/* scale shader colors */
 		for ( k = 0; k < 4; k++ )
 		{
-			ambient [ k ] = (pmm::byte_t) ( material->ambient[ k ] * 255 );
-			diffuse [ k ] = (pmm::byte_t) ( material->diffuse[ k ] * 255 );
-			specular[ k ] = (pmm::byte_t) ( material->specular[ k ] * 255 );
+			ambient [ k ] = (pmm::ub8_t) ( material->ambient[ k ] * 255 );
+			diffuse [ k ] = (pmm::ub8_t) ( material->diffuse[ k ] * 255 );
+			specular[ k ] = (pmm::ub8_t) ( material->specular[ k ] * 255 );
 		}
 		/* set shader colors */
 		pmm::pp_set_shader_ambient_color( shader,ambient );
@@ -454,13 +454,13 @@ static pmm::model_t *_ms3d_load( PM_PARAMS_LOAD ){
 
 		/* get surface */
 		surface = pmm::pp_get_model_surface( model,i );
-		if ( surface == NULL ) {
+		if ( surface == nullptr ) {
 			continue;
 		}
 
 		/* get shader */
 		shader = pmm::pp_get_model_shader( model,shaderRefs[ i ] );
-		if ( shader == NULL ) {
+		if ( shader == nullptr ) {
 			continue;
 		}
 
@@ -475,7 +475,7 @@ static pmm::model_t *_ms3d_load( PM_PARAMS_LOAD ){
 	/* return allocated pico model */
 	_pico_free( bufptr0 );
 	return model;
-//	return NULL;
+//	return nullptr;
 }
 
 /* pico file format module definition */
@@ -486,10 +486,10 @@ extern const pmm::module_t picoModuleMS3D =
 	"seaw0lf",                  /* author's name */
 	"2002 seaw0lf",             /* module copyright */
 	{
-		"ms3d",NULL,NULL,NULL   /* default extensions to use */
+		"ms3d",nullptr,nullptr,nullptr   /* default extensions to use */
 	},
 	_ms3d_canload,              /* validation routine */
 	_ms3d_load,                 /* load routine */
-	NULL,                       /* save validation routine */
-	NULL                        /* save routine */
+	nullptr,                       /* save validation routine */
+	nullptr                        /* save routine */
 };

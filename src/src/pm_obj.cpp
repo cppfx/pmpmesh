@@ -72,8 +72,8 @@ static int _obj_canload( PM_PARAMS_CANLOAD ){
 
 	/* first check file extension. we have to do this for objs */
 	/* cause there is no good way to identify the contents */
-	if ( _pico_stristr( fileName,".obj" ) != NULL ||
-		 _pico_stristr( fileName,".wf" ) != NULL ) {
+	if ( _pico_stristr( fileName,".obj" ) != nullptr ||
+		 _pico_stristr( fileName,".wf" ) != nullptr ) {
 		return pmm::pmv_ok;
 	}
 	/* if the extension check failed we parse through the first */
@@ -81,8 +81,8 @@ static int _obj_canload( PM_PARAMS_CANLOAD ){
 	/* appearing at the beginning of wavefront objects */
 
 	/* alllocate a new pico parser */
-	p = _pico_new_parser( (const pmm::byte_t *)buffer,bufSize );
-	if ( p == NULL ) {
+	p = _pico_new_parser( (const pmm::ub8_t *)buffer,bufSize );
+	if ( p == nullptr ) {
 		return pmm::pmv_error_memory;
 	}
 
@@ -90,7 +90,7 @@ static int _obj_canload( PM_PARAMS_CANLOAD ){
 	while ( 1 )
 	{
 		/* get first token on line */
-		if ( _pico_parse_first( p ) == NULL ) {
+		if ( _pico_parse_first( p ) == nullptr ) {
 			break;
 		}
 
@@ -100,7 +100,7 @@ static int _obj_canload( PM_PARAMS_CANLOAD ){
 		}
 
 		/* skip empty lines */
-		if ( p->token == NULL || !strlen( p->token ) ) {
+		if ( p->token == nullptr || !strlen( p->token ) ) {
 			continue;
 		}
 
@@ -139,10 +139,10 @@ static TObjVertexData *SizeObjVertexData(
 
 	/* sanity checks */
 	if ( reqEntries < 1 ) {
-		return NULL;
+		return nullptr;
 	}
-	if ( entries == NULL || allocated == NULL ) {
-		return NULL; /* must have */
+	if ( entries == nullptr || allocated == nullptr ) {
+		return nullptr; /* must have */
 
 	}
 	/* no need to grow yet */
@@ -151,7 +151,7 @@ static TObjVertexData *SizeObjVertexData(
 		return vertexData;
 	}
 	/* given vertex data ptr not allocated yet */
-	if ( vertexData == NULL ) {
+	if ( vertexData == nullptr ) {
 		/* how many entries to allocate */
 		newAllocated = ( reqEntries > size_OBJ_STEP ) ?
 					   reqEntries : size_OBJ_STEP;
@@ -166,8 +166,8 @@ static TObjVertexData *SizeObjVertexData(
 					 _pico_alloc( sizeof( TObjVertexData ) * newAllocated );
 
 		/* allocation failed */
-		if ( vertexData == NULL ) {
-			return NULL;
+		if ( vertexData == nullptr ) {
+			return nullptr;
 		}
 
 		/* allocation succeeded */
@@ -191,8 +191,8 @@ static TObjVertexData *SizeObjVertexData(
 									sizeof( TObjVertexData ) * ( newAllocated ) );
 
 		/* reallocation failed */
-		if ( vertexData == NULL ) {
-			return NULL;
+		if ( vertexData == nullptr ) {
+			return nullptr;
 		}
 
 		/* reallocation succeeded */
@@ -201,24 +201,24 @@ static TObjVertexData *SizeObjVertexData(
 		return vertexData;
 	}
 	/* we're b0rked when we reach this */
-	return NULL;
+	return nullptr;
 }
 
 static void FreeObjVertexData( TObjVertexData *vertexData ){
-	if ( vertexData != NULL ) {
+	if ( vertexData != nullptr ) {
 		free( (TObjVertexData *)vertexData );
 	}
 }
 
 static int _obj_mtl_load( pmm::model_t *model ){
-	pmm::shader_t *curShader = NULL;
+	pmm::shader_t *curShader = nullptr;
 	picoParser_t *p;
-	pmm::byte_t   *mtlBuffer;
+	pmm::ub8_t   *mtlBuffer;
 	int mtlBufSize;
 	char         *fileName;
 
 	/* sanity checks */
-	if ( model == NULL || model->fileName == NULL ) {
+	if ( model == nullptr || model->fileName == nullptr ) {
 		return 0;
 	}
 
@@ -237,7 +237,7 @@ static int _obj_mtl_load( pmm::model_t *model ){
 	}
 	/* alloc copy of model file name */
 	fileName = _pico_clone_alloc( model->fileName );
-	if ( fileName == NULL ) {
+	if ( fileName == nullptr ) {
 		return 0;
 	}
 
@@ -257,7 +257,7 @@ static int _obj_mtl_load( pmm::model_t *model ){
 	}
 	/* create a new pico parser */
 	p = _pico_new_parser( mtlBuffer, mtlBufSize );
-	if ( p == NULL ) {
+	if ( p == nullptr ) {
 		_obj_mtl_error_return;
 	}
 
@@ -265,13 +265,13 @@ static int _obj_mtl_load( pmm::model_t *model ){
 	while ( 1 )
 	{
 		/* get next token in material file */
-		if ( _pico_parse( p,1 ) == NULL ) {
+		if ( _pico_parse( p,1 ) == nullptr ) {
 			break;
 		}
 #if 1
 
 		/* skip empty lines */
-		if ( p->token == NULL || !strlen( p->token ) ) {
+		if ( p->token == nullptr || !strlen( p->token ) ) {
 			continue;
 		}
 
@@ -289,13 +289,13 @@ static int _obj_mtl_load( pmm::model_t *model ){
 			name = _pico_parse( p,0 );
 
 			/* validate material name */
-			if ( name == NULL || !strlen( name ) ) {
+			if ( name == nullptr || !strlen( name ) ) {
 				_pico_printf( pmm::pl_error,"Missing material name in MTL, line %d.",p->curLine );
 				_obj_mtl_error_return;
 			}
 			/* create a new pico shader */
 			shader = pmm::pp_new_shader( model );
-			if ( shader == NULL ) {
+			if ( shader == nullptr ) {
 				_obj_mtl_error_return;
 			}
 
@@ -311,7 +311,7 @@ static int _obj_mtl_load( pmm::model_t *model ){
 			pmm::shader_t *shader;
 
 			/* pointer to current shader must be valid */
-			if ( curShader == NULL ) {
+			if ( curShader == nullptr ) {
 				_obj_mtl_error_return;
 			}
 
@@ -319,13 +319,13 @@ static int _obj_mtl_load( pmm::model_t *model ){
 			mapName = _pico_parse( p,0 );
 
 			/* validate map name */
-			if ( mapName == NULL || !strlen( mapName ) ) {
+			if ( mapName == nullptr || !strlen( mapName ) ) {
 				_pico_printf( pmm::pl_error,"Missing material map name in MTL, line %d.",p->curLine );
 				_obj_mtl_error_return;
 			}
 			/* create a new pico shader */
 			shader = pmm::pp_new_shader( model );
-			if ( shader == NULL ) {
+			if ( shader == nullptr ) {
 				_obj_mtl_error_return;
 			}
 			/* set shader map name */
@@ -334,7 +334,7 @@ static int _obj_mtl_load( pmm::model_t *model ){
 		/* dissolve factor (pseudo transparency 0..1) */
 		/* where 0 means 100% transparent and 1 means opaque */
 		else if ( !_pico_stricmp( p->token,"d" ) ) {
-			pmm::byte_t *diffuse;
+			pmm::ub8_t *diffuse;
 			float value;
 
 
@@ -350,7 +350,7 @@ static int _obj_mtl_load( pmm::model_t *model ){
 			diffuse = pmm::pp_get_shader_diffuse_color( curShader );
 
 			/* set diffuse alpha to transparency */
-			diffuse[ 3 ] = (pmm::byte_t)( value * 255.0 );
+			diffuse[ 3 ] = (pmm::ub8_t)( value * 255.0 );
 
 			/* set shader's new diffuse color */
 			pmm::pp_set_shader_diffuse_color( curShader,diffuse );
@@ -368,7 +368,7 @@ static int _obj_mtl_load( pmm::model_t *model ){
 			float value;
 
 			/* pointer to current shader must be valid */
-			if ( curShader == NULL ) {
+			if ( curShader == nullptr ) {
 				_obj_mtl_error_return;
 			}
 
@@ -415,7 +415,7 @@ static int _obj_mtl_load( pmm::model_t *model ){
 			pmm::vec3_t v;
 
 			/* pointer to current shader must be valid */
-			if ( curShader == NULL ) {
+			if ( curShader == nullptr ) {
 				_obj_mtl_error_return;
 			}
 
@@ -425,10 +425,10 @@ static int _obj_mtl_load( pmm::model_t *model ){
 			}
 
 			/* scale to byte range */
-			color[ 0 ] = (pmm::byte_t)( v[ 0 ] * 255 );
-			color[ 1 ] = (pmm::byte_t)( v[ 1 ] * 255 );
-			color[ 2 ] = (pmm::byte_t)( v[ 2 ] * 255 );
-			color[ 3 ] = (pmm::byte_t)( 255 );
+			color[ 0 ] = (pmm::ub8_t)( v[ 0 ] * 255 );
+			color[ 1 ] = (pmm::ub8_t)( v[ 1 ] * 255 );
+			color[ 2 ] = (pmm::ub8_t)( v[ 2 ] * 255 );
+			color[ 3 ] = (pmm::ub8_t)( 255 );
 
 			/* set ambient color */
 			pmm::pp_set_shader_ambient_color( curShader,color );
@@ -439,7 +439,7 @@ static int _obj_mtl_load( pmm::model_t *model ){
 			pmm::vec3_t v;
 
 			/* pointer to current shader must be valid */
-			if ( curShader == NULL ) {
+			if ( curShader == nullptr ) {
 				_obj_mtl_error_return;
 			}
 
@@ -449,10 +449,10 @@ static int _obj_mtl_load( pmm::model_t *model ){
 			}
 
 			/* scale to byte range */
-			color[ 0 ] = (pmm::byte_t)( v[ 0 ] * 255 );
-			color[ 1 ] = (pmm::byte_t)( v[ 1 ] * 255 );
-			color[ 2 ] = (pmm::byte_t)( v[ 2 ] * 255 );
-			color[ 3 ] = (pmm::byte_t)( 255 );
+			color[ 0 ] = (pmm::ub8_t)( v[ 0 ] * 255 );
+			color[ 1 ] = (pmm::ub8_t)( v[ 1 ] * 255 );
+			color[ 2 ] = (pmm::ub8_t)( v[ 2 ] * 255 );
+			color[ 3 ] = (pmm::ub8_t)( 255 );
 
 			/* set diffuse color */
 			pmm::pp_set_shader_diffuse_color( curShader,color );
@@ -463,7 +463,7 @@ static int _obj_mtl_load( pmm::model_t *model ){
 			pmm::vec3_t v;
 
 			/* pointer to current shader must be valid */
-			if ( curShader == NULL ) {
+			if ( curShader == nullptr ) {
 				_obj_mtl_error_return;
 			}
 
@@ -473,10 +473,10 @@ static int _obj_mtl_load( pmm::model_t *model ){
 			}
 
 			/* scale to byte range */
-			color[ 0 ] = (pmm::byte_t)( v[ 0 ] * 255 );
-			color[ 1 ] = (pmm::byte_t)( v[ 1 ] * 255 );
-			color[ 2 ] = (pmm::byte_t)( v[ 2 ] * 255 );
-			color[ 3 ] = (pmm::byte_t)( 255 );
+			color[ 0 ] = (pmm::ub8_t)( v[ 0 ] * 255 );
+			color[ 1 ] = (pmm::ub8_t)( v[ 1 ] * 255 );
+			color[ 2 ] = (pmm::ub8_t)( v[ 2 ] * 255 );
+			color[ 3 ] = (pmm::ub8_t)( 255 );
 
 			/* set specular color */
 			pmm::pp_set_shader_specular_color( curShader,color );
@@ -499,9 +499,9 @@ static int _obj_mtl_load( pmm::model_t *model ){
  *  loads a wavefront obj model file.
  */
 static pmm::model_t *_obj_load( PM_PARAMS_LOAD ){
-	TObjVertexData *vertexData  = NULL;
+	TObjVertexData *vertexData  = nullptr;
 	pmm::model_t    *model;
-	pmm::surface_t  *curSurface  = NULL;
+	pmm::surface_t  *curSurface  = nullptr;
 	picoParser_t   *p;
 	int allocated;
 	int entries;
@@ -521,7 +521,7 @@ static pmm::model_t *_obj_load( PM_PARAMS_LOAD ){
 		pmm::surface_t *newSurface; \
 		/* allocate a pico surface */ \
 		newSurface = pmm::pp_new_surface( model ); \
-		if ( newSurface == NULL ) {	\
+		if ( newSurface == nullptr ) {	\
 			_obj_error_return( "Error allocating surface" ); } \
 		/* reset face index for surface */ \
 		curFace = 0; \
@@ -543,19 +543,19 @@ static pmm::model_t *_obj_load( PM_PARAMS_LOAD ){
 		_pico_free_parser( p );	\
 		FreeObjVertexData( vertexData ); \
 		pmm::pp_free_model( model );	\
-		return NULL; \
+		return nullptr; \
 	}
 	/* alllocate a new pico parser */
-	p = _pico_new_parser( (const pmm::byte_t *)buffer,bufSize );
-	if ( p == NULL ) {
-		return NULL;
+	p = _pico_new_parser( (const pmm::ub8_t *)buffer,bufSize );
+	if ( p == nullptr ) {
+		return nullptr;
 	}
 
 	/* create a new pico model */
 	model = pmm::pp_new_model();
-	if ( model == NULL ) {
+	if ( model == nullptr ) {
 		_pico_free_parser( p );
-		return NULL;
+		return nullptr;
 	}
 	/* do model setup */
 	pmm::pp_set_model_frame_num( model,frameNum );
@@ -571,12 +571,12 @@ static pmm::model_t *_obj_load( PM_PARAMS_LOAD ){
 	while ( 1 )
 	{
 		/* get first token on line */
-		if ( _pico_parse_first( p ) == NULL ) {
+		if ( _pico_parse_first( p ) == nullptr ) {
 			break;
 		}
 
 		/* skip empty lines */
-		if ( p->token == NULL || !strlen( p->token ) ) {
+		if ( p->token == nullptr || !strlen( p->token ) ) {
 			continue;
 		}
 
@@ -591,7 +591,7 @@ static pmm::model_t *_obj_load( PM_PARAMS_LOAD ){
 			pmm::vec3_t v;
 
 			vertexData = SizeObjVertexData( vertexData,numVerts + 1,&entries,&allocated );
-			if ( vertexData == NULL ) {
+			if ( vertexData == nullptr ) {
 				_obj_error_return( "Realloc of vertex data failed (1)" );
 			}
 
@@ -614,7 +614,7 @@ static pmm::model_t *_obj_load( PM_PARAMS_LOAD ){
 			pmm::vec2_t coord;
 
 			vertexData = SizeObjVertexData( vertexData,numUVs + 1,&entries,&allocated );
-			if ( vertexData == NULL ) {
+			if ( vertexData == nullptr ) {
 				_obj_error_return( "Realloc of vertex data failed (2)" );
 			}
 
@@ -637,7 +637,7 @@ static pmm::model_t *_obj_load( PM_PARAMS_LOAD ){
 			pmm::vec3_t n;
 
 			vertexData = SizeObjVertexData( vertexData,numNormals + 1,&entries,&allocated );
-			if ( vertexData == NULL ) {
+			if ( vertexData == nullptr ) {
 				_obj_error_return( "Realloc of vertex data failed (3)" );
 			}
 
@@ -660,7 +660,7 @@ static pmm::model_t *_obj_load( PM_PARAMS_LOAD ){
 
 			/* get first group name (ignore 2nd,3rd,etc.) */
 			groupName = _pico_parse( p,0 );
-			if ( groupName == NULL || !strlen( groupName ) ) {
+			if ( groupName == nullptr || !strlen( groupName ) ) {
 				/* some obj exporters feel like they don't need to */
 				/* supply a group name. so we gotta handle it here */
 #if 1
@@ -671,7 +671,7 @@ static pmm::model_t *_obj_load( PM_PARAMS_LOAD ){
 #endif
 			}
 
-			if ( curFace == 0 && curSurface != NULL ) {
+			if ( curFace == 0 && curSurface != nullptr ) {
 				pmm::pp_set_surface_name( curSurface,groupName );
 			}
 			else
@@ -704,14 +704,14 @@ static pmm::model_t *_obj_load( PM_PARAMS_LOAD ){
 			int doubleslash = 0;
 			int i;
 
-			if ( curSurface == NULL ) {
+			if ( curSurface == nullptr ) {
 				_pico_printf( pmm::pl_warning,"No group defined for faces, so creating an autoSurface in OBJ, line %d.",p->curLine );
 				AUTO_GROUPNAME( autoGroupNameBuf );
 				NEW_SURFACE( autoGroupNameBuf );
 			}
 
 			/* group defs *must* come before faces */
-			if ( curSurface == NULL ) {
+			if ( curSurface == nullptr ) {
 				_obj_error_return( "No group defined for faces" );
 			}
 
@@ -729,7 +729,7 @@ static pmm::model_t *_obj_load( PM_PARAMS_LOAD ){
 				/* get next vertex index string (different */
 				/* formats are handled below) */
 				str = _pico_parse( p,0 );
-				if ( str == NULL ) {
+				if ( str == nullptr ) {
 					/* just break for quads */
 					if ( i == 3 ) {
 						break;
@@ -747,7 +747,7 @@ static pmm::model_t *_obj_load( PM_PARAMS_LOAD ){
 				/* get slash count once */
 				if ( i == 0 ) {
 					slashcount  = _pico_strchcount( str,'/' );
-					doubleslash =  strstr( str,"//" ) != NULL;
+					doubleslash =  strstr( str,"//" ) != nullptr;
 				}
 				/* handle format 'v//vn' */
 				if ( doubleslash && ( slashcount == 2 ) ) {
@@ -887,25 +887,25 @@ static pmm::model_t *_obj_load( PM_PARAMS_LOAD ){
 			/* get material name */
 			name = _pico_parse( p,0 );
 
-			if ( curFace != 0 || curSurface == NULL ) {
+			if ( curFace != 0 || curSurface == nullptr ) {
 				_pico_printf( pmm::pl_warning,"No group defined for usemtl, so creating an autoSurface in OBJ, line %d.",p->curLine );
 				AUTO_GROUPNAME( autoGroupNameBuf );
 				NEW_SURFACE( autoGroupNameBuf );
 			}
 
 			/* validate material name */
-			if ( name == NULL || !strlen( name ) ) {
+			if ( name == nullptr || !strlen( name ) ) {
 				_pico_printf( pmm::pl_error,"Missing material name in OBJ, line %d.",p->curLine );
 			}
 			else
 			{
 				shader = pmm::pp_find_shader( model, name, 1 );
-				if ( shader == NULL ) {
+				if ( shader == nullptr ) {
 					_pico_printf( pmm::pl_warning,"Undefined material name in OBJ, line %d. Making a default shader.",p->curLine );
 
 					/* create a new pico shader */
 					shader = pmm::pp_new_shader( model );
-					if ( shader != NULL ) {
+					if ( shader != nullptr ) {
 						pmm::pp_set_shader_name( shader,name );
 						pmm::pp_set_shader_map_name( shader,name );
 						pmm::pp_set_surface_shader( curSurface, shader );
@@ -925,7 +925,7 @@ static pmm::model_t *_obj_load( PM_PARAMS_LOAD ){
 
 	/* return allocated pico model */
 	return model;
-//	return NULL;
+//	return nullptr;
 }
 
 /* pico file format module definition */
@@ -936,10 +936,10 @@ extern const pmm::module_t picoModuleOBJ =
 	"seaw0lf",                  /* author's name */
 	"2002 seaw0lf",             /* module copyright */
 	{
-		"obj",NULL,NULL,NULL    /* default extensions to use */
+		"obj",nullptr,nullptr,nullptr    /* default extensions to use */
 	},
 	_obj_canload,               /* validation routine */
 	_obj_load,                  /* load routine */
-	NULL,                       /* save validation routine */
-	NULL                        /* save routine */
+	nullptr,                       /* save validation routine */
+	nullptr                        /* save routine */
 };

@@ -638,7 +638,7 @@ lwTexture *lwGetTexture( picoMemStream_t *fp, int bloksz, unsigned int type ){
 
 	tex = reinterpret_cast<decltype(tex)>(_pico_calloc( 1, sizeof( lwTexture ) ));
 	if ( !tex ) {
-		return NULL;
+		return nullptr;
 	}
 
 	tex->type = type;
@@ -651,7 +651,7 @@ lwTexture *lwGetTexture( picoMemStream_t *fp, int bloksz, unsigned int type ){
 	sz = getU2( fp );
 	if ( !lwGetTHeader( fp, sz, tex ) ) {
 		_pico_free( tex );
-		return NULL;
+		return nullptr;
 	}
 
 	sz = bloksz - sz - 6;
@@ -665,7 +665,7 @@ lwTexture *lwGetTexture( picoMemStream_t *fp, int bloksz, unsigned int type ){
 
 	if ( !ok ) {
 		lwFreeTexture( tex );
-		return NULL;
+		return nullptr;
 	}
 
 	set_flen( bloksz );
@@ -688,7 +688,7 @@ lwPlugin *lwGetShader( picoMemStream_t *fp, int bloksz ){
 
 	shdr = reinterpret_cast<decltype(shdr)>(_pico_calloc( 1, sizeof( lwPlugin ) ));
 	if ( !shdr ) {
-		return NULL;
+		return nullptr;
 	}
 
 	pos = _pico_memstream_tell( fp );
@@ -770,7 +770,7 @@ lwPlugin *lwGetShader( picoMemStream_t *fp, int bloksz ){
 
 Fail:
 	lwFreePlugin( shdr );
-	return NULL;
+	return nullptr;
 }
 
 
@@ -835,7 +835,7 @@ lwSurface *lwDefaultSurface( void ){
 
 	surf = reinterpret_cast<decltype(surf)>(_pico_calloc( 1, sizeof( lwSurface ) ));
 	if ( !surf ) {
-		return NULL;
+		return nullptr;
 	}
 
 	surf->color.rgb[ 0 ] = 0.78431f;
@@ -1104,5 +1104,5 @@ Fail:
 	if ( surf ) {
 		lwFreeSurface( surf );
 	}
-	return NULL;
+	return nullptr;
 }

@@ -85,9 +85,9 @@ public:
 class picoMemStream_t
 {
 public:
-	const pmm::byte_t *buffer;
+	const pmm::ub8_t *buffer;
 	int bufSize;
-	const pmm::byte_t *curPos;
+	const pmm::ub8_t *curPos;
 	int flag;
 };
 
@@ -161,7 +161,7 @@ short           _pico_little_short( short src );
 float           _pico_little_float( float src );
 
 /* pico ascii parser */
-picoParser_t    *_pico_new_parser( const pmm::byte_t *buffer, int bufSize );
+picoParser_t    *_pico_new_parser( const pmm::ub8_t *buffer, int bufSize );
 void            _pico_free_parser( picoParser_t *p );
 int             _pico_parse_ex( picoParser_t *p, int allowLFs, int handleQuoted );
 char            *_pico_parse_first( picoParser_t *p );
@@ -182,7 +182,7 @@ int             _pico_parse_vec4( picoParser_t *p, pmm::vec4_t out );
 int             _pico_parse_vec4_def( picoParser_t *p, pmm::vec4_t out, pmm::vec4_t def );
 
 /* pico memory stream */
-picoMemStream_t *_pico_new_memstream( const pmm::byte_t *buffer, int bufSize );
+picoMemStream_t *_pico_new_memstream( const pmm::ub8_t *buffer, int bufSize );
 void            _pico_free_memstream( picoMemStream_t *s );
 int             _pico_memstream_read( picoMemStream_t *s, void *buffer, int len );
 int             _pico_memstream_getc( picoMemStream_t *s );

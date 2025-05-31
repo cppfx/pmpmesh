@@ -275,7 +275,7 @@ lwClip *lwGetClip( picoMemStream_t *fp, int cksize ){
 
 Fail:
 	lwFreeClip( clip );
-	return NULL;
+	return nullptr;
 }
 
 

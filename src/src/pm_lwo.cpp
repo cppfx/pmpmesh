@@ -73,8 +73,8 @@ static int _lwo_canload( PM_PARAMS_CANLOAD ){
 	int ret;
 
 	/* create a new pico memorystream */
-	s = _pico_new_memstream( (const pmm::byte_t *)buffer, bufSize );
-	if ( s == NULL ) {
+	s = _pico_new_memstream( (const pmm::ub8_t *)buffer, bufSize );
+	if ( s == nullptr ) {
 		return pmm::pmv_error_memory;
 	}
 
@@ -126,13 +126,13 @@ static pmm::model_t *_lwo_load( PM_PARAMS_LOAD ){
 	/* do frame check */
 	if ( frameNum < 0 || frameNum >= 1 ) {
 		_pico_printf( pmm::pl_error, "Invalid or out-of-range LWO frame specified" );
-		return NULL;
+		return nullptr;
 	}
 
 	/* create a new pico memorystream */
-	s = _pico_new_memstream( (const pmm::byte_t *)buffer, bufSize );
-	if ( s == NULL ) {
-		return NULL;
+	s = _pico_new_memstream( (const pmm::ub8_t *)buffer, bufSize );
+	if ( s == nullptr ) {
+		return nullptr;
 	}
 
 	obj = lwGetObject( fileName, s, &failID, &failpos );
@@ -141,7 +141,7 @@ static pmm::model_t *_lwo_load( PM_PARAMS_LOAD ){
 
 	if ( !obj ) {
 		_pico_printf( pmm::pl_error, "Couldn't load LWO file, failed on ID '%s', position %d", lwo_lwIDToStr( failID ), failpos );
-		return NULL;
+		return nullptr;
 	}
 
 #ifdef DEBUG_PM_LWO
@@ -155,9 +155,9 @@ static pmm::model_t *_lwo_load( PM_PARAMS_LOAD ){
 
 	/* create a new pico model */
 	picoModel = pmm::pp_new_model();
-	if ( picoModel == NULL ) {
+	if ( picoModel == nullptr ) {
 		_pico_printf( pmm::pl_error, "Unable to allocate a new model" );
-		return NULL;
+		return nullptr;
 	}
 
 	/* do model setup */
@@ -208,11 +208,11 @@ static pmm::model_t *_lwo_load( PM_PARAMS_LOAD ){
 	{
 		/* allocate new pico surface */
 		picoSurface = pmm::pp_new_surface( picoModel );
-		if ( picoSurface == NULL ) {
+		if ( picoSurface == nullptr ) {
 			_pico_printf( pmm::pl_error, "Unable to allocate a new model surface" );
 			pmm::pp_free_model( picoModel );
 			lwFreeObject( obj );
-			return NULL;
+			return nullptr;
 		}
 
 		/* LWO model surfaces are all triangle meshes */
@@ -223,11 +223,11 @@ static pmm::model_t *_lwo_load( PM_PARAMS_LOAD ){
 
 		/* create new pico shader */
 		picoShader = pmm::pp_new_shader( picoModel );
-		if ( picoShader == NULL ) {
+		if ( picoShader == nullptr ) {
 			_pico_printf( pmm::pl_error, "Unable to allocate a new model shader" );
 			pmm::pp_free_model( picoModel );
 			lwFreeObject( obj );
-			return NULL;
+			return nullptr;
 		}
 
 		/* detox and set shader name */
@@ -245,11 +245,11 @@ static pmm::model_t *_lwo_load( PM_PARAMS_LOAD ){
 
 		hashTable = pmm::pp_new_vertex_combination_hash_table();
 
-		if ( hashTable == NULL ) {
+		if ( hashTable == nullptr ) {
 			_pico_printf( pmm::pl_error, "Unable to allocate hash table" );
 			pmm::pp_free_model( picoModel );
 			lwFreeObject( obj );
-			return NULL;
+			return nullptr;
 		}
 
 		for ( i = 0, pol = layer->polygon.pol; i < layer->polygon.count; i++, pol++ )
@@ -300,9 +300,9 @@ static pmm::model_t *_lwo_load( PM_PARAMS_LOAD ){
 				st[ 0 ] = xyz[ defaultSTAxis[ 0 ] ] * defaultXYZtoSTScale[ 0 ];
 				st[ 1 ] = xyz[ defaultSTAxis[ 1 ] ] * defaultXYZtoSTScale[ 1 ];
 
-				color[ 0 ] = (pmm::byte_t)( surface->color.rgb[ 0 ] * surface->diffuse.val * 0xFF );
-				color[ 1 ] = (pmm::byte_t)( surface->color.rgb[ 1 ] * surface->diffuse.val * 0xFF );
-				color[ 2 ] = (pmm::byte_t)( surface->color.rgb[ 2 ] * surface->diffuse.val * 0xFF );
+				color[ 0 ] = (pmm::ub8_t)( surface->color.rgb[ 0 ] * surface->diffuse.val * 0xFF );
+				color[ 1 ] = (pmm::ub8_t)( surface->color.rgb[ 1 ] * surface->diffuse.val * 0xFF );
+				color[ 2 ] = (pmm::ub8_t)( surface->color.rgb[ 2 ] * surface->diffuse.val * 0xFF );
 				color[ 3 ] = 0xFF;
 
 				/* set from points */
@@ -315,10 +315,10 @@ static pmm::model_t *_lwo_load( PM_PARAMS_LOAD ){
 					}
 					else if ( vm->vmap->type == LWID_( 'R','G','B','A' ) ) {
 						/* set rgba */
-						color[ 0 ] = (pmm::byte_t)( vm->vmap->val[ vm->index ][ 0 ] * surface->color.rgb[ 0 ] * surface->diffuse.val * 0xFF );
-						color[ 1 ] = (pmm::byte_t)( vm->vmap->val[ vm->index ][ 1 ] * surface->color.rgb[ 1 ] * surface->diffuse.val * 0xFF );
-						color[ 2 ] = (pmm::byte_t)( vm->vmap->val[ vm->index ][ 2 ] * surface->color.rgb[ 2 ] * surface->diffuse.val * 0xFF );
-						color[ 3 ] = (pmm::byte_t)( vm->vmap->val[ vm->index ][ 3 ] * 0xFF );
+						color[ 0 ] = (pmm::ub8_t)( vm->vmap->val[ vm->index ][ 0 ] * surface->color.rgb[ 0 ] * surface->diffuse.val * 0xFF );
+						color[ 1 ] = (pmm::ub8_t)( vm->vmap->val[ vm->index ][ 1 ] * surface->color.rgb[ 1 ] * surface->diffuse.val * 0xFF );
+						color[ 2 ] = (pmm::ub8_t)( vm->vmap->val[ vm->index ][ 2 ] * surface->color.rgb[ 2 ] * surface->diffuse.val * 0xFF );
+						color[ 3 ] = (pmm::ub8_t)( vm->vmap->val[ vm->index ][ 3 ] * 0xFF );
 					}
 				}
 
@@ -332,10 +332,10 @@ static pmm::model_t *_lwo_load( PM_PARAMS_LOAD ){
 					}
 					else if ( vm->vmap->type == LWID_( 'R','G','B','A' ) ) {
 						/* set rgba */
-						color[ 0 ] = (pmm::byte_t)( vm->vmap->val[ vm->index ][ 0 ] * surface->color.rgb[ 0 ] * surface->diffuse.val * 0xFF );
-						color[ 1 ] = (pmm::byte_t)( vm->vmap->val[ vm->index ][ 1 ] * surface->color.rgb[ 1 ] * surface->diffuse.val * 0xFF );
-						color[ 2 ] = (pmm::byte_t)( vm->vmap->val[ vm->index ][ 2 ] * surface->color.rgb[ 2 ] * surface->diffuse.val * 0xFF );
-						color[ 3 ] = (pmm::byte_t)( vm->vmap->val[ vm->index ][ 3 ] * 0xFF );
+						color[ 0 ] = (pmm::ub8_t)( vm->vmap->val[ vm->index ][ 0 ] * surface->color.rgb[ 0 ] * surface->diffuse.val * 0xFF );
+						color[ 1 ] = (pmm::ub8_t)( vm->vmap->val[ vm->index ][ 1 ] * surface->color.rgb[ 1 ] * surface->diffuse.val * 0xFF );
+						color[ 2 ] = (pmm::ub8_t)( vm->vmap->val[ vm->index ][ 2 ] * surface->color.rgb[ 2 ] * surface->diffuse.val * 0xFF );
+						color[ 3 ] = (pmm::ub8_t)( vm->vmap->val[ vm->index ][ 3 ] * 0xFF );
 					}
 				}
 
@@ -351,12 +351,12 @@ static pmm::model_t *_lwo_load( PM_PARAMS_LOAD ){
 					/* it is a new one */
 					vertexCombinationHash = pmm::pp_add_vertex_combination_to_hash_table( hashTable, xyz, normal, st, color, (pmm::index_t) numverts );
 
-					if ( vertexCombinationHash == NULL ) {
+					if ( vertexCombinationHash == nullptr ) {
 						_pico_printf( pmm::pl_error, "Unable to allocate hash bucket entry table" );
 						pmm::pp_free_vertex_combination_hash_table( hashTable );
 						pmm::pp_free_model( picoModel );
 						lwFreeObject( obj );
-						return NULL;
+						return nullptr;
 					}
 
 					/* add the vertex to this surface */
@@ -411,10 +411,10 @@ extern const pmm::module_t picoModuleLWO =
 	"Arnout van Meer",          /* author's name */
 	"2003 Arnout van Meer, 2000 Ernie Wright",      /* module copyright */
 	{
-		"lwo", NULL, NULL, NULL /* default extensions to use */
+		"lwo", nullptr, nullptr, nullptr /* default extensions to use */
 	},
 	_lwo_canload,               /* validation routine */
 	_lwo_load,                  /* load routine */
-	NULL,                       /* save validation routine */
-	NULL                        /* save routine */
+	nullptr,                       /* save validation routine */
+	nullptr                        /* save routine */
 };

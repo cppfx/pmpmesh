@@ -64,7 +64,7 @@ static int _fm_canload( PM_PARAMS_CANLOAD ){
 	unsigned char   *bb, *bb0;
 	int fm_file_pos;
 
-	bb0 = bb = (pmm::byte_t*) _pico_alloc( bufSize );
+	bb0 = bb = (pmm::ub8_t*) _pico_alloc( bufSize );
 	memcpy( bb, buffer, bufSize );
 
 	// Header
@@ -205,7 +205,7 @@ static pmm::model_t *_fm_load( PM_PARAMS_LOAD ){
 	fm_xyz_st_t     *triangle;
 	fm_frame_t      *frame;
 
-	pmm::byte_t      *bb, *bb0;
+	pmm::ub8_t      *bb, *bb0;
 	pmm::model_t *picoModel;
 	pmm::surface_t   *picoSurface;
 	pmm::shader_t    *picoShader;
@@ -214,7 +214,7 @@ static pmm::model_t *_fm_load( PM_PARAMS_LOAD ){
 	pmm::color_t color;
 
 
-	bb0 = bb = (pmm::byte_t*) _pico_alloc( bufSize );
+	bb0 = bb = (pmm::ub8_t*) _pico_alloc( bufSize );
 	memcpy( bb, buffer, bufSize );
 
 	// Header Header
@@ -223,13 +223,13 @@ static pmm::model_t *_fm_load( PM_PARAMS_LOAD ){
 	if ( ( strcmp( fm.fm_header_hdr->ident, FM_HEADERCHUNKNAME ) )  ) {
 		_pico_printf( pmm::pl_warning, "FM Header Ident incorrect\n" );
 		_pico_free( bb0 );
-		return NULL;
+		return nullptr;
 	}
 
 	if ( _pico_little_long( fm.fm_header_hdr->version ) != FM_HEADERCHUNKVER ) {
 		_pico_printf( pmm::pl_warning, "FM Header Version incorrect\n" );
 		_pico_free( bb0 );
-		return NULL;
+		return nullptr;
 	}
 
 	// Skin Header
@@ -238,13 +238,13 @@ static pmm::model_t *_fm_load( PM_PARAMS_LOAD ){
 	if ( ( strcmp( fm.fm_skin_hdr->ident, FM_SKINCHUNKNAME ) ) ) {
 		_pico_printf( pmm::pl_warning, "FM Skin Ident incorrect\n" );
 		_pico_free( bb0 );
-		return NULL;
+		return nullptr;
 	}
 
 	if ( _pico_little_long( fm.fm_skin_hdr->version ) != FM_SKINCHUNKVER ) {
 		_pico_printf( pmm::pl_warning, "FM Skin Version incorrect\n" );
 		_pico_free( bb0 );
-		return NULL;
+		return nullptr;
 	}
 
 	// ST Header
@@ -253,13 +253,13 @@ static pmm::model_t *_fm_load( PM_PARAMS_LOAD ){
 	if ( ( strcmp( fm.fm_st_hdr->ident, FM_STCOORDCHUNKNAME ) ) ) {
 		_pico_printf( pmm::pl_warning, "FM ST Ident incorrect\n" );
 		_pico_free( bb0 );
-		return NULL;
+		return nullptr;
 	}
 
 	if ( _pico_little_long( fm.fm_st_hdr->version ) != FM_STCOORDCHUNKVER ) {
 		_pico_printf( pmm::pl_warning, "FM ST Version incorrect\n" );
 		_pico_free( bb0 );
-		return NULL;
+		return nullptr;
 	}
 
 	// Tris Header
@@ -268,13 +268,13 @@ static pmm::model_t *_fm_load( PM_PARAMS_LOAD ){
 	if ( ( strcmp( fm.fm_tri_hdr->ident, FM_TRISCHUNKNAME ) ) ) {
 		_pico_printf( pmm::pl_warning, "FM Tri Ident incorrect\n" );
 		_pico_free( bb0 );
-		return NULL;
+		return nullptr;
 	}
 
 	if ( _pico_little_long( fm.fm_tri_hdr->version ) != FM_TRISCHUNKVER ) {
 		_pico_printf( pmm::pl_warning, "FM Tri Version incorrect\n" );
 		_pico_free( bb0 );
-		return NULL;
+		return nullptr;
 	}
 
 	// Frame Header
@@ -283,13 +283,13 @@ static pmm::model_t *_fm_load( PM_PARAMS_LOAD ){
 	if ( ( strcmp( fm.fm_frame_hdr->ident, FM_FRAMESCHUNKNAME ) ) ) {
 		_pico_printf( pmm::pl_warning, "FM Frame Ident incorrect\n" );
 		_pico_free( bb0 );
-		return NULL;
+		return nullptr;
 	}
 
 	if ( _pico_little_long( fm.fm_frame_hdr->version ) != FM_FRAMESCHUNKVER ) {
 		_pico_printf( pmm::pl_warning, "FM Frame Version incorrect\n" );
 		_pico_free( bb0 );
-		return NULL;
+		return nullptr;
 	}
 
 	// Header
@@ -320,13 +320,13 @@ static pmm::model_t *_fm_load( PM_PARAMS_LOAD ){
 	if ( fm_head->numFrames < 1 ) {
 		_pico_printf( pmm::pl_error, "%s has 0 frames!", fileName );
 		_pico_free( bb0 );
-		return NULL;
+		return nullptr;
 	}
 
 	if ( frameNum < 0 || frameNum >= fm_head->numFrames ) {
 		_pico_printf( pmm::pl_error, "Invalid or out-of-range FM frame specified" );
 		_pico_free( bb0 );
-		return NULL;
+		return nullptr;
 	}
 
 	// swap fm
@@ -379,10 +379,10 @@ static pmm::model_t *_fm_load( PM_PARAMS_LOAD ){
 
 	/* create new pico model */
 	picoModel = pmm::pp_new_model();
-	if ( picoModel == NULL ) {
+	if ( picoModel == nullptr ) {
 		_pico_printf( pmm::pl_error, "Unable to allocate a new model" );
 		_pico_free( bb0 );
-		return NULL;
+		return nullptr;
 	}
 
 	/* do model setup */
@@ -393,22 +393,22 @@ static pmm::model_t *_fm_load( PM_PARAMS_LOAD ){
 
 	// allocate new pico surface
 	picoSurface = pmm::pp_new_surface( picoModel );
-	if ( picoSurface == NULL ) {
+	if ( picoSurface == nullptr ) {
 		_pico_printf( pmm::pl_error, "Unable to allocate a new model surface" );
 		pmm::pp_free_model( picoModel );
 		_pico_free( bb0 );
-		return NULL;
+		return nullptr;
 	}
 
 
 	pmm::pp_set_surface_type( picoSurface, pmm::st_triangles );
 	pmm::pp_set_surface_name( picoSurface, frame->header.name );
 	picoShader = pmm::pp_new_shader( picoModel );
-	if ( picoShader == NULL ) {
+	if ( picoShader == nullptr ) {
 		_pico_printf( pmm::pl_error, "Unable to allocate a new model shader" );
 		pmm::pp_free_model( picoModel );
 		_pico_free( bb0 );
-		return NULL;
+		return nullptr;
 	}
 
 	pmm::pp_set_shader_name( picoShader, skinname );
@@ -422,7 +422,7 @@ static pmm::model_t *_fm_load( PM_PARAMS_LOAD ){
 	{
 		p_index_LUT[i].Vert = -1;
 		p_index_LUT[i].ST = -1;
-		p_index_LUT[i].next = NULL;
+		p_index_LUT[i].next = nullptr;
 	}
 
 	// Fill in Look Up Table, and allocate/fill Linked List from vert array as needed for dup STs per Vert.
@@ -443,16 +443,16 @@ static pmm::model_t *_fm_load( PM_PARAMS_LOAD ){
 #endif
 				continue;
 			}
-			else if ( ( p_index_LUT[triangle->index_xyz[j]].next == NULL ) ) { // Not equal to Main entry, and no LL entry
+			else if ( ( p_index_LUT[triangle->index_xyz[j]].next == nullptr ) ) { // Not equal to Main entry, and no LL entry
 				// Add first entry of LL from Main
 				p_index_LUT2 = (index_LUT_t *)_pico_alloc( sizeof( index_LUT_t ) );
-				if ( p_index_LUT2 == NULL ) {
+				if ( p_index_LUT2 == nullptr ) {
 					_pico_printf( pmm::pl_normal, " Couldn't allocate memory!\n" );
 				}
 				p_index_LUT[triangle->index_xyz[j]].next = (index_LUT_t *)p_index_LUT2;
 				p_index_LUT2->Vert = dups;
 				p_index_LUT2->ST = triangle->index_st[j];
-				p_index_LUT2->next = NULL;
+				p_index_LUT2->next = nullptr;
 #ifdef FM_VERBOSE_DBG
 				_pico_printf( pmm::pl_normal, " ADDING first LL XYZ:%d DUP:%d ST:%d\n", triangle->index_xyz[j], dups, triangle->index_st[j] );
 #endif
@@ -462,7 +462,7 @@ static pmm::model_t *_fm_load( PM_PARAMS_LOAD ){
 			else // Try to find in LL from Main Entry
 			{
 				p_index_LUT3 = p_index_LUT2 = p_index_LUT[triangle->index_xyz[j]].next;
-				while ( ( p_index_LUT2 != NULL ) && ( triangle->index_xyz[j] != p_index_LUT2->Vert ) ) // Walk down LL
+				while ( ( p_index_LUT2 != nullptr ) && ( triangle->index_xyz[j] != p_index_LUT2->Vert ) ) // Walk down LL
 				{
 					p_index_LUT3 = p_index_LUT2;
 					p_index_LUT2 = p_index_LUT2->next;
@@ -477,16 +477,16 @@ static pmm::model_t *_fm_load( PM_PARAMS_LOAD ){
 					continue;
 				}
 
-				if ( p_index_LUT2->next == NULL ) { // Didn't find it. Add entry to LL.
+				if ( p_index_LUT2->next == nullptr ) { // Didn't find it. Add entry to LL.
 					// Add the Entry
 					p_index_LUT3 = (index_LUT_t *)_pico_alloc( sizeof( index_LUT_t ) );
-					if ( p_index_LUT3 == NULL ) {
+					if ( p_index_LUT3 == nullptr ) {
 						_pico_printf( pmm::pl_normal, " Couldn't allocate memory!\n" );
 					}
 					p_index_LUT2->next = (index_LUT_t *)p_index_LUT3;
 					p_index_LUT3->Vert = dups;
 					p_index_LUT3->ST = triangle->index_st[j];
-					p_index_LUT3->next = NULL;
+					p_index_LUT3->next = nullptr;
 #ifdef FM_VERBOSE_DBG
 					_pico_printf( pmm::pl_normal, " ADDING additional LL XYZ:%d DUP:%d NewXYZ:%d ST:%d\n", triangle->index_xyz[j], dups, dups + ( fm_head->numXYZ ), triangle->index_st[j] );
 #endif
@@ -503,7 +503,7 @@ static pmm::model_t *_fm_load( PM_PARAMS_LOAD ){
 
 	// malloc and build array for Dup STs
 	p_index_LUT_DUPS = (index_DUP_LUT_t *)_pico_alloc( sizeof( index_DUP_LUT_t ) * dups );
-	if ( p_index_LUT_DUPS == NULL ) {
+	if ( p_index_LUT_DUPS == nullptr ) {
 		_pico_printf( pmm::pl_normal, " Couldn't allocate memory!\n" );
 	}
 
@@ -511,7 +511,7 @@ static pmm::model_t *_fm_load( PM_PARAMS_LOAD ){
 	for ( i = 0; i < fm_head->numXYZ; i++ )
 	{
 		p_index_LUT2 = p_index_LUT[i].next;
-		while ( p_index_LUT2 != NULL )
+		while ( p_index_LUT2 != nullptr )
 		{
 			p_index_LUT_DUPS[p_index_LUT2->Vert].OldVert = i;
 			p_index_LUT_DUPS[p_index_LUT2->Vert].ST = p_index_LUT2->ST;
@@ -528,7 +528,7 @@ static pmm::model_t *_fm_load( PM_PARAMS_LOAD ){
 #ifdef FM_VERBOSE_DBG
 		_pico_printf( pmm::pl_normal, "Vert: %4d\t%4d",i, p_index_LUT[i].ST );
 #endif
-		if ( p_index_LUT[i].next != NULL ) {
+		if ( p_index_LUT[i].next != nullptr ) {
 
 			p_index_LUT2 = p_index_LUT[i].next;
 			do {
@@ -536,7 +536,7 @@ static pmm::model_t *_fm_load( PM_PARAMS_LOAD ){
 				_pico_printf( pmm::pl_normal, " %4d %4d", p_index_LUT2->Vert, p_index_LUT2->ST );
 #endif
 				p_index_LUT2 = p_index_LUT2->next;
-			} while ( p_index_LUT2 != NULL );
+			} while ( p_index_LUT2 != nullptr );
 
 		}
 #ifdef FM_VERBOSE_DBG
@@ -567,7 +567,7 @@ static pmm::model_t *_fm_load( PM_PARAMS_LOAD ){
 		pmm::pp_set_surface_index( picoSurface, j * 3 + 2, triangle->index_xyz[2] );
 	}
 
-	vert = (fm_vert_normal_t*) ( (pmm::byte_t*) ( frame->verts ) );
+	vert = (fm_vert_normal_t*) ( (pmm::ub8_t*) ( frame->verts ) );
 	for ( i = 0; i < fm_head->numXYZ; i++, vert++ )
 	{
 		/* set vertex origin */
@@ -617,14 +617,14 @@ static pmm::model_t *_fm_load( PM_PARAMS_LOAD ){
 	// Free up malloc'ed LL entries
 	for ( i = 0; i < fm_head->numXYZ; i++ )
 	{
-		if ( p_index_LUT[i].next != NULL ) {
+		if ( p_index_LUT[i].next != nullptr ) {
 			p_index_LUT2 = p_index_LUT[i].next;
 			do {
 				p_index_LUT3 = p_index_LUT2->next;
 				_pico_free( p_index_LUT2 );
 				p_index_LUT2 = p_index_LUT3;
 				dups--;
-			} while ( p_index_LUT2 != NULL );
+			} while ( p_index_LUT2 != nullptr );
 		}
 	}
 
@@ -652,10 +652,10 @@ extern const pmm::module_t picoModuleFM =
 	"Nurail",                   /* author's name */
 	"2003 Nurail",              /* module copyright */
 	{
-		"fm", NULL, NULL, NULL  /* default extensions to use */
+		"fm", nullptr, nullptr, nullptr  /* default extensions to use */
 	},
 	_fm_canload,                /* validation routine */
 	_fm_load,                   /* load routine */
-	NULL,                       /* save validation routine */
-	NULL                        /* save routine */
+	nullptr,                       /* save validation routine */
+	nullptr                        /* save routine */
 };

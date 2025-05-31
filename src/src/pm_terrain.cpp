@@ -64,9 +64,9 @@ void _terrain_load_tga_buffer( unsigned char *buffer, unsigned char **pic, int *
 	unsigned char   *targa_rgba;
 
 
-	*pic = NULL;
+	*pic = nullptr;
 
-	if ( buffer == NULL ) {
+	if ( buffer == nullptr ) {
 		return;
 	}
 
@@ -94,7 +94,7 @@ void _terrain_load_tga_buffer( unsigned char *buffer, unsigned char **pic, int *
 
 	if ( targa_header.image_type != 2 && targa_header.image_type != 10 && targa_header.image_type != 3 ) {
 		_pico_printf( pmm::pl_error, "Only type 2 (RGB), 3 (gray), and 10 (RGB) TGA images supported\n" );
-		pic = NULL;
+		pic = nullptr;
 		return;
 	}
 
@@ -105,7 +105,7 @@ void _terrain_load_tga_buffer( unsigned char *buffer, unsigned char **pic, int *
 
 	if ( targa_header.pixel_size != 32 && targa_header.pixel_size != 24 && targa_header.image_type != 3 ) {
 		_pico_printf( pmm::pl_error, "Only 32 or 24 bit TGA images supported (not indexed color)\n" );
-		pic = NULL;
+		pic = nullptr;
 		return;
 	}
 
@@ -296,13 +296,13 @@ static int _terrain_canload( PM_PARAMS_CANLOAD ) {
 
 
 	/* create pico parser */
-	p = _pico_new_parser( (const pmm::byte_t*) buffer, bufSize );
-	if ( p == NULL ) {
+	p = _pico_new_parser( (const pmm::ub8_t*) buffer, bufSize );
+	if ( p == nullptr ) {
 		return pmm::pmv_error_memory;
 	}
 
 	/* get first token */
-	if ( _pico_parse_first( p ) == NULL ) {
+	if ( _pico_parse_first( p ) == nullptr ) {
 		return pmm::pmv_error_ident;
 	}
 
@@ -346,25 +346,25 @@ static pmm::model_t *_terrain_load( PM_PARAMS_LOAD ) {
 
 
 	/* create pico parser */
-	p = _pico_new_parser( (const pmm::byte_t*) buffer, bufSize );
-	if ( p == NULL ) {
-		return NULL;
+	p = _pico_new_parser( (const pmm::ub8_t*) buffer, bufSize );
+	if ( p == nullptr ) {
+		return nullptr;
 	}
 
 	/* get first token */
-	if ( _pico_parse_first( p ) == NULL ) {
-		return NULL;
+	if ( _pico_parse_first( p ) == nullptr ) {
+		return nullptr;
 	}
 
 	/* check first token */
 	if ( _pico_stricmp( p->token, "picoterrain" ) ) {
 		_pico_printf( pmm::pl_error, "Invalid PicoTerrain model" );
 		_pico_free_parser( p );
-		return NULL;
+		return nullptr;
 	}
 
 	/* setup */
-	shader = heightmapFile = colormapFile = NULL;
+	shader = heightmapFile = colormapFile = nullptr;
 	_pico_set_vec( scale, 512, 512, 32 );
 
 	/* parse ase model file */
@@ -383,7 +383,7 @@ static pmm::model_t *_terrain_load( PM_PARAMS_LOAD ) {
 		/* shader */
 		if ( !_pico_stricmp( p->token, "shader" ) ) {
 			if ( _pico_parse( p, 0 ) && p->token[ 0 ] ) {
-				if ( shader != NULL ) {
+				if ( shader != nullptr ) {
 					_pico_free( shader );
 				}
 				shader = _pico_clone_alloc( p->token );
@@ -393,7 +393,7 @@ static pmm::model_t *_terrain_load( PM_PARAMS_LOAD ) {
 		/* heightmap */
 		else if ( !_pico_stricmp( p->token, "heightmap" ) ) {
 			if ( _pico_parse( p, 0 ) && p->token[ 0 ] ) {
-				if ( heightmapFile != NULL ) {
+				if ( heightmapFile != nullptr ) {
 					_pico_free( heightmapFile );
 				}
 				heightmapFile = _pico_clone_alloc( p->token );
@@ -403,7 +403,7 @@ static pmm::model_t *_terrain_load( PM_PARAMS_LOAD ) {
 		/* colormap */
 		else if ( !_pico_stricmp( p->token, "colormap" ) ) {
 			if ( _pico_parse( p, 0 ) && p->token[ 0 ] ) {
-				if ( colormapFile != NULL ) {
+				if ( colormapFile != nullptr ) {
 					_pico_free( colormapFile );
 				}
 				colormapFile = _pico_clone_alloc( p->token );
@@ -422,29 +422,29 @@ static pmm::model_t *_terrain_load( PM_PARAMS_LOAD ) {
 	/* ----------------------------------------------------------------- */
 
 	/* load heightmap */
-	heightmap = imageBuffer = NULL;
+	heightmap = imageBuffer = nullptr;
 	_pico_load_file( heightmapFile, &imageBuffer, &imageBufSize );
 	_terrain_load_tga_buffer( imageBuffer, &heightmap, &w, &h );
 	_pico_free( heightmapFile );
 	_pico_free_file( imageBuffer );
 
-	if ( heightmap == NULL || w < 2 || h < 2 ) {
+	if ( heightmap == nullptr || w < 2 || h < 2 ) {
 		_pico_printf( pmm::pl_error, "PicoTerrain model with invalid heightmap" );
-		if ( shader != NULL ) {
+		if ( shader != nullptr ) {
 			_pico_free( shader );
 		}
-		if ( colormapFile != NULL ) {
+		if ( colormapFile != nullptr ) {
 			_pico_free( colormapFile );
 		}
 		_pico_free_parser( p );
-		return NULL;
+		return nullptr;
 	}
 
 	/* set origin (bottom lowest corner of terrain mesh) */
 	_pico_set_vec( origin, ( w / -2 ) * scale[ 0 ], ( h / -2 ) * scale[ 1 ], -128 * scale[ 2 ] );
 
 	/* load colormap */
-	colormap = imageBuffer = NULL;
+	colormap = imageBuffer = nullptr;
 	_pico_load_file( colormapFile, &imageBuffer, &imageBufSize );
 	_terrain_load_tga_buffer( imageBuffer, &colormap, &cw, &ch );
 	_pico_free( colormapFile );
@@ -453,16 +453,16 @@ static pmm::model_t *_terrain_load( PM_PARAMS_LOAD ) {
 	if ( cw != w || ch != h ) {
 		_pico_printf( pmm::pl_warning, "PicoTerrain colormap/heightmap size mismatch" );
 		_pico_free( colormap );
-		colormap = NULL;
+		colormap = nullptr;
 	}
 
 	/* ----------------------------------------------------------------- */
 
 	/* create new pico model */
 	picoModel = pmm::pp_new_model();
-	if ( picoModel == NULL ) {
+	if ( picoModel == nullptr ) {
 		_pico_printf( pmm::pl_error, "Unable to allocate a new model" );
-		return NULL;
+		return nullptr;
 	}
 
 	/* do model setup */
@@ -473,10 +473,10 @@ static pmm::model_t *_terrain_load( PM_PARAMS_LOAD ) {
 
 	/* allocate new pico surface */
 	picoSurface = pmm::pp_new_surface( picoModel );
-	if ( picoSurface == NULL ) {
+	if ( picoSurface == nullptr ) {
 		_pico_printf( pmm::pl_error, "Unable to allocate a new model surface" );
 		pmm::pp_free_model( picoModel ); /* sea */
-		return NULL;
+		return nullptr;
 	}
 
 	/* terrain surfaces are triangle meshes */
@@ -487,11 +487,11 @@ static pmm::model_t *_terrain_load( PM_PARAMS_LOAD ) {
 
 	/* create new pico shader */
 	picoShader = pmm::pp_new_shader( picoModel );
-	if ( picoShader == NULL ) {
+	if ( picoShader == nullptr ) {
 		_pico_printf( pmm::pl_error, "Unable to allocate a new model shader" );
 		pmm::pp_free_model( picoModel );
 		_pico_free( shader );
-		return NULL;
+		return nullptr;
 	}
 
 	/* detox and set shader name */
@@ -516,7 +516,7 @@ static pmm::model_t *_terrain_load( PM_PARAMS_LOAD ) {
 			heightPixel = heightmap + v * 4;
 			colorPixel = colormap
 						 ? colormap + v * 4
-						 : NULL;
+						 : nullptr;
 
 			/* set xyz */
 			_pico_set_vec( xyz, origin[ 0 ] + scale[ 0 ] * i,
@@ -533,7 +533,7 @@ static pmm::model_t *_terrain_load( PM_PARAMS_LOAD ) {
 			pmm::pp_set_surface_st( picoSurface, 0, v, st );
 
 			/* set color */
-			if ( colorPixel != NULL ) {
+			if ( colorPixel != nullptr ) {
 				_pico_set_color( color, colorPixel[ 0 ], colorPixel[ 1 ], colorPixel[ 2 ], colorPixel[ 3 ] );
 			}
 			else{
@@ -585,10 +585,10 @@ extern const pmm::module_t picoModuleTerrain =
 	"Randy Reddig",             /* author's name */
 	"2003 Randy Reddig",        /* module copyright */
 	{
-		"picoterrain", NULL, NULL, NULL /* default extensions to use */
+		"picoterrain", nullptr, nullptr, nullptr /* default extensions to use */
 	},
 	_terrain_canload,           /* validation routine */
 	_terrain_load,              /* load routine */
-	NULL,                       /* save validation routine */
-	NULL                        /* save routine */
+	nullptr,                       /* save validation routine */
+	nullptr                        /* save routine */
 };

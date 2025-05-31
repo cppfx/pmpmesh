@@ -63,7 +63,7 @@ int pmm::pp_manager::pp_error()
  */
 
 void pmm::pp_set_malloc_func( void *( *func )( pmm::std_size_t ) ){
-	if ( func != NULL ) {
+	if ( func != nullptr ) {
 		_pico_ptr_malloc = func;
 	}
 }
@@ -76,7 +76,7 @@ void pmm::pp_set_malloc_func( void *( *func )( pmm::std_size_t ) ){
  */
 
 void pmm::pp_set_free_func( void ( *func )( void* ) ){
-	if ( func != NULL ) {
+	if ( func != nullptr ) {
 		_pico_ptr_free = func;
 	}
 }
@@ -89,7 +89,7 @@ void pmm::pp_set_free_func( void ( *func )( void* ) ){
  */
 
 void pmm::pp_set_load_file_func( void ( *func )( const char*, unsigned char**, int* ) ){
-	if ( func != NULL ) {
+	if ( func != nullptr ) {
 		_pico_ptr_load_file = func;
 	}
 }
@@ -102,7 +102,7 @@ void pmm::pp_set_load_file_func( void ( *func )( const char*, unsigned char**, i
  */
 
 void pmm::pp_set_free_file_func( void ( *func )( void* ) ){
-	if ( func != NULL ) {
+	if ( func != nullptr ) {
 		_pico_ptr_free_file = func;
 	}
 }
@@ -115,23 +115,23 @@ void pmm::pp_set_free_file_func( void ( *func )( void* ) ){
  */
 
 void pmm::pp_set_print_func( void ( *func )( int, const char* ) ){
-	if ( func != NULL ) {
+	if ( func != nullptr ) {
 		_pico_ptr_print = func;
 	}
 }
 
 
 
-pmm::model_t *PicoModuleLoadModel( const pmm::module_t* pm, const char* fileName, pmm::byte_t* buffer, int bufSize, int frameNum ){
+pmm::model_t *PicoModuleLoadModel( const pmm::module_t* pm, const char* fileName, pmm::ub8_t* buffer, int bufSize, int frameNum ){
 	char                *modelFileName, *remapFileName;
 
 	/* see whether this module can load the model file or not */
 	if ( pm->canload( fileName, buffer, bufSize ) == pmm::pmv_ok ) {
 		/* use loader provided by module to read the model data */
 		pmm::model_t* model = pm->load( fileName, frameNum, buffer, bufSize );
-		if ( model == NULL ) {
+		if ( model == nullptr ) {
 			_pico_free_file( buffer );
-			return NULL;
+			return nullptr;
 		}
 
 		/* assign pointer to file format module */
@@ -144,7 +144,7 @@ pmm::model_t *PicoModuleLoadModel( const pmm::module_t* pm, const char* fileName
 		if ( strlen( modelFileName ) ) {
 			/* alloc copy of model file name */
 			remapFileName = reinterpret_cast<decltype(remapFileName)>(_pico_alloc( strlen( modelFileName ) + 20 ));
-			if ( remapFileName != NULL ) {
+			if ( remapFileName != nullptr ) {
 				/* copy model file name and change extension */
 				strcpy( remapFileName, modelFileName );
 				_pico_setfext( remapFileName, "remap" );
@@ -160,7 +160,7 @@ pmm::model_t *PicoModuleLoadModel( const pmm::module_t* pm, const char* fileName
 		return model;
 	}
 
-	return NULL;
+	return nullptr;
 }
 
 /*
@@ -171,48 +171,48 @@ pmm::model_t *PicoModuleLoadModel( const pmm::module_t* pm, const char* fileName
 pmm::model_t *pmm::pp_load_model( const char *fileName, int frameNum ){
 	const pmm::module_t  **modules, *pm;
 	pmm::model_t         *model;
-	pmm::byte_t          *buffer;
+	pmm::ub8_t          *buffer;
 	int bufSize;
 
 
 	/* init */
-	model = NULL;
+	model = nullptr;
 
 	/* make sure we've got a file name */
-	if ( fileName == NULL ) {
-		_pico_printf( pmm::pl_error, "pmm::pp_load_model: No filename given (fileName == NULL)" );
-		return NULL;
+	if ( fileName == nullptr ) {
+		_pico_printf( pmm::pl_error, "pmm::pp_load_model: No filename given (fileName == nullptr)" );
+		return nullptr;
 	}
 
 	/* load file data (buffer is allocated by host app) */
 	_pico_load_file( fileName, &buffer, &bufSize );
 	if ( bufSize < 0 ) {
 		_pico_printf( pmm::pl_error, "pmm::pp_load_model: Failed loading model %s", fileName );
-		return NULL;
+		return nullptr;
 	}
 
 	/* get ptr to list of supported modules */
-	modules = pmm::pp_module_list( NULL );
+	modules = pmm::pp_module_list( nullptr );
 
 	/* run it through the various loader functions and try */
 	/* to find a loader that fits the given file data */
-	for ( ; *modules != NULL; modules++ )
+	for ( ; *modules != nullptr; modules++ )
 	{
 		/* get module */
 		pm = *modules;
 
 		/* sanity check */
-		if ( pm == NULL ) {
+		if ( pm == nullptr ) {
 			break;
 		}
 
 		/* module must be able to load */
-		if ( pm->canload == NULL || pm->load == NULL ) {
+		if ( pm->canload == nullptr || pm->load == nullptr ) {
 			continue;
 		}
 
 		model = PicoModuleLoadModel( pm, fileName, buffer, bufSize, frameNum );
-		if ( model != NULL ) {
+		if ( model != nullptr ) {
 			/* model was loaded, so break out of loop */
 			break;
 		}
@@ -229,21 +229,21 @@ pmm::model_t *pmm::pp_load_model( const char *fileName, int frameNum ){
 
 pmm::model_t *pmm::pp_module_load_model_stream( const pmm::module_t* module, void* inputStream, pmm::pp_input_stream_read_func inputStreamRead, pmm::std_size_t streamLength, int frameNum, const char *fileName ){
 	pmm::model_t         *model;
-	pmm::byte_t          *buffer;
+	pmm::ub8_t          *buffer;
 	int bufSize;
 
 
 	/* init */
-	model = NULL;
+	model = nullptr;
 
-	if ( inputStream == NULL ) {
-		_pico_printf( pmm::pl_error, "pmm::pp_load_model: invalid input stream (inputStream == NULL)" );
-		return NULL;
+	if ( inputStream == nullptr ) {
+		_pico_printf( pmm::pl_error, "pmm::pp_load_model: invalid input stream (inputStream == nullptr)" );
+		return nullptr;
 	}
 
-	if ( inputStreamRead == NULL ) {
-		_pico_printf( pmm::pl_error, "pmm::pp_load_model: invalid input stream (inputStreamRead == NULL)" );
-		return NULL;
+	if ( inputStreamRead == nullptr ) {
+		_pico_printf( pmm::pl_error, "pmm::pp_load_model: invalid input stream (inputStreamRead == nullptr)" );
+		return nullptr;
 	}
 
 	buffer = reinterpret_cast<decltype(buffer)>(_pico_alloc( streamLength + 1 ));
@@ -276,8 +276,8 @@ pmm::model_t *pmm::pp_new_model( void ){
 
 	/* allocate */
 	model = reinterpret_cast<decltype(model)>(_pico_alloc( sizeof( pmm::model_t ) ));
-	if ( model == NULL ) {
-		return NULL;
+	if ( model == nullptr ) {
+		return nullptr;
 	}
 
 	/* clear */
@@ -305,7 +305,7 @@ void pmm::pp_free_model( pmm::model_t *model ){
 
 
 	/* sanity check */
-	if ( model == NULL ) {
+	if ( model == nullptr ) {
 		return;
 	}
 
@@ -342,7 +342,7 @@ void pmm::pp_free_model( pmm::model_t *model ){
 
 int pmm::pp_adjust_model( pmm::model_t *model, int num_shaders, int num_surfaces ){
 	/* dummy check */
-	if ( model == NULL ) {
+	if ( model == nullptr ) {
 		return 0;
 	}
 
@@ -404,17 +404,17 @@ pmm::shader_t *pmm::pp_new_shader( pmm::model_t *model ){
 
 	/* allocate and clear */
 	shader = reinterpret_cast<decltype(shader)>(_pico_alloc( sizeof( pmm::shader_t ) ));
-	if ( shader == NULL ) {
-		return NULL;
+	if ( shader == nullptr ) {
+		return nullptr;
 	}
 	memset( shader, 0, sizeof( pmm::shader_t ) );
 
 	/* attach it to the model */
-	if ( model != NULL ) {
+	if ( model != nullptr ) {
 		/* adjust model */
 		if ( !pmm::pp_adjust_model( model, model->num_shaders + 1, 0 ) ) {
 			_pico_free( shader );
-			return NULL;
+			return nullptr;
 		}
 
 		/* attach */
@@ -444,7 +444,7 @@ pmm::shader_t *pmm::pp_new_shader( pmm::model_t *model ){
 
 void pmm::pp_free_shader( pmm::shader_t *shader ){
 	/* dummy check */
-	if ( shader == NULL ) {
+	if ( shader == nullptr ) {
 		return;
 	}
 
@@ -472,16 +472,16 @@ pmm::shader_t *pmm::pp_find_shader( pmm::model_t *model, char *name, int caseSen
 
 
 	/* sanity checks */
-	if ( model == NULL || name == NULL ) { /* sea: null name fix */
-		return NULL;
+	if ( model == nullptr || name == nullptr ) { /* sea: null name fix */
+		return nullptr;
 	}
 
 	/* walk list */
 	for ( i = 0; i < model->num_shaders; i++ )
 	{
 		/* skip null shaders or shaders with null names */
-		if ( model->shader[ i ] == NULL ||
-			 model->shader[ i ]->name == NULL ) {
+		if ( model->shader[ i ] == nullptr ||
+			 model->shader[ i ]->name == nullptr ) {
 			continue;
 		}
 
@@ -497,7 +497,7 @@ pmm::shader_t *pmm::pp_find_shader( pmm::model_t *model, char *name, int caseSen
 	}
 
 	/* named shader not found */
-	return NULL;
+	return nullptr;
 }
 
 
@@ -517,17 +517,17 @@ pmm::surface_t *pmm::pp_new_surface( pmm::model_t *model ){
 
 	/* allocate and clear */
 	surface = reinterpret_cast<decltype(surface)>(_pico_alloc( sizeof( *surface ) ));
-	if ( surface == NULL ) {
-		return NULL;
+	if ( surface == nullptr ) {
+		return nullptr;
 	}
 	memset( surface, 0, sizeof( *surface ) );
 
 	/* attach it to the model */
-	if ( model != NULL ) {
+	if ( model != nullptr ) {
 		/* adjust model */
 		if ( !pmm::pp_adjust_model( model, 0, model->num_surfaces + 1 ) ) {
 			_pico_free( surface );
-			return NULL;
+			return nullptr;
 		}
 
 		/* attach */
@@ -554,7 +554,7 @@ void pmm::pp_free_surface( pmm::surface_t *surface ){
 
 
 	/* dummy check */
-	if ( surface == NULL ) {
+	if ( surface == nullptr ) {
 		return;
 	}
 
@@ -594,7 +594,7 @@ int pmm::pp_adjust_surface( pmm::surface_t *surface, int numVertexes, int numSTA
 
 
 	/* dummy check */
-	if ( surface == NULL ) {
+	if ( surface == nullptr ) {
 		return 0;
 	}
 
@@ -711,16 +711,16 @@ pmm::surface_t *pmm::pp_find_surface(
 	int i;
 
 	/* sanity check */
-	if ( model == NULL || name == NULL ) {
-		return NULL;
+	if ( model == nullptr || name == nullptr ) {
+		return nullptr;
 	}
 
 	/* walk list */
 	for ( i = 0; i < model->num_surfaces; i++ )
 	{
 		/* skip null surfaces or surfaces with null names */
-		if ( model->surface[ i ] == NULL ||
-			 model->surface[ i ]->name == NULL ) {
+		if ( model->surface[ i ] == nullptr ||
+			 model->surface[ i ]->name == nullptr ) {
 			continue;
 		}
 
@@ -737,7 +737,7 @@ pmm::surface_t *pmm::pp_find_surface(
 		}
 	}
 	/* named surface not found */
-	return NULL;
+	return nullptr;
 }
 
 
@@ -747,10 +747,10 @@ pmm::surface_t *pmm::pp_find_surface(
    ----------------------------------------------------------------------------*/
 
 void pmm::pp_set_model_name( pmm::model_t *model, const char *name ){
-	if ( model == NULL || name == NULL ) {
+	if ( model == nullptr || name == nullptr ) {
 		return;
 	}
-	if ( model->name != NULL ) {
+	if ( model->name != nullptr ) {
 		_pico_free( model->name );
 	}
 
@@ -760,10 +760,10 @@ void pmm::pp_set_model_name( pmm::model_t *model, const char *name ){
 
 
 void pmm::pp_set_model_file_name( pmm::model_t *model, const char *fileName ){
-	if ( model == NULL || fileName == NULL ) {
+	if ( model == nullptr || fileName == nullptr ) {
 		return;
 	}
-	if ( model->fileName != NULL ) {
+	if ( model->fileName != nullptr ) {
 		_pico_free( model->fileName );
 	}
 
@@ -773,7 +773,7 @@ void pmm::pp_set_model_file_name( pmm::model_t *model, const char *fileName ){
 
 
 void pmm::pp_set_model_frame_num( pmm::model_t *model, int frameNum ){
-	if ( model == NULL ) {
+	if ( model == nullptr ) {
 		return;
 	}
 	model->frameNum = frameNum;
@@ -782,7 +782,7 @@ void pmm::pp_set_model_frame_num( pmm::model_t *model, int frameNum ){
 
 
 void pmm::pp_set_model_num_frames( pmm::model_t *model, int numFrames ){
-	if ( model == NULL ) {
+	if ( model == nullptr ) {
 		return;
 	}
 	model->numFrames = numFrames;
@@ -791,7 +791,7 @@ void pmm::pp_set_model_num_frames( pmm::model_t *model, int numFrames ){
 
 
 void pmm::pp_set_model_data( pmm::model_t *model, void *data ){
-	if ( model == NULL ) {
+	if ( model == nullptr ) {
 		return;
 	}
 	model->data = data;
@@ -800,10 +800,10 @@ void pmm::pp_set_model_data( pmm::model_t *model, void *data ){
 
 
 void pmm::pp_set_shader_name( pmm::shader_t *shader, char *name ){
-	if ( shader == NULL || name == NULL ) {
+	if ( shader == nullptr || name == nullptr ) {
 		return;
 	}
-	if ( shader->name != NULL ) {
+	if ( shader->name != nullptr ) {
 		_pico_free( shader->name );
 	}
 
@@ -813,10 +813,10 @@ void pmm::pp_set_shader_name( pmm::shader_t *shader, char *name ){
 
 
 void pmm::pp_set_shader_map_name( pmm::shader_t *shader, char *mapName ){
-	if ( shader == NULL || mapName == NULL ) {
+	if ( shader == nullptr || mapName == nullptr ) {
 		return;
 	}
-	if ( shader->mapName != NULL ) {
+	if ( shader->mapName != nullptr ) {
 		_pico_free( shader->mapName );
 	}
 
@@ -826,7 +826,7 @@ void pmm::pp_set_shader_map_name( pmm::shader_t *shader, char *mapName ){
 
 
 void pmm::pp_set_shader_ambient_color( pmm::shader_t *shader, pmm::color_t color ){
-	if ( shader == NULL || color == NULL ) {
+	if ( shader == nullptr || color == nullptr ) {
 		return;
 	}
 	shader->ambientColor[ 0 ] = color[ 0 ];
@@ -838,7 +838,7 @@ void pmm::pp_set_shader_ambient_color( pmm::shader_t *shader, pmm::color_t color
 
 
 void pmm::pp_set_shader_diffuse_color( pmm::shader_t *shader, pmm::color_t color ){
-	if ( shader == NULL || color == NULL ) {
+	if ( shader == nullptr || color == nullptr ) {
 		return;
 	}
 	shader->diffuseColor[ 0 ] = color[ 0 ];
@@ -850,7 +850,7 @@ void pmm::pp_set_shader_diffuse_color( pmm::shader_t *shader, pmm::color_t color
 
 
 void pmm::pp_set_shader_specular_color( pmm::shader_t *shader, pmm::color_t color ){
-	if ( shader == NULL || color == NULL ) {
+	if ( shader == nullptr || color == nullptr ) {
 		return;
 	}
 	shader->specularColor[ 0 ] = color[ 0 ];
@@ -862,7 +862,7 @@ void pmm::pp_set_shader_specular_color( pmm::shader_t *shader, pmm::color_t colo
 
 
 void pmm::pp_set_shader_transparency( pmm::shader_t *shader, float value ){
-	if ( shader == NULL ) {
+	if ( shader == nullptr ) {
 		return;
 	}
 	shader->transparency = value;
@@ -879,7 +879,7 @@ void pmm::pp_set_shader_transparency( pmm::shader_t *shader, float value ){
 
 
 void pmm::pp_set_shader_shininess( pmm::shader_t *shader, float value ){
-	if ( shader == NULL ) {
+	if ( shader == nullptr ) {
 		return;
 	}
 	shader->shininess = value;
@@ -896,7 +896,7 @@ void pmm::pp_set_shader_shininess( pmm::shader_t *shader, float value ){
 
 
 void pmm::pp_set_surface_data( pmm::surface_t *surface, void *data ){
-	if ( surface == NULL ) {
+	if ( surface == nullptr ) {
 		return;
 	}
 	surface->data = data;
@@ -905,7 +905,7 @@ void pmm::pp_set_surface_data( pmm::surface_t *surface, void *data ){
 
 
 void pmm::pp_set_surface_type( pmm::surface_t *surface, pmm::surface_type type ){
-	if ( surface == NULL ) {
+	if ( surface == nullptr ) {
 		return;
 	}
 	surface->type = type;
@@ -914,10 +914,10 @@ void pmm::pp_set_surface_type( pmm::surface_t *surface, pmm::surface_type type )
 
 
 void pmm::pp_set_surface_name( pmm::surface_t *surface, const char *name ){
-	if ( surface == NULL || name == NULL ) {
+	if ( surface == nullptr || name == nullptr ) {
 		return;
 	}
-	if ( surface->name != NULL ) {
+	if ( surface->name != nullptr ) {
 		_pico_free( surface->name );
 	}
 
@@ -927,7 +927,7 @@ void pmm::pp_set_surface_name( pmm::surface_t *surface, const char *name ){
 
 
 void pmm::pp_set_surface_shader( pmm::surface_t *surface, pmm::shader_t *shader ){
-	if ( surface == NULL ) {
+	if ( surface == nullptr ) {
 		return;
 	}
 	surface->shader = shader;
@@ -936,14 +936,14 @@ void pmm::pp_set_surface_shader( pmm::surface_t *surface, pmm::shader_t *shader 
 
 
 void pmm::pp_set_surface_xyz( pmm::surface_t *surface, int num, pmm::vec3_t xyz ){
-	if ( surface == NULL || num < 0 || xyz == NULL ) {
+	if ( surface == nullptr || num < 0 || xyz == nullptr ) {
 		return;
 	}
 	if ( !pmm::pp_adjust_surface( surface, num + 1, 0, 0, 0, 0 ) ) {
 		return;
 	}
 	_pico_copy_vec( xyz, surface->xyz[ num ] );
-	if ( surface->model != NULL ) {
+	if ( surface->model != nullptr ) {
 		_pico_expand_bounds( xyz, surface->model->mins, surface->model->maxs );
 	}
 }
@@ -951,7 +951,7 @@ void pmm::pp_set_surface_xyz( pmm::surface_t *surface, int num, pmm::vec3_t xyz 
 
 
 void pmm::pp_set_surface_normal( pmm::surface_t *surface, int num, pmm::vec3_t normal ){
-	if ( surface == NULL || num < 0 || normal == NULL ) {
+	if ( surface == nullptr || num < 0 || normal == nullptr ) {
 		return;
 	}
 	if ( !pmm::pp_adjust_surface( surface, num + 1, 0, 0, 0, 0 ) ) {
@@ -963,7 +963,7 @@ void pmm::pp_set_surface_normal( pmm::surface_t *surface, int num, pmm::vec3_t n
 
 
 void pmm::pp_set_surface_st( pmm::surface_t *surface, int array, int num, pmm::vec2_t st ){
-	if ( surface == NULL || num < 0 || st == NULL ) {
+	if ( surface == nullptr || num < 0 || st == nullptr ) {
 		return;
 	}
 	if ( !pmm::pp_adjust_surface( surface, num + 1, array + 1, 0, 0, 0 ) ) {
@@ -976,7 +976,7 @@ void pmm::pp_set_surface_st( pmm::surface_t *surface, int array, int num, pmm::v
 
 
 void pmm::pp_set_surface_color( pmm::surface_t *surface, int array, int num, pmm::color_t color ){
-	if ( surface == NULL || num < 0 || color == NULL ) {
+	if ( surface == nullptr || num < 0 || color == nullptr ) {
 		return;
 	}
 	if ( !pmm::pp_adjust_surface( surface, num + 1, 0, array + 1, 0, 0 ) ) {
@@ -991,7 +991,7 @@ void pmm::pp_set_surface_color( pmm::surface_t *surface, int array, int num, pmm
 
 
 void pmm::pp_set_surface_index( pmm::surface_t *surface, int num, pmm::index_t index ){
-	if ( surface == NULL || num < 0 ) {
+	if ( surface == nullptr || num < 0 ) {
 		return;
 	}
 	if ( !pmm::pp_adjust_surface( surface, 0, 0, 0, num + 1, 0 ) ) {
@@ -1003,7 +1003,7 @@ void pmm::pp_set_surface_index( pmm::surface_t *surface, int num, pmm::index_t i
 
 
 void pmm::pp_set_surface_indices( pmm::surface_t *surface, int num, pmm::index_t *index, int count ){
-	if ( num < 0 || index == NULL || count < 1 ) {
+	if ( num < 0 || index == nullptr || count < 1 ) {
 		return;
 	}
 	if ( !pmm::pp_adjust_surface( surface, 0, 0, 0, num + count, 0 ) ) {
@@ -1015,7 +1015,7 @@ void pmm::pp_set_surface_indices( pmm::surface_t *surface, int num, pmm::index_t
 
 
 void pmm::pp_set_face_normal( pmm::surface_t *surface, int num, pmm::vec3_t normal ){
-	if ( surface == NULL || num < 0 || normal == NULL ) {
+	if ( surface == nullptr || num < 0 || normal == nullptr ) {
 		return;
 	}
 	if ( !pmm::pp_adjust_surface( surface, 0, 0, 0, 0, num + 1 ) ) {
@@ -1037,7 +1037,7 @@ void pmm::pp_set_surface_smoothing_group( pmm::surface_t *surface, int num, pmm:
 
 
 void pmm::pp_set_surface_special( pmm::surface_t *surface, int num, int special ){
-	if ( surface == NULL || num < 0 || num >= pmm::ee_max_special ) {
+	if ( surface == nullptr || num < 0 || num >= pmm::ee_max_special ) {
 		return;
 	}
 	surface->special[ num ] = special;
@@ -1050,10 +1050,10 @@ void pmm::pp_set_surface_special( pmm::surface_t *surface, int num, int special 
    ----------------------------------------------------------------------------*/
 
 char *pmm::pp_get_model_name( pmm::model_t *model ){
-	if ( model == NULL ) {
-		return NULL;
+	if ( model == nullptr ) {
+		return nullptr;
 	}
-	if ( model->name == NULL ) {
+	if ( model->name == nullptr ) {
 		return (char*) "";
 	}
 	return model->name;
@@ -1062,10 +1062,10 @@ char *pmm::pp_get_model_name( pmm::model_t *model ){
 
 
 char *pmm::pp_get_model_file_name( pmm::model_t *model ){
-	if ( model == NULL ) {
-		return NULL;
+	if ( model == nullptr ) {
+		return nullptr;
 	}
-	if ( model->fileName == NULL ) {
+	if ( model->fileName == nullptr ) {
 		return (char*) "";
 	}
 	return model->fileName;
@@ -1074,7 +1074,7 @@ char *pmm::pp_get_model_file_name( pmm::model_t *model ){
 
 
 int pmm::pp_get_model_frame_num( pmm::model_t *model ){
-	if ( model == NULL ) {
+	if ( model == nullptr ) {
 		return 0;
 	}
 	return model->frameNum;
@@ -1083,7 +1083,7 @@ int pmm::pp_get_model_frame_num( pmm::model_t *model ){
 
 
 int pmm::pp_get_model_num_frames( pmm::model_t *model ){
-	if ( model == NULL ) {
+	if ( model == nullptr ) {
 		return 0;
 	}
 	return model->numFrames;
@@ -1092,8 +1092,8 @@ int pmm::pp_get_model_num_frames( pmm::model_t *model ){
 
 
 void *pmm::pp_get_model_data( pmm::model_t *model ){
-	if ( model == NULL ) {
-		return NULL;
+	if ( model == nullptr ) {
+		return nullptr;
 	}
 	return model->data;
 }
@@ -1101,7 +1101,7 @@ void *pmm::pp_get_model_data( pmm::model_t *model ){
 
 
 int pmm::pp_get_model_num_shaders( pmm::model_t *model ){
-	if ( model == NULL ) {
+	if ( model == nullptr ) {
 		return 0;
 	}
 	return model->num_shaders;
@@ -1111,14 +1111,14 @@ int pmm::pp_get_model_num_shaders( pmm::model_t *model ){
 
 pmm::shader_t *pmm::pp_get_model_shader( pmm::model_t *model, int num ){
 	/* a few sanity checks */
-	if ( model == NULL ) {
-		return NULL;
+	if ( model == nullptr ) {
+		return nullptr;
 	}
-	if ( model->shader == NULL ) {
-		return NULL;
+	if ( model->shader == nullptr ) {
+		return nullptr;
 	}
 	if ( num < 0 || num >= model->num_shaders ) {
-		return NULL;
+		return nullptr;
 	}
 
 	/* return the shader */
@@ -1128,7 +1128,7 @@ pmm::shader_t *pmm::pp_get_model_shader( pmm::model_t *model, int num ){
 
 
 int pmm::pp_get_model_num_surfaces( pmm::model_t *model ){
-	if ( model == NULL ) {
+	if ( model == nullptr ) {
 		return 0;
 	}
 	return model->num_surfaces;
@@ -1138,14 +1138,14 @@ int pmm::pp_get_model_num_surfaces( pmm::model_t *model ){
 
 pmm::surface_t *pmm::pp_get_model_surface( pmm::model_t *model, int num ){
 	/* a few sanity checks */
-	if ( model == NULL ) {
-		return NULL;
+	if ( model == nullptr ) {
+		return nullptr;
 	}
-	if ( model->surface == NULL ) {
-		return NULL;
+	if ( model->surface == nullptr ) {
+		return nullptr;
 	}
 	if ( num < 0 || num >= model->num_surfaces ) {
-		return NULL;
+		return nullptr;
 	}
 
 	/* return the surface */
@@ -1158,10 +1158,10 @@ int pmm::pp_get_model_total_vertices( pmm::model_t *model ){
 	int i, count;
 
 
-	if ( model == NULL ) {
+	if ( model == nullptr ) {
 		return 0;
 	}
-	if ( model->surface == NULL ) {
+	if ( model->surface == nullptr ) {
 		return 0;
 	}
 
@@ -1178,10 +1178,10 @@ int pmm::pp_get_model_total_indices( pmm::model_t *model ){
 	int i, count;
 
 
-	if ( model == NULL ) {
+	if ( model == nullptr ) {
 		return 0;
 	}
-	if ( model->surface == NULL ) {
+	if ( model->surface == nullptr ) {
 		return 0;
 	}
 
@@ -1195,10 +1195,10 @@ int pmm::pp_get_model_total_indices( pmm::model_t *model ){
 
 
 char *pmm::pp_get_shader_name( pmm::shader_t *shader ){
-	if ( shader == NULL ) {
-		return NULL;
+	if ( shader == nullptr ) {
+		return nullptr;
 	}
-	if ( shader->name == NULL ) {
+	if ( shader->name == nullptr ) {
 		return (char*) "";
 	}
 	return shader->name;
@@ -1207,10 +1207,10 @@ char *pmm::pp_get_shader_name( pmm::shader_t *shader ){
 
 
 char *pmm::pp_get_shader_map_name( pmm::shader_t *shader ){
-	if ( shader == NULL ) {
-		return NULL;
+	if ( shader == nullptr ) {
+		return nullptr;
 	}
-	if ( shader->mapName == NULL ) {
+	if ( shader->mapName == nullptr ) {
 		return (char*) "";
 	}
 	return shader->mapName;
@@ -1218,27 +1218,27 @@ char *pmm::pp_get_shader_map_name( pmm::shader_t *shader ){
 
 
 
-pmm::byte_t *pmm::pp_get_shader_ambient_color( pmm::shader_t *shader ){
-	if ( shader == NULL ) {
-		return NULL;
+pmm::ub8_t *pmm::pp_get_shader_ambient_color( pmm::shader_t *shader ){
+	if ( shader == nullptr ) {
+		return nullptr;
 	}
 	return shader->ambientColor;
 }
 
 
 
-pmm::byte_t *pmm::pp_get_shader_diffuse_color( pmm::shader_t *shader ){
-	if ( shader == NULL ) {
-		return NULL;
+pmm::ub8_t *pmm::pp_get_shader_diffuse_color( pmm::shader_t *shader ){
+	if ( shader == nullptr ) {
+		return nullptr;
 	}
 	return shader->diffuseColor;
 }
 
 
 
-pmm::byte_t *pmm::pp_get_shader_specular_color( pmm::shader_t *shader ){
-	if ( shader == NULL ) {
-		return NULL;
+pmm::ub8_t *pmm::pp_get_shader_specular_color( pmm::shader_t *shader ){
+	if ( shader == nullptr ) {
+		return nullptr;
 	}
 	return shader->specularColor;
 }
@@ -1246,7 +1246,7 @@ pmm::byte_t *pmm::pp_get_shader_specular_color( pmm::shader_t *shader ){
 
 
 float pmm::pp_get_shader_transparency( pmm::shader_t *shader ){
-	if ( shader == NULL ) {
+	if ( shader == nullptr ) {
 		return 0.0f;
 	}
 	return shader->transparency;
@@ -1255,7 +1255,7 @@ float pmm::pp_get_shader_transparency( pmm::shader_t *shader ){
 
 
 float pmm::pp_get_shader_shininess( pmm::shader_t *shader ){
-	if ( shader == NULL ) {
+	if ( shader == nullptr ) {
 		return 0.0f;
 	}
 	return shader->shininess;
@@ -1264,8 +1264,8 @@ float pmm::pp_get_shader_shininess( pmm::shader_t *shader ){
 
 
 void *pmm::pp_get_surface_data( pmm::surface_t *surface ){
-	if ( surface == NULL ) {
-		return NULL;
+	if ( surface == nullptr ) {
+		return nullptr;
 	}
 	return surface->data;
 }
@@ -1273,7 +1273,7 @@ void *pmm::pp_get_surface_data( pmm::surface_t *surface ){
 
 
 pmm::surface_type pmm::pp_get_surface_type( pmm::surface_t *surface ){
-	if ( surface == NULL ) {
+	if ( surface == nullptr ) {
 		return pmm::st_bad;
 	}
 	return surface->type;
@@ -1282,10 +1282,10 @@ pmm::surface_type pmm::pp_get_surface_type( pmm::surface_t *surface ){
 
 
 char *pmm::pp_get_surface_name( pmm::surface_t *surface ){
-	if ( surface == NULL ) {
-		return NULL;
+	if ( surface == nullptr ) {
+		return nullptr;
 	}
-	if ( surface->name == NULL ) {
+	if ( surface->name == nullptr ) {
 		return (char*) "";
 	}
 	return surface->name;
@@ -1294,8 +1294,8 @@ char *pmm::pp_get_surface_name( pmm::surface_t *surface ){
 
 
 pmm::shader_t *pmm::pp_get_surface_shader( pmm::surface_t *surface ){
-	if ( surface == NULL ) {
-		return NULL;
+	if ( surface == nullptr ) {
+		return nullptr;
 	}
 	return surface->shader;
 }
@@ -1303,7 +1303,7 @@ pmm::shader_t *pmm::pp_get_surface_shader( pmm::surface_t *surface ){
 
 
 int pmm::pp_get_surface_num_vertices( pmm::surface_t *surface ){
-	if ( surface == NULL ) {
+	if ( surface == nullptr ) {
 		return 0;
 	}
 	return surface->numVertexes;
@@ -1312,8 +1312,8 @@ int pmm::pp_get_surface_num_vertices( pmm::surface_t *surface ){
 
 
 pmm::vec_t *pmm::pp_get_surface_xyz( pmm::surface_t *surface, int num ){
-	if ( surface == NULL || num < 0 || num > surface->numVertexes ) {
-		return NULL;
+	if ( surface == nullptr || num < 0 || num > surface->numVertexes ) {
+		return nullptr;
 	}
 	return surface->xyz[ num ];
 }
@@ -1321,8 +1321,8 @@ pmm::vec_t *pmm::pp_get_surface_xyz( pmm::surface_t *surface, int num ){
 
 
 pmm::vec_t *pmm::pp_get_surface_normal( pmm::surface_t *surface, int num ){
-	if ( surface == NULL || num < 0 || num > surface->numVertexes ) {
-		return NULL;
+	if ( surface == nullptr || num < 0 || num > surface->numVertexes ) {
+		return nullptr;
 	}
 	return surface->normal[ num ];
 }
@@ -1330,17 +1330,17 @@ pmm::vec_t *pmm::pp_get_surface_normal( pmm::surface_t *surface, int num ){
 
 
 pmm::vec_t *pmm::pp_get_surface_st( pmm::surface_t *surface, int array, int num  ){
-	if ( surface == NULL || array < 0 || array > surface->numSTArrays || num < 0 || num > surface->numVertexes ) {
-		return NULL;
+	if ( surface == nullptr || array < 0 || array > surface->numSTArrays || num < 0 || num > surface->numVertexes ) {
+		return nullptr;
 	}
 	return surface->st[ array ][ num ];
 }
 
 
 
-pmm::byte_t *pmm::pp_get_surface_color( pmm::surface_t *surface, int array, int num ){
-	if ( surface == NULL || array < 0 || array > surface->numColorArrays || num < 0 || num > surface->numVertexes ) {
-		return NULL;
+pmm::ub8_t *pmm::pp_get_surface_color( pmm::surface_t *surface, int array, int num ){
+	if ( surface == nullptr || array < 0 || array > surface->numColorArrays || num < 0 || num > surface->numVertexes ) {
+		return nullptr;
 	}
 	return surface->color[ array ][ num ];
 }
@@ -1348,7 +1348,7 @@ pmm::byte_t *pmm::pp_get_surface_color( pmm::surface_t *surface, int array, int 
 
 
 int pmm::pp_get_surface_num_indices( pmm::surface_t *surface ){
-	if ( surface == NULL ) {
+	if ( surface == nullptr ) {
 		return 0;
 	}
 	return surface->numIndexes;
@@ -1357,7 +1357,7 @@ int pmm::pp_get_surface_num_indices( pmm::surface_t *surface ){
 
 
 pmm::index_t pmm::pp_get_surface_index( pmm::surface_t *surface, int num ){
-	if ( surface == NULL || num < 0 || num > surface->numIndexes ) {
+	if ( surface == nullptr || num < 0 || num > surface->numIndexes ) {
 		return 0;
 	}
 	return surface->index[ num ];
@@ -1366,22 +1366,22 @@ pmm::index_t pmm::pp_get_surface_index( pmm::surface_t *surface, int num ){
 
 
 pmm::index_t *pmm::pp_get_surface_indices( pmm::surface_t *surface, int num ){
-	if ( surface == NULL || num < 0 || num > surface->numIndexes ) {
-		return NULL;
+	if ( surface == nullptr || num < 0 || num > surface->numIndexes ) {
+		return nullptr;
 	}
 	return &surface->index[ num ];
 }
 
 
 pmm::vec_t *pmm::pp_get_face_normal( pmm::surface_t *surface, int num ){
-	if ( surface == NULL || num < 0 || num > surface->numFaceNormals ) {
-		return NULL;
+	if ( surface == nullptr || num < 0 || num > surface->numFaceNormals ) {
+		return nullptr;
 	}
 	return surface->faceNormal[ num ];
 }
 
 pmm::index_t PicoGetSurfaceSmoothingGroup( pmm::surface_t *surface, int num ){
-	if ( surface == NULL || num < 0 || num > surface->numVertexes ) {
+	if ( surface == nullptr || num < 0 || num > surface->numVertexes ) {
 		return -1;
 	}
 	return surface->smoothingGroup[ num ];
@@ -1389,7 +1389,7 @@ pmm::index_t PicoGetSurfaceSmoothingGroup( pmm::surface_t *surface, int num ){
 
 
 int pmm::pp_get_surface_special( pmm::surface_t *surface, int num ){
-	if ( surface == NULL || num < 0 || num >= pmm::ee_max_special ) {
+	if ( surface == nullptr || num < 0 || num >= pmm::ee_max_special ) {
 		return 0;
 	}
 	return surface->special[ num ];
@@ -1463,19 +1463,19 @@ void pmm::pp_free_vertex_combination_hash_table( pmm::pp_vertex_comnination_hash
 	pmm::pp_vertex_comnination_hash_t *nextVertexCombinationHash;
 
 	/* dummy check */
-	if ( hashTable == NULL ) {
+	if ( hashTable == nullptr ) {
 		return;
 	}
 
 	for ( i = 0; i < HASHTABLE_size; i++ )
 	{
 		if ( hashTable[ i ] ) {
-			nextVertexCombinationHash = NULL;
+			nextVertexCombinationHash = nullptr;
 
 			for ( vertexCombinationHash = hashTable[ i ]; vertexCombinationHash; vertexCombinationHash = nextVertexCombinationHash )
 			{
 				nextVertexCombinationHash = vertexCombinationHash->next;
-				if ( vertexCombinationHash->data != NULL ) {
+				if ( vertexCombinationHash->data != nullptr ) {
 					_pico_free( vertexCombinationHash->data );
 				}
 				_pico_free( vertexCombinationHash );
@@ -1491,8 +1491,8 @@ pmm::pp_vertex_comnination_hash_t *pmm::pp_find_vertex_combination_in_hash_table
 	pmm::pp_vertex_comnination_hash_t *vertexCombinationHash;
 
 	/* dumy check */
-	if ( hashTable == NULL || xyz == NULL || normal == NULL || st == NULL || color == NULL ) {
-		return NULL;
+	if ( hashTable == nullptr || xyz == nullptr || normal == nullptr || st == nullptr || color == nullptr ) {
+		return nullptr;
 	}
 
 	hash = pmm::pp_vertex_coord_generate_hash( xyz );
@@ -1545,7 +1545,7 @@ pmm::pp_vertex_comnination_hash_t *pmm::pp_find_vertex_combination_in_hash_table
 		return vertexCombinationHash;
 	}
 
-	return NULL;
+	return nullptr;
 }
 
 pmm::pp_vertex_comnination_hash_t *pmm::pp_add_vertex_combination_to_hash_table( pmm::pp_vertex_comnination_hash_t **hashTable, pmm::vec3_t xyz, pmm::vec3_t normal, pmm::vec3_t st, pmm::color_t color, pmm::index_t index ){
@@ -1553,14 +1553,14 @@ pmm::pp_vertex_comnination_hash_t *pmm::pp_add_vertex_combination_to_hash_table(
 	pmm::pp_vertex_comnination_hash_t *vertexCombinationHash;
 
 	/* dumy check */
-	if ( hashTable == NULL || xyz == NULL || normal == NULL || st == NULL || color == NULL ) {
-		return NULL;
+	if ( hashTable == nullptr || xyz == nullptr || normal == nullptr || st == nullptr || color == nullptr ) {
+		return nullptr;
 	}
 
 	vertexCombinationHash = reinterpret_cast<decltype(vertexCombinationHash)>(_pico_alloc( sizeof( pmm::pp_vertex_comnination_hash_t ) ));
 
 	if ( !vertexCombinationHash ) {
-		return NULL;
+		return nullptr;
 	}
 
 	hash = pmm::pp_vertex_coord_generate_hash( xyz );
@@ -1570,7 +1570,7 @@ pmm::pp_vertex_comnination_hash_t *pmm::pp_add_vertex_combination_to_hash_table(
 	_pico_copy_vec2( st, vertexCombinationHash->vcd.st );
 	_pico_copy_color( color, vertexCombinationHash->vcd.color );
 	vertexCombinationHash->index = index;
-	vertexCombinationHash->data = NULL;
+	vertexCombinationHash->data = nullptr;
 	vertexCombinationHash->next = hashTable[ hash ];
 	hashTable[ hash ] = vertexCombinationHash;
 
@@ -1592,7 +1592,7 @@ int pmm::pp_find_surface_vertex_num( pmm::surface_t *surface, pmm::vec3_t xyz, p
 
 
 	/* dummy check */
-	if ( surface == NULL || surface->numVertexes <= 0 ) {
+	if ( surface == nullptr || surface->numVertexes <= 0 ) {
 		return -1;
 	}
 
@@ -1600,12 +1600,12 @@ int pmm::pp_find_surface_vertex_num( pmm::surface_t *surface, pmm::vec3_t xyz, p
 	for ( i = 0; i < surface->numVertexes; i++ )
 	{
 		/* check xyz */
-		if ( xyz != NULL && ( surface->xyz[ i ][ 0 ] != xyz[ 0 ] || surface->xyz[ i ][ 1 ] != xyz[ 1 ] || surface->xyz[ i ][ 2 ] != xyz[ 2 ] ) ) {
+		if ( xyz != nullptr && ( surface->xyz[ i ][ 0 ] != xyz[ 0 ] || surface->xyz[ i ][ 1 ] != xyz[ 1 ] || surface->xyz[ i ][ 2 ] != xyz[ 2 ] ) ) {
 			continue;
 		}
 
 		/* check normal */
-		if ( normal != NULL && ( surface->normal[ i ][ 0 ] != normal[ 0 ] || surface->normal[ i ][ 1 ] != normal[ 1 ] || surface->normal[ i ][ 2 ] != normal[ 2 ] ) ) {
+		if ( normal != nullptr && ( surface->normal[ i ][ 0 ] != normal[ 0 ] || surface->normal[ i ][ 1 ] != normal[ 1 ] || surface->normal[ i ][ 2 ] != normal[ 2 ] ) ) {
 			continue;
 		}
 
@@ -1615,7 +1615,7 @@ int pmm::pp_find_surface_vertex_num( pmm::surface_t *surface, pmm::vec3_t xyz, p
 		}
 
 		/* check st */
-		if ( numSTs > 0 && st != NULL ) {
+		if ( numSTs > 0 && st != nullptr ) {
 			for ( j = 0; j < numSTs; j++ )
 			{
 				if ( surface->st[ j ][ i ][ 0 ] != st[ j ][ 0 ] || surface->st[ j ][ i ][ 1 ] != st[ j ][ 1 ] ) {
@@ -1628,7 +1628,7 @@ int pmm::pp_find_surface_vertex_num( pmm::surface_t *surface, pmm::vec3_t xyz, p
 		}
 
 		/* check color */
-		if ( numColors > 0 && color != NULL ) {
+		if ( numColors > 0 && color != nullptr ) {
 			for ( j = 0; j < numSTs; j++ )
 			{
 				if ( *( (int*) surface->color[ j ] ) != *( (int*) color[ j ] ) ) {
@@ -1970,12 +1970,12 @@ void pmm::pp_fix_surface_normals( pmm::surface_t* surface ){
 
 int pmm::pp_remap_model( pmm::model_t *model, char *remapFile ){
 	picoParser_t    *p;
-	pmm::byte_t      *remapBuffer;
+	pmm::ub8_t      *remapBuffer;
 	int remapBufSize;
 
 
 	/* sanity checks */
-	if ( model == NULL || remapFile == NULL ) {
+	if ( model == nullptr || remapFile == nullptr ) {
 		return 0;
 	}
 
@@ -1992,7 +1992,7 @@ int pmm::pp_remap_model( pmm::model_t *model, char *remapFile ){
 	}
 	/* create a new pico parser */
 	p = _pico_new_parser( remapBuffer, remapBufSize );
-	if ( p == NULL ) {
+	if ( p == nullptr ) {
 		/* ram is really cheap nowadays... */
 		_prm_error_return;
 	}
@@ -2029,14 +2029,14 @@ int pmm::pp_remap_model( pmm::model_t *model, char *remapFile ){
 
 
 				/* get material name */
-				if ( _pico_parse( p,1 ) == NULL ) {
+				if ( _pico_parse( p,1 ) == nullptr ) {
 					break;
 				}
 				if ( !strlen( p->token ) ) {
 					continue;
 				}
 				materialName = _pico_clone_alloc( p->token );
-				if ( materialName == NULL ) {
+				if ( materialName == nullptr ) {
 					_prm_error_return;
 				}
 
@@ -2070,7 +2070,7 @@ int pmm::pp_remap_model( pmm::model_t *model, char *remapFile ){
 				shader = pmm::pp_find_shader( model,materialName,0 );
 
 				/* we've found a material matching the name */
-				if ( shader != NULL ) {
+				if ( shader != nullptr ) {
 					pmm::pp_set_shader_name( shader,p->token );
 				}
 				/* free memory used by material name */
@@ -2094,7 +2094,7 @@ int pmm::pp_remap_model( pmm::model_t *model, char *remapFile ){
 
 			/* temporary copy of material name */
 			tempMaterialName = _pico_clone_alloc( p->token );
-			if ( tempMaterialName == NULL ) {
+			if ( tempMaterialName == nullptr ) {
 				_prm_error_return;
 			}
 
@@ -2112,7 +2112,7 @@ int pmm::pp_remap_model( pmm::model_t *model, char *remapFile ){
 			/* we haven't found a material matching the name */
 			/* so we simply skip the braced section now and */
 			/* continue parsing with the next main token */
-			if ( shader == NULL ) {
+			if ( shader == nullptr ) {
 				_pico_parse_skip_braced( p );
 				continue;
 			}
@@ -2125,7 +2125,7 @@ int pmm::pp_remap_model( pmm::model_t *model, char *remapFile ){
 			while ( 1 )
 			{
 				/* get key name */
-				if ( _pico_parse( p,1 ) == NULL ) {
+				if ( _pico_parse( p,1 ) == nullptr ) {
 					break;
 				}
 				if ( !strlen( p->token ) ) {
@@ -2168,9 +2168,9 @@ int pmm::pp_remap_model( pmm::model_t *model, char *remapFile ){
 					}
 
 					/* store as color */
-					color[ 0 ] = (pmm::byte_t)v[ 0 ];
-					color[ 1 ] = (pmm::byte_t)v[ 1 ];
-					color[ 2 ] = (pmm::byte_t)v[ 2 ];
+					color[ 0 ] = (pmm::ub8_t)v[ 0 ];
+					color[ 1 ] = (pmm::ub8_t)v[ 1 ];
+					color[ 2 ] = (pmm::ub8_t)v[ 2 ];
 
 					/* set new ambient color */
 					pmm::pp_set_shader_ambient_color( shader,color );
@@ -2186,9 +2186,9 @@ int pmm::pp_remap_model( pmm::model_t *model, char *remapFile ){
 					}
 
 					/* store as color */
-					color[ 0 ] = (pmm::byte_t)v[ 0 ];
-					color[ 1 ] = (pmm::byte_t)v[ 1 ];
-					color[ 2 ] = (pmm::byte_t)v[ 2 ];
+					color[ 0 ] = (pmm::ub8_t)v[ 0 ];
+					color[ 1 ] = (pmm::ub8_t)v[ 1 ];
+					color[ 2 ] = (pmm::ub8_t)v[ 2 ];
 
 					/* set new ambient color */
 					pmm::pp_set_shader_diffuse_color( shader,color );
@@ -2204,9 +2204,9 @@ int pmm::pp_remap_model( pmm::model_t *model, char *remapFile ){
 					}
 
 					/* store as color */
-					color[ 0 ] = (pmm::byte_t)v[ 0 ];
-					color[ 1 ] = (pmm::byte_t)v[ 1 ];
-					color[ 2 ] = (pmm::byte_t)v[ 2 ];
+					color[ 0 ] = (pmm::ub8_t)v[ 0 ];
+					color[ 1 ] = (pmm::ub8_t)v[ 1 ];
+					color[ 2 ] = (pmm::ub8_t)v[ 2 ];
 
 					/* set new ambient color */
 					pmm::pp_set_shader_specular_color( shader,color );
@@ -2238,7 +2238,7 @@ void pmm::pp_add_triangle_to_model( pmm::model_t *model, pmm::vec3_t** xyz, pmm:
 							 pmm::shader_t* shader, const char *name, pmm::index_t* smoothingGroup ){
 	int i,j;
 	int vertDataIndex;
-	pmm::surface_t* workSurface = NULL;
+	pmm::surface_t* workSurface = nullptr;
 
 	/* see if a surface already has the shader */
 	for ( i = 0 ; i < model->num_surfaces ; i++ )

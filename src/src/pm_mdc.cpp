@@ -440,7 +440,7 @@ static int _mdc_canload( PM_PARAMS_CANLOAD ){
 
 static pmm::model_t *_mdc_load( PM_PARAMS_LOAD ){
 	int i, j;
-	pmm::byte_t          *bb, *bb0;
+	pmm::ub8_t          *bb, *bb0;
 	mdc_t               *mdc;
 	mdcSurface_t        *surface;
 	mdcShader_t         *shader;
@@ -448,8 +448,8 @@ static pmm::model_t *_mdc_load( PM_PARAMS_LOAD ){
 	mdcFrame_t          *frame;
 	mdcTriangle_t       *triangle;
 	mdcVertex_t         *vertex;
-	mdcXyzCompressed_t  *vertexComp = NULL;
-	short               *mdcShort, *mdcCompVert = NULL;
+	mdcXyzCompressed_t  *vertexComp = nullptr;
+	short               *mdcShort, *mdcCompVert = nullptr;
 	double lat, lng;
 
 	pmm::model_t         *picoModel;
@@ -466,7 +466,7 @@ static pmm::model_t *_mdc_load( PM_PARAMS_LOAD ){
 
 
 	/* set as mdc */
-	bb0 = bb = (pmm::byte_t*) _pico_alloc( bufSize );
+	bb0 = bb = (pmm::ub8_t*) _pico_alloc( bufSize );
 	memcpy( bb, buffer, bufSize );
 	mdc = (mdc_t*) bb;
 
@@ -474,7 +474,7 @@ static pmm::model_t *_mdc_load( PM_PARAMS_LOAD ){
 	if ( *( (int*) mdc->magic ) != *( (int*) MDC_MAGIC ) || _pico_little_long( mdc->version ) != MDC_version ) {
 		/* not an mdc file (todo: set error) */
 		_pico_free( bb0 );
-		return NULL;
+		return nullptr;
 	}
 
 	/* swap mdc */
@@ -493,13 +493,13 @@ static pmm::model_t *_mdc_load( PM_PARAMS_LOAD ){
 	if ( mdc->numFrames < 1 ) {
 		_pico_printf( pmm::pl_error, "MDC with 0 frames" );
 		_pico_free( bb0 );
-		return NULL;
+		return nullptr;
 	}
 
 	if ( frameNum < 0 || frameNum >= mdc->numFrames ) {
 		_pico_printf( pmm::pl_error, "Invalid or out-of-range MDC frame specified" );
 		_pico_free( bb0 );
-		return NULL;
+		return nullptr;
 	}
 
 	/* swap frames */
@@ -536,7 +536,7 @@ static pmm::model_t *_mdc_load( PM_PARAMS_LOAD ){
 		surface->ofsEnd = _pico_little_long( surface->ofsEnd );
 
 		/* swap triangles */
-		triangle = (mdcTriangle_t*) ( (pmm::byte_t*) surface + surface->ofsTriangles );
+		triangle = (mdcTriangle_t*) ( (pmm::ub8_t*) surface + surface->ofsTriangles );
 		for ( j = 0; j < surface->numTriangles; j++, triangle++ )
 		{
 			/* sea: swaps fixed */
@@ -546,7 +546,7 @@ static pmm::model_t *_mdc_load( PM_PARAMS_LOAD ){
 		}
 
 		/* swap st coords */
-		texCoord = (mdcTexCoord_t*) ( (pmm::byte_t*) surface + surface->ofsSt );
+		texCoord = (mdcTexCoord_t*) ( (pmm::ub8_t*) surface + surface->ofsSt );
 		for ( j = 0; j < surface->numVerts; j++, texCoord++ )
 		{
 			texCoord->st[ 0 ] = _pico_little_float( texCoord->st[ 0 ] );
@@ -554,7 +554,7 @@ static pmm::model_t *_mdc_load( PM_PARAMS_LOAD ){
 		}
 
 		/* swap xyz/normals */
-		vertex = (mdcVertex_t*) ( (pmm::byte_t*) surface + surface->ofsXyzNormals );
+		vertex = (mdcVertex_t*) ( (pmm::ub8_t*) surface + surface->ofsXyzNormals );
 		for ( j = 0; j < ( surface->numVerts * surface->numBaseFrames ); j++, vertex++ )
 		{
 			vertex->xyz[ 0 ] = _pico_little_short( vertex->xyz[ 0 ] );
@@ -564,28 +564,28 @@ static pmm::model_t *_mdc_load( PM_PARAMS_LOAD ){
 		}
 
 		/* swap xyz/compressed */
-		vertexComp = (mdcXyzCompressed_t*) ( (pmm::byte_t*) surface + surface->ofsXyzCompressed );
+		vertexComp = (mdcXyzCompressed_t*) ( (pmm::ub8_t*) surface + surface->ofsXyzCompressed );
 		for ( j = 0; j < ( surface->numVerts * surface->numCompFrames ); j++, vertexComp++ )
 		{
 			vertexComp->ofsVec  = _pico_little_long( vertexComp->ofsVec );
 		}
 
 		/* swap base frames */
-		mdcShort = (short *) ( (pmm::byte_t*) surface + surface->ofsFrameBaseFrames );
+		mdcShort = (short *) ( (pmm::ub8_t*) surface + surface->ofsFrameBaseFrames );
 		for ( j = 0; j < mdc->numFrames; j++, mdcShort++ )
 		{
 			*mdcShort   = _pico_little_short( *mdcShort );
 		}
 
 		/* swap compressed frames */
-		mdcShort = (short *) ( (pmm::byte_t*) surface + surface->ofsFrameCompFrames );
+		mdcShort = (short *) ( (pmm::ub8_t*) surface + surface->ofsFrameCompFrames );
 		for ( j = 0; j < mdc->numFrames; j++, mdcShort++ )
 		{
 			*mdcShort   = _pico_little_short( *mdcShort );
 		}
 
 		/* get next surface */
-		surface = (mdcSurface_t*) ( (pmm::byte_t*) surface + surface->ofsEnd );
+		surface = (mdcSurface_t*) ( (pmm::ub8_t*) surface + surface->ofsEnd );
 	}
 
 	/* -------------------------------------------------
@@ -594,10 +594,10 @@ static pmm::model_t *_mdc_load( PM_PARAMS_LOAD ){
 
 	/* create new pico model */
 	picoModel = pmm::pp_new_model();
-	if ( picoModel == NULL ) {
+	if ( picoModel == nullptr ) {
 		_pico_printf( pmm::pl_error, "Unable to allocate a new model" );
 		_pico_free( bb0 );
-		return NULL;
+		return nullptr;
 	}
 
 	/* do model setup */
@@ -614,11 +614,11 @@ static pmm::model_t *_mdc_load( PM_PARAMS_LOAD ){
 	{
 		/* allocate new pico surface */
 		picoSurface = pmm::pp_new_surface( picoModel );
-		if ( picoSurface == NULL ) {
+		if ( picoSurface == nullptr ) {
 			_pico_printf( pmm::pl_error, "Unable to allocate a new model surface" );
 			pmm::pp_free_model( picoModel ); /* sea */
 			_pico_free( bb0 );
-			return NULL;
+			return nullptr;
 		}
 
 		/* mdc model surfaces are all triangle meshes */
@@ -629,15 +629,15 @@ static pmm::model_t *_mdc_load( PM_PARAMS_LOAD ){
 
 		/* create new pico shader -sea */
 		picoShader = pmm::pp_new_shader( picoModel );
-		if ( picoShader == NULL ) {
+		if ( picoShader == nullptr ) {
 			_pico_printf( pmm::pl_error, "Unable to allocate a new model shader" );
 			pmm::pp_free_model( picoModel );
 			_pico_free( bb0 );
-			return NULL;
+			return nullptr;
 		}
 
 		/* detox and set shader name */
-		shader = (mdcShader_t*) ( (pmm::byte_t*) surface + surface->ofsShaders );
+		shader = (mdcShader_t*) ( (pmm::ub8_t*) surface + surface->ofsShaders );
 		_pico_setfext( shader->name, "" );
 		_pico_unixify( shader->name );
 		pmm::pp_set_shader_name( picoShader, shader->name );
@@ -646,7 +646,7 @@ static pmm::model_t *_mdc_load( PM_PARAMS_LOAD ){
 		pmm::pp_set_surface_shader( picoSurface, picoShader );
 
 		/* copy indices */
-		triangle = (mdcTriangle_t *) ( (pmm::byte_t*) surface + surface->ofsTriangles );
+		triangle = (mdcTriangle_t *) ( (pmm::ub8_t*) surface + surface->ofsTriangles );
 
 		for ( j = 0; j < surface->numTriangles; j++, triangle++ )
 		{
@@ -656,12 +656,12 @@ static pmm::model_t *_mdc_load( PM_PARAMS_LOAD ){
 		}
 
 		/* copy vertices */
-		texCoord = (mdcTexCoord_t*) ( (pmm::byte_t *) surface + surface->ofsSt );
-		mdcShort = (short *) ( (pmm::byte_t *) surface + surface->ofsXyzNormals ) + ( (int)*( (short *) ( (pmm::byte_t *) surface + surface->ofsFrameBaseFrames ) + frameNum ) * surface->numVerts * 4 );
+		texCoord = (mdcTexCoord_t*) ( (pmm::ub8_t *) surface + surface->ofsSt );
+		mdcShort = (short *) ( (pmm::ub8_t *) surface + surface->ofsXyzNormals ) + ( (int)*( (short *) ( (pmm::ub8_t *) surface + surface->ofsFrameBaseFrames ) + frameNum ) * surface->numVerts * 4 );
 		if ( surface->numCompFrames > 0 ) {
-			mdcCompVert = (short *) ( (pmm::byte_t *) surface + surface->ofsFrameCompFrames ) + frameNum;
+			mdcCompVert = (short *) ( (pmm::ub8_t *) surface + surface->ofsFrameCompFrames ) + frameNum;
 			if ( *mdcCompVert >= 0 ) {
-				vertexComp = (mdcXyzCompressed_t *) ( (pmm::byte_t *) surface + surface->ofsXyzCompressed ) + ( *mdcCompVert * surface->numVerts );
+				vertexComp = (mdcXyzCompressed_t *) ( (pmm::ub8_t *) surface + surface->ofsXyzCompressed ) + ( *mdcCompVert * surface->numVerts );
 			}
 		}
 		_pico_set_color( color, 255, 255, 255, 255 );
@@ -712,7 +712,7 @@ static pmm::model_t *_mdc_load( PM_PARAMS_LOAD ){
 		}
 
 		/* get next surface */
-		surface = (mdcSurface_t*) ( (pmm::byte_t*) surface + surface->ofsEnd );
+		surface = (mdcSurface_t*) ( (pmm::ub8_t*) surface + surface->ofsEnd );
 	}
 
 	/* return the new pico model */
@@ -730,10 +730,10 @@ extern const pmm::module_t picoModuleMDC =
 	"Arnout van Meer",              /* author's name */
 	"2002 Arnout van Meer",         /* module copyright */
 	{
-		"mdc", NULL, NULL, NULL     /* default extensions to use */
+		"mdc", nullptr, nullptr, nullptr     /* default extensions to use */
 	},
 	_mdc_canload,                   /* validation routine */
 	_mdc_load,                      /* load routine */
-	NULL,                           /* save validation routine */
-	NULL                            /* save routine */
+	nullptr,                           /* save validation routine */
+	nullptr                            /* save routine */
 };

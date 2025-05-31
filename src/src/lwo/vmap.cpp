@@ -60,13 +60,13 @@ lwVMap *lwGetVMap( picoMemStream_t *fp, int cksize, int ptoffset, int poloffset,
 	set_flen( 0 );
 	buf = reinterpret_cast<decltype(buf)>(getbytes( fp, cksize ));
 	if ( !buf ) {
-		return NULL;
+		return nullptr;
 	}
 
 	vmap = reinterpret_cast<decltype(vmap)>(_pico_calloc( 1, sizeof( lwVMap ) ));
 	if ( !vmap ) {
 		_pico_free( buf );
-		return NULL;
+		return nullptr;
 	}
 
 	/* initialize the vmap */
@@ -139,7 +139,7 @@ Fail:
 		_pico_free( buf );
 	}
 	lwFreeVMap( vmap );
-	return NULL;
+	return nullptr;
 }
 
 

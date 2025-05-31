@@ -169,7 +169,7 @@ static int _md3_canload( PM_PARAMS_CANLOAD ){
 
 static pmm::model_t *_md3_load( PM_PARAMS_LOAD ){
 	int i, j;
-	pmm::byte_t      *bb, *bb0;
+	pmm::ub8_t      *bb, *bb0;
 	md3_t           *md3;
 	md3Surface_t    *surface;
 	md3Shader_t     *shader;
@@ -193,7 +193,7 @@ static pmm::model_t *_md3_load( PM_PARAMS_LOAD ){
 
 
 	/* set as md3 */
-	bb0 = bb = (pmm::byte_t*) _pico_alloc( bufSize );
+	bb0 = bb = (pmm::ub8_t*) _pico_alloc( bufSize );
 	memcpy( bb, buffer, bufSize );
 	md3 = (md3_t*) bb;
 
@@ -201,7 +201,7 @@ static pmm::model_t *_md3_load( PM_PARAMS_LOAD ){
 	if ( *( (int*) md3->magic ) != *( (int*) MD3_MAGIC ) || _pico_little_long( md3->version ) != MD3_version ) {
 		/* not an md3 file (todo: set error) */
 		_pico_free( bb0 );
-		return NULL;
+		return nullptr;
 	}
 
 	/* swap md3; sea: swaps fixed */
@@ -219,13 +219,13 @@ static pmm::model_t *_md3_load( PM_PARAMS_LOAD ){
 	if ( md3->numFrames < 1 ) {
 		_pico_printf( pmm::pl_error, "MD3 with 0 frames" );
 		_pico_free( bb0 );
-		return NULL;
+		return nullptr;
 	}
 
 	if ( frameNum < 0 || frameNum >= md3->numFrames ) {
 		_pico_printf( pmm::pl_error, "Invalid or out-of-range MD3 frame specified" );
 		_pico_free( bb0 );
-		return NULL;
+		return nullptr;
 	}
 
 	/* swap frames */
@@ -258,7 +258,7 @@ static pmm::model_t *_md3_load( PM_PARAMS_LOAD ){
 		surface->ofsEnd = _pico_little_long( surface->ofsEnd );
 
 		/* swap triangles */
-		triangle = (md3Triangle_t*) ( (pmm::byte_t*) surface + surface->ofsTriangles );
+		triangle = (md3Triangle_t*) ( (pmm::ub8_t*) surface + surface->ofsTriangles );
 		for ( j = 0; j < surface->numTriangles; j++, triangle++ )
 		{
 			/* sea: swaps fixed */
@@ -268,7 +268,7 @@ static pmm::model_t *_md3_load( PM_PARAMS_LOAD ){
 		}
 
 		/* swap st coords */
-		texCoord = (md3TexCoord_t*) ( (pmm::byte_t*) surface + surface->ofsSt );
+		texCoord = (md3TexCoord_t*) ( (pmm::ub8_t*) surface + surface->ofsSt );
 		for ( j = 0; j < surface->numVerts; j++, texCoord++ )
 		{
 			texCoord->st[ 0 ] = _pico_little_float( texCoord->st[ 0 ] );
@@ -276,7 +276,7 @@ static pmm::model_t *_md3_load( PM_PARAMS_LOAD ){
 		}
 
 		/* swap xyz/normals */
-		vertex = (md3Vertex_t*) ( (pmm::byte_t*) surface + surface->ofsVertexes );
+		vertex = (md3Vertex_t*) ( (pmm::ub8_t*) surface + surface->ofsVertexes );
 		for ( j = 0; j < ( surface->numVerts * surface->numFrames ); j++, vertex++ )
 		{
 			vertex->xyz[ 0 ] = _pico_little_short( vertex->xyz[ 0 ] );
@@ -286,7 +286,7 @@ static pmm::model_t *_md3_load( PM_PARAMS_LOAD ){
 		}
 
 		/* get next surface */
-		surface = (md3Surface_t*) ( (pmm::byte_t*) surface + surface->ofsEnd );
+		surface = (md3Surface_t*) ( (pmm::ub8_t*) surface + surface->ofsEnd );
 	}
 
 	/* -------------------------------------------------
@@ -295,10 +295,10 @@ static pmm::model_t *_md3_load( PM_PARAMS_LOAD ){
 
 	/* create new pico model */
 	picoModel = pmm::pp_new_model();
-	if ( picoModel == NULL ) {
+	if ( picoModel == nullptr ) {
 		_pico_printf( pmm::pl_error, "Unable to allocate a new model" );
 		_pico_free( bb0 );
-		return NULL;
+		return nullptr;
 	}
 
 	/* do model setup */
@@ -315,11 +315,11 @@ static pmm::model_t *_md3_load( PM_PARAMS_LOAD ){
 	{
 		/* allocate new pico surface */
 		picoSurface = pmm::pp_new_surface( picoModel );
-		if ( picoSurface == NULL ) {
+		if ( picoSurface == nullptr ) {
 			_pico_printf( pmm::pl_error, "Unable to allocate a new model surface" );
 			pmm::pp_free_model( picoModel ); /* sea */
 			_pico_free( bb0 );
-			return NULL;
+			return nullptr;
 		}
 
 		/* md3 model surfaces are all triangle meshes */
@@ -330,15 +330,15 @@ static pmm::model_t *_md3_load( PM_PARAMS_LOAD ){
 
 		/* create new pico shader -sea */
 		picoShader = pmm::pp_new_shader( picoModel );
-		if ( picoShader == NULL ) {
+		if ( picoShader == nullptr ) {
 			_pico_printf( pmm::pl_error, "Unable to allocate a new model shader" );
 			pmm::pp_free_model( picoModel );
 			_pico_free( bb0 );
-			return NULL;
+			return nullptr;
 		}
 
 		/* detox and set shader name */
-		shader = (md3Shader_t*) ( (pmm::byte_t*) surface + surface->ofsShaders );
+		shader = (md3Shader_t*) ( (pmm::ub8_t*) surface + surface->ofsShaders );
 		_pico_setfext( shader->name, "" );
 		_pico_unixify( shader->name );
 		pmm::pp_set_shader_name( picoShader, shader->name );
@@ -347,7 +347,7 @@ static pmm::model_t *_md3_load( PM_PARAMS_LOAD ){
 		pmm::pp_set_surface_shader( picoSurface, picoShader );
 
 		/* copy indices */
-		triangle = (md3Triangle_t *) ( (pmm::byte_t*) surface + surface->ofsTriangles );
+		triangle = (md3Triangle_t *) ( (pmm::ub8_t*) surface + surface->ofsTriangles );
 
 		for ( j = 0; j < surface->numTriangles; j++, triangle++ )
 		{
@@ -357,8 +357,8 @@ static pmm::model_t *_md3_load( PM_PARAMS_LOAD ){
 		}
 
 		/* copy vertices */
-		texCoord = (md3TexCoord_t*) ( (pmm::byte_t *) surface + surface->ofsSt );
-		vertex = (md3Vertex_t*) ( (pmm::byte_t*) surface + surface->ofsVertexes + surface->numVerts * frameNum * sizeof( md3Vertex_t ) );
+		texCoord = (md3TexCoord_t*) ( (pmm::ub8_t *) surface + surface->ofsSt );
+		vertex = (md3Vertex_t*) ( (pmm::ub8_t*) surface + surface->ofsVertexes + surface->numVerts * frameNum * sizeof( md3Vertex_t ) );
 		_pico_set_color( color, 255, 255, 255, 255 );
 
 		for ( j = 0; j < surface->numVerts; j++, texCoord++, vertex++ )
@@ -389,7 +389,7 @@ static pmm::model_t *_md3_load( PM_PARAMS_LOAD ){
 		}
 
 		/* get next surface */
-		surface = (md3Surface_t*) ( (pmm::byte_t*) surface + surface->ofsEnd );
+		surface = (md3Surface_t*) ( (pmm::ub8_t*) surface + surface->ofsEnd );
 	}
 
 	/* return the new pico model */
@@ -407,10 +407,10 @@ extern const pmm::module_t picoModuleMD3 =
 	"Randy Reddig",             /* author's name */
 	"2002 Randy Reddig",        /* module copyright */
 	{
-		"md3", NULL, NULL, NULL /* default extensions to use */
+		"md3", nullptr, nullptr, nullptr /* default extensions to use */
 	},
 	_md3_canload,               /* validation routine */
 	_md3_load,                  /* load routine */
-	NULL,                       /* save validation routine */
-	NULL                        /* save routine */
+	nullptr,                       /* save validation routine */
+	nullptr                        /* save routine */
 };

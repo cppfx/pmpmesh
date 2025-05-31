@@ -51,12 +51,12 @@ constexpr int ee_max_special          = 8;
 constexpr int ee_max_default_exts     = 4;	// max default extensions per module
 
 // types
-using byte_t = unsigned char;
+using ub8_t = unsigned char;
 using vec_t = float;
 using vec2_t = float[2];
 using vec3_t = float[3];
 using vec4_t = float[4];
-using color_t = pmm::byte_t[4];
+using color_t = pmm::ub8_t[4];
 using index_t = int;
 using std_size_t = decltype(sizeof 0);
 
@@ -283,9 +283,9 @@ int                         pp_get_model_total_indices( pmm::model_t *model );
 
 char                        *pp_get_shader_name( pmm::shader_t *shader );
 char                        *pp_get_shader_map_name( pmm::shader_t *shader );
-pmm::byte_t                  *pp_get_shader_ambient_color( pmm::shader_t *shader );
-pmm::byte_t                  *pp_get_shader_diffuse_color( pmm::shader_t *shader );
-pmm::byte_t                  *pp_get_shader_specular_color( pmm::shader_t *shader );
+pmm::ub8_t                  *pp_get_shader_ambient_color( pmm::shader_t *shader );
+pmm::ub8_t                  *pp_get_shader_diffuse_color( pmm::shader_t *shader );
+pmm::ub8_t                  *pp_get_shader_specular_color( pmm::shader_t *shader );
 float                       pp_get_shader_transparency( pmm::shader_t *shader );
 float                       pp_get_shader_shininess( pmm::shader_t *shader );
 
@@ -297,7 +297,7 @@ int                         pp_get_surface_num_vertices( pmm::surface_t *surface
 pmm::vec_t                   *pp_get_surface_xyz( pmm::surface_t *surface, int num );
 pmm::vec_t                   *pp_get_surface_normal( pmm::surface_t *surface, int num );
 pmm::vec_t                   *pp_get_surface_st( pmm::surface_t *surface, int array, int num );
-pmm::byte_t                  *pp_get_surface_color( pmm::surface_t *surface, int array, int num );
+pmm::ub8_t                  *pp_get_surface_color( pmm::surface_t *surface, int array, int num );
 int                         pp_get_surface_num_indices( pmm::surface_t *surface );
 pmm::index_t                 pp_get_surface_index( pmm::surface_t *surface, int num );
 pmm::index_t                 *pp_get_surface_indices( pmm::surface_t *surface, int num );

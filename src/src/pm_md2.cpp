@@ -85,8 +85,8 @@ public:
 class md2XyzNormal_t
 {
 public:
-	pmm::byte_t v[3];                          // scaled byte to fit in frame mins/maxs
-	pmm::byte_t lightnormalindex;
+	pmm::ub8_t v[3];                          // scaled byte to fit in frame mins/maxs
+	pmm::ub8_t lightnormalindex;
 };
 
 class md2Frame_t
@@ -337,7 +337,7 @@ static pmm::model_t *_md2_load( PM_PARAMS_LOAD ){
 	md2Triangle_t   *triangle;
 	md2XyzNormal_t  *vertex;
 
-	pmm::byte_t      *bb, *bb0;
+	pmm::ub8_t      *bb, *bb0;
 	pmm::model_t     *picoModel;
 	pmm::surface_t   *picoSurface;
 	pmm::shader_t    *picoShader;
@@ -347,7 +347,7 @@ static pmm::model_t *_md2_load( PM_PARAMS_LOAD ){
 
 
 	/* set as md2 */
-	bb0 = bb = (pmm::byte_t*) _pico_alloc( bufSize );
+	bb0 = bb = (pmm::ub8_t*) _pico_alloc( bufSize );
 	memcpy( bb, buffer, bufSize );
 	md2 = (md2_t*) bb;
 
@@ -356,7 +356,7 @@ static pmm::model_t *_md2_load( PM_PARAMS_LOAD ){
 		/* not an md2 file (todo: set error) */
 		_pico_printf( pmm::pl_error, "%s is not an MD2 File!", fileName );
 		_pico_free( bb0 );
-		return NULL;
+		return nullptr;
 	}
 
 	// swap md2
@@ -384,13 +384,13 @@ static pmm::model_t *_md2_load( PM_PARAMS_LOAD ){
 	if ( md2->numFrames < 1 ) {
 		_pico_printf( pmm::pl_error, "%s has 0 frames!", fileName );
 		_pico_free( bb0 );
-		return NULL;
+		return nullptr;
 	}
 
 	if ( frameNum < 0 || frameNum >= md2->numFrames ) {
 		_pico_printf( pmm::pl_error, "Invalid or out-of-range MD2 frame specified" );
 		_pico_free( bb0 );
-		return NULL;
+		return nullptr;
 	}
 
 	// Setup Frame
@@ -404,7 +404,7 @@ static pmm::model_t *_md2_load( PM_PARAMS_LOAD ){
 	}
 
 	// swap triangles
-	triangle = (md2Triangle_t *) ( (pmm::byte_t *) ( bb + md2->ofsTris ) );
+	triangle = (md2Triangle_t *) ( (pmm::ub8_t *) ( bb + md2->ofsTris ) );
 	for ( i = 0; i < md2->numTris; i++, triangle++ )
 	{
 		for ( j = 0; j < 3; j++ )
@@ -415,7 +415,7 @@ static pmm::model_t *_md2_load( PM_PARAMS_LOAD ){
 	}
 
 	// swap st coords
-	texCoord = (md2St_t*) ( (pmm::byte_t *) ( bb + md2->ofsST ) );
+	texCoord = (md2St_t*) ( (pmm::ub8_t *) ( bb + md2->ofsST ) );
 	for ( i = 0; i < md2->numST; i++, texCoord++ )
 	{
 		texCoord->s = _pico_little_short( texCoord->s );
@@ -434,10 +434,10 @@ static pmm::model_t *_md2_load( PM_PARAMS_LOAD ){
 
 	/* create new pico model */
 	picoModel = pmm::pp_new_model();
-	if ( picoModel == NULL ) {
+	if ( picoModel == nullptr ) {
 		_pico_printf( pmm::pl_error, "Unable to allocate a new model" );
 		_pico_free( bb0 );
-		return NULL;
+		return nullptr;
 	}
 
 	/* do model setup */
@@ -448,22 +448,22 @@ static pmm::model_t *_md2_load( PM_PARAMS_LOAD ){
 
 	// allocate new pico surface
 	picoSurface = pmm::pp_new_surface( picoModel );
-	if ( picoSurface == NULL ) {
+	if ( picoSurface == nullptr ) {
 		_pico_printf( pmm::pl_error, "Unable to allocate a new model surface" );
 		pmm::pp_free_model( picoModel );
 		_pico_free( bb0 );
-		return NULL;
+		return nullptr;
 	}
 
 
 	pmm::pp_set_surface_type( picoSurface, pmm::st_triangles );
 	pmm::pp_set_surface_name( picoSurface, frame->name );
 	picoShader = pmm::pp_new_shader( picoModel );
-	if ( picoShader == NULL ) {
+	if ( picoShader == nullptr ) {
 		_pico_printf( pmm::pl_error, "Unable to allocate a new model shader" );
 		pmm::pp_free_model( picoModel );
 		_pico_free( bb0 );
-		return NULL;
+		return nullptr;
 	}
 
 	pmm::pp_set_shader_name( picoShader, skinname );
@@ -477,7 +477,7 @@ static pmm::model_t *_md2_load( PM_PARAMS_LOAD ){
 	{
 		p_index_LUT[i].Vert = -1;
 		p_index_LUT[i].ST = -1;
-		p_index_LUT[i].next = NULL;
+		p_index_LUT[i].next = nullptr;
 	}
 
 	// Fill in Look Up Table, and allocate/fill Linked List from vert array as needed for dup STs per Vert.
@@ -495,23 +495,23 @@ static pmm::model_t *_md2_load( PM_PARAMS_LOAD ){
 				continue;
 			}
 
-			else if ( ( p_index_LUT[p_md2Triangle->index_xyz[j]].next == NULL ) ) { // Not equal to Main entry, and no LL entry
+			else if ( ( p_index_LUT[p_md2Triangle->index_xyz[j]].next == nullptr ) ) { // Not equal to Main entry, and no LL entry
 				// Add first entry of LL from Main
 				p_index_LUT2 = (index_LUT_t *)_pico_alloc( sizeof( index_LUT_t ) );
-				if ( p_index_LUT2 == NULL ) {
+				if ( p_index_LUT2 == nullptr ) {
 					_pico_printf( pmm::pl_error," Couldn't allocate memory!\n" );
 				}
 				p_index_LUT[p_md2Triangle->index_xyz[j]].next = (index_LUT_t *)p_index_LUT2;
 				p_index_LUT2->Vert = dups;
 				p_index_LUT2->ST = p_md2Triangle->index_st[j];
-				p_index_LUT2->next = NULL;
+				p_index_LUT2->next = nullptr;
 				p_md2Triangle->index_xyz[j] = dups + md2->numXYZ; // Make change in Tri hunk
 				dups++;
 			}
 			else // Try to find in LL from Main Entry
 			{
 				p_index_LUT3 = p_index_LUT2 = p_index_LUT[p_md2Triangle->index_xyz[j]].next;
-				while ( ( p_index_LUT2 != NULL ) && ( p_md2Triangle->index_xyz[j] != p_index_LUT2->Vert ) ) // Walk down LL
+				while ( ( p_index_LUT2 != nullptr ) && ( p_md2Triangle->index_xyz[j] != p_index_LUT2->Vert ) ) // Walk down LL
 				{
 					p_index_LUT3 = p_index_LUT2;
 					p_index_LUT2 = p_index_LUT2->next;
@@ -523,16 +523,16 @@ static pmm::model_t *_md2_load( PM_PARAMS_LOAD ){
 					continue;
 				}
 
-				if ( p_index_LUT2->next == NULL ) { // Didn't find it. Add entry to LL.
+				if ( p_index_LUT2->next == nullptr ) { // Didn't find it. Add entry to LL.
 					// Add the Entry
 					p_index_LUT3 = (index_LUT_t *)_pico_alloc( sizeof( index_LUT_t ) );
-					if ( p_index_LUT3 == NULL ) {
+					if ( p_index_LUT3 == nullptr ) {
 						_pico_printf( pmm::pl_error," Couldn't allocate memory!\n" );
 					}
 					p_index_LUT2->next = (index_LUT_t *)p_index_LUT3;
 					p_index_LUT3->Vert = p_md2Triangle->index_xyz[j];
 					p_index_LUT3->ST = p_md2Triangle->index_st[j];
-					p_index_LUT3->next = NULL;
+					p_index_LUT3->next = nullptr;
 					p_md2Triangle->index_xyz[j] = dups + md2->numXYZ; // Make change in Tri hunk
 					dups++;
 				}
@@ -542,7 +542,7 @@ static pmm::model_t *_md2_load( PM_PARAMS_LOAD ){
 
 	// malloc and build array for Dup STs
 	p_index_LUT_DUPS = (index_DUP_LUT_t *)_pico_alloc( sizeof( index_DUP_LUT_t ) * dups );
-	if ( p_index_LUT_DUPS == NULL ) {
+	if ( p_index_LUT_DUPS == nullptr ) {
 		_pico_printf( pmm::pl_error," Couldn't allocate memory!\n" );
 	}
 
@@ -550,7 +550,7 @@ static pmm::model_t *_md2_load( PM_PARAMS_LOAD ){
 	for ( i = 0; i < md2->numXYZ; i++ )
 	{
 		p_index_LUT2 = p_index_LUT[i].next;
-		while ( p_index_LUT2 != NULL )
+		while ( p_index_LUT2 != nullptr )
 		{
 			p_index_LUT_DUPS[p_index_LUT2->Vert].OldVert = i;
 			p_index_LUT_DUPS[p_index_LUT2->Vert].ST = p_index_LUT2->ST;
@@ -560,9 +560,9 @@ static pmm::model_t *_md2_load( PM_PARAMS_LOAD ){
 	}
 
 	// Build Picomodel
-	triangle = (md2Triangle_t *) ( (pmm::byte_t *) ( bb + md2->ofsTris ) );
-	texCoord = (md2St_t*) ( (pmm::byte_t *) ( bb + md2->ofsST ) );
-	vertex = (md2XyzNormal_t*) ( (pmm::byte_t*) ( frame->verts ) );
+	triangle = (md2Triangle_t *) ( (pmm::ub8_t *) ( bb + md2->ofsTris ) );
+	texCoord = (md2St_t*) ( (pmm::ub8_t *) ( bb + md2->ofsST ) );
+	vertex = (md2XyzNormal_t*) ( (pmm::ub8_t*) ( frame->verts ) );
 	for ( j = 0; j < md2->numTris; j++, triangle++ )
 	{
 		pmm::pp_set_surface_index( picoSurface, j * 3, triangle->index_xyz[0] );
@@ -619,14 +619,14 @@ static pmm::model_t *_md2_load( PM_PARAMS_LOAD ){
 	// Free up malloc'ed LL entries
 	for ( i = 0; i < md2->numXYZ; i++ )
 	{
-		if ( p_index_LUT[i].next != NULL ) {
+		if ( p_index_LUT[i].next != nullptr ) {
 			p_index_LUT2 = p_index_LUT[i].next;
 			do {
 				p_index_LUT3 = p_index_LUT2->next;
 				_pico_free( p_index_LUT2 );
 				p_index_LUT2 = p_index_LUT3;
 				dups--;
-			} while ( p_index_LUT2 != NULL );
+			} while ( p_index_LUT2 != nullptr );
 		}
 	}
 
@@ -654,10 +654,10 @@ extern const pmm::module_t picoModuleMD2 =
 	"Nurail",                       /* author's name */
 	"2003 Nurail",                  /* module copyright */
 	{
-		"md2", NULL, NULL, NULL     /* default extensions to use */
+		"md2", nullptr, nullptr, nullptr     /* default extensions to use */
 	},
 	_md2_canload,                   /* validation routine */
 	_md2_load,                      /* load routine */
-	NULL,                           /* save validation routine */
-	NULL                            /* save routine */
+	nullptr,                           /* save validation routine */
+	nullptr                            /* save routine */
 };

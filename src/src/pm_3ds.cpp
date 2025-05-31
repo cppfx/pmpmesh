@@ -57,7 +57,7 @@ public:
 	pmm::model_t    *model;          /* ptr to output model */
 	pmm::surface_t  *surface;        /* ptr to current surface */
 	pmm::shader_t   *shader;         /* ptr to current shader */
-	pmm::byte_t     *bufptr;         /* ptr to raw data */
+	pmm::ub8_t     *bufptr;         /* ptr to raw data */
 	char           *basename;       /* ptr to model base name (eg. jeep) */
 	int cofs;
 	int maxofs;
@@ -197,7 +197,7 @@ static T3dsChunk *GetChunk( T3dsLoaderPers *pers ){
 	/* fill in pointer to chunk */
 	chunk = (T3dsChunk *)&pers->bufptr[ pers->cofs ];
 	if ( !chunk ) {
-		return NULL;
+		return nullptr;
 	}
 
 	chunk->id  = _pico_little_short( chunk->id );
@@ -233,8 +233,8 @@ static int GetASCIIZ( T3dsLoaderPers *pers, char *dest, int max ){
 	return 1;
 }
 
-static pmm::byte_t GetByte( T3dsLoaderPers *pers ){
-	pmm::byte_t *value;
+static pmm::ub8_t GetByte( T3dsLoaderPers *pers ){
+	pmm::ub8_t *value;
 
 	/* sanity check */
 	if ( pers->cofs > pers->maxofs ) {
@@ -242,7 +242,7 @@ static pmm::byte_t GetByte( T3dsLoaderPers *pers ){
 	}
 
 	/* get and return value */
-	value = (pmm::byte_t *)( pers->bufptr + pers->cofs );
+	value = (pmm::ub8_t *)( pers->bufptr + pers->cofs );
 	pers->cofs += 1;
 	return *value;
 }
@@ -358,7 +358,7 @@ static int GetMeshTexCoords( T3dsLoaderPers *pers ){
 		uv[1] = -GetFloat( pers );  /* ydnar: we use origin at bottom */
 
 		/* to make sure we don't mess up memory */
-		if ( pers->surface == NULL ) {
+		if ( pers->surface == nullptr ) {
 			continue;
 		}
 
@@ -403,7 +403,7 @@ static int GetMeshShader( T3dsLoaderPers *pers ){
 	shader = pmm::pp_find_shader( pers->model, shaderName, 1 );
 
 	/* we've found a matching shader */
-	if ( ( shader != NULL ) && pers->surface ) {
+	if ( ( shader != nullptr ) && pers->surface ) {
 		char mapName[1024 + 1];
 		char *mapNamePtr;
 		memset( mapName,0,sizeof( mapName ) );
@@ -412,7 +412,7 @@ static int GetMeshShader( T3dsLoaderPers *pers ){
 		mapNamePtr = pmm::pp_get_shader_map_name( shader );
 
 		/* we have a valid map name ptr */
-		if ( mapNamePtr != NULL ) {
+		if ( mapNamePtr != nullptr ) {
 			char temp[128];
 			const char *name;
 
@@ -500,7 +500,7 @@ static int DoNextEditorDataChunk( T3dsLoaderPers *pers, long endofs ){
 	while ( pers->cofs < endofs )
 	{
 		long nextofs = pers->cofs;
-		if ( ( chunk = GetChunk( pers ) ) == NULL ) {
+		if ( ( chunk = GetChunk( pers ) ) == nullptr ) {
 			return 0;
 		}
 		if ( !chunk->len ) {
@@ -521,13 +521,13 @@ static int DoNextEditorDataChunk( T3dsLoaderPers *pers, long endofs ){
 				return 0; /* this is bad */
 			}
 //pmm::pp_get_surface_name
-			/* ignore NULL name surfaces */
+			/* ignore nullptr name surfaces */
 //			if( surfaceName
 
 			/* allocate a pico surface */
 			surface = pmm::pp_new_surface( pers->model );
-			if ( surface == NULL ) {
-				pers->surface = NULL;
+			if ( surface == nullptr ) {
+				pers->surface = nullptr;
 				return 0; /* this is bad too */
 			}
 			/* assign ptr to current surface */
@@ -582,8 +582,8 @@ static int DoNextEditorDataChunk( T3dsLoaderPers *pers, long endofs ){
 
 			/* allocate a pico shader */
 			shader = pmm::pp_new_shader( pers->model );  /* ydnar */
-			if ( shader == NULL ) {
-				pers->shader = NULL;
+			if ( shader == nullptr ) {
+				pers->shader = nullptr;
 				return 0; /* this is bad too */
 			}
 
@@ -661,7 +661,7 @@ static int DoNextChunk( T3dsLoaderPers *pers, int endofs ){
 	while ( pers->cofs < endofs )
 	{
 		long nextofs = pers->cofs;
-		if ( ( chunk = GetChunk( pers ) ) == NULL ) {
+		if ( ( chunk = GetChunk( pers ) ) == nullptr ) {
 			return 0;
 		}
 		if ( !chunk->len ) {
@@ -723,9 +723,9 @@ static pmm::model_t *_3ds_load( PM_PARAMS_LOAD ){
 
 	/* create a new pico model */
 	model = pmm::pp_new_model();
-	if ( model == NULL ) {
+	if ( model == nullptr ) {
 		/* user must have some serious ram problems ;) */
-		return NULL;
+		return nullptr;
 	}
 	/* get model's base name (eg. jeep from c:\models\jeep.3ds) */
 	memset( basename,0,sizeof( basename ) );
@@ -734,7 +734,7 @@ static pmm::model_t *_3ds_load( PM_PARAMS_LOAD ){
 
 	/* initialize persistant vars (formerly static) */
 	pers.model    =  model;
-	pers.bufptr   = (pmm::byte_t *)_pico_alloc( bufSize );
+	pers.bufptr   = (pmm::ub8_t *)_pico_alloc( bufSize );
 	memcpy( pers.bufptr, buffer, bufSize );
 	pers.basename = (char *)basename;
 	pers.maxofs   =  bufSize;
@@ -752,7 +752,7 @@ static pmm::model_t *_3ds_load( PM_PARAMS_LOAD ){
 	if ( !DoNextChunk( &pers,pers.maxofs ) ) {
 		/* well, bleh i guess */
 		pmm::pp_free_model( model );
-		return NULL;
+		return nullptr;
 	}
 	/* return allocated pico model */
 	return model;
@@ -766,10 +766,10 @@ extern const pmm::module_t picoModule3DS =
 	"seaw0lf",                  /* author's name */
 	"2002 seaw0lf",             /* module copyright */
 	{
-		"3ds",NULL,NULL,NULL    /* default extensions to use */
+		"3ds",nullptr,nullptr,nullptr    /* default extensions to use */
 	},
 	_3ds_canload,               /* validation routine */
 	_3ds_load,                  /* load routine */
-	NULL,                       /* save validation routine */
-	NULL                        /* save routine */
+	nullptr,                       /* save validation routine */
+	nullptr                        /* save routine */
 };

@@ -85,11 +85,11 @@ static aseMaterial_t* _ase_get_material( aseMaterial_t* list, int mtlIdParent ){
 
 static aseSubMaterial_t* _ase_get_submaterial( aseMaterial_t* list, int mtlIdParent, int subMtlId ){
 	aseMaterial_t* parent = _ase_get_material( list, mtlIdParent );
-	aseSubMaterial_t* subMtl = NULL;
+	aseSubMaterial_t* subMtl = nullptr;
 
 	if ( !parent ) {
 		_pico_printf( pmm::pl_error, "No ASE material exists with id %i\n", mtlIdParent );
-		return NULL;
+		return nullptr;
 	}
 
 	subMtl = parent->subMtls;
@@ -105,18 +105,18 @@ static aseSubMaterial_t* _ase_get_submaterial( aseMaterial_t* list, int mtlIdPar
 
 aseSubMaterial_t* _ase_get_submaterial_or_default( aseMaterial_t* materials, int mtlIdParent, int subMtlId ){
 	aseSubMaterial_t* subMtl = _ase_get_submaterial( materials, mtlIdParent, subMtlId );
-	if ( subMtl != NULL ) {
+	if ( subMtl != nullptr ) {
 		return subMtl;
 	}
 
 	/* ydnar: trying default submaterial */
 	subMtl = _ase_get_submaterial( materials, mtlIdParent, 0 );
-	if ( subMtl != NULL ) {
+	if ( subMtl != nullptr ) {
 		return subMtl;
 	}
 
 	_pico_printf( pmm::pl_error, "Could not find material/submaterial for id %d/%d\n", mtlIdParent, subMtlId );
-	return NULL;
+	return nullptr;
 }
 
 
@@ -125,7 +125,7 @@ aseSubMaterial_t* _ase_get_submaterial_or_default( aseMaterial_t* materials, int
 static aseMaterial_t* _ase_add_material( aseMaterial_t **list, int mtlIdParent ){
 	aseMaterial_t * mtl = reinterpret_cast<decltype(mtl)>(_pico_calloc( 1, sizeof( aseMaterial_t ) ));
 	mtl->mtlId = mtlIdParent;
-	mtl->subMtls = NULL;
+	mtl->subMtls = nullptr;
 	mtl->next = *list;
 	*list = mtl;
 
@@ -150,10 +150,10 @@ static aseSubMaterial_t* _ase_add_submaterial( aseMaterial_t **list, int mtlIdPa
 
 static void _ase_free_materials( aseMaterial_t **list ){
 	aseMaterial_t* mtl = *list;
-	aseSubMaterial_t* subMtl = NULL;
+	aseSubMaterial_t* subMtl = nullptr;
 
-	aseMaterial_t* mtlTemp = NULL;
-	aseSubMaterial_t* subMtlTemp = NULL;
+	aseMaterial_t* mtlTemp = nullptr;
+	aseSubMaterial_t* subMtlTemp = nullptr;
 
 	while ( mtl )
 	{
@@ -168,13 +168,13 @@ static void _ase_free_materials( aseMaterial_t **list ){
 		_pico_free( mtl );
 		mtl = mtlTemp;
 	}
-	( *list ) = NULL;
+	( *list ) = nullptr;
 }
 
 #ifdef DEBUG_PM_ASE
 static void _ase_print_materials( aseMaterial_t *list ){
 	aseMaterial_t* mtl = list;
-	aseSubMaterial_t* subMtl = NULL;
+	aseSubMaterial_t* subMtl = nullptr;
 
 	while ( mtl )
 	{
@@ -207,13 +207,13 @@ static int _ase_canload( PM_PARAMS_CANLOAD ){
 	}
 
 	/* create pico parser */
-	p = _pico_new_parser( (const pmm::byte_t*) buffer, bufSize );
-	if ( p == NULL ) {
+	p = _pico_new_parser( (const pmm::ub8_t*) buffer, bufSize );
+	if ( p == nullptr ) {
 		return pmm::pmv_error_memory;
 	}
 
 	/* get first token */
-	if ( _pico_parse_first( p ) == NULL ) {
+	if ( _pico_parse_first( p ) == nullptr ) {
 		return pmm::pmv_error_ident;
 	}
 
@@ -373,7 +373,7 @@ static void _ase_submit_triangles_unshared( pmm::model_t* model, aseMaterial_t* 
 	{
 		/* look up the shader for the material/submaterial pair */
 		aseSubMaterial_t* subMtl = _ase_get_submaterial_or_default( materials, ( *i ).materialId, ( *i ).subMaterialId );
-		if ( subMtl == NULL ) {
+		if ( subMtl == nullptr ) {
 			return;
 		}
 
@@ -425,7 +425,7 @@ static void _ase_submit_triangles( pmm::model_t* model, aseMaterial_t* materials
 	{
 		/* look up the shader for the material/submaterial pair */
 		aseSubMaterial_t* subMtl = _ase_get_submaterial_or_default( materials, ( *i ).materialId, ( *i ).subMaterialId );
-		if ( subMtl == NULL ) {
+		if ( subMtl == nullptr ) {
 			return;
 		}
 
@@ -443,7 +443,7 @@ static void _ase_submit_triangles( pmm::model_t* model, aseMaterial_t* materials
 				normal[j] = &vertices[( *i ).indices[j]].normal;
 				st[j]     = &texcoords[( *i ).indices[j + 3]].texcoord;
 
-				if ( colors != NULL && ( *i ).indices[j + 6] >= 0 ) {
+				if ( colors != nullptr && ( *i ).indices[j + 6] >= 0 ) {
 					color[j] = &colors[( *i ).indices[j + 6]].color;
 				}
 				else
@@ -481,10 +481,10 @@ static pmm::model_t *_ase_load( PM_PARAMS_LOAD ){
 	picoParser_t   *p;
 	char lastNodeName[ 1024 ];
 
-	aseVertex_t* vertices = NULL;
-	aseTexCoord_t* texcoords = NULL;
-	aseColor_t* colors = NULL;
-	aseFace_t* faces = NULL;
+	aseVertex_t* vertices = nullptr;
+	aseTexCoord_t* texcoords = nullptr;
+	aseColor_t* colors = nullptr;
+	aseFace_t* faces = nullptr;
 	int numVertices = 0;
 	int numFaces = 0;
 	int numTextureVertices = 0;
@@ -493,7 +493,7 @@ static pmm::model_t *_ase_load( PM_PARAMS_LOAD ){
 	int numColorVertexFaces = 0;
 	int vertexId = 0;
 
-	aseMaterial_t* materials = NULL;
+	aseMaterial_t* materials = nullptr;
 
 #ifdef DEBUG_PM_ASE
 	clock_t start, finish;
@@ -507,19 +507,19 @@ static pmm::model_t *_ase_load( PM_PARAMS_LOAD ){
 		_pico_printf( pmm::pl_error,"%s in ASE, line %d.",m,p->curLine ); \
 		_pico_free_parser( p );	\
 		pmm::pp_free_model( model );	\
-		return NULL; \
+		return nullptr; \
 	}
 	/* create a new pico parser */
-	p = _pico_new_parser( (const pmm::byte_t *)buffer,bufSize );
-	if ( p == NULL ) {
-		return NULL;
+	p = _pico_new_parser( (const pmm::ub8_t *)buffer,bufSize );
+	if ( p == nullptr ) {
+		return nullptr;
 	}
 
 	/* create a new pico model */
 	model = pmm::pp_new_model();
-	if ( model == NULL ) {
+	if ( model == nullptr ) {
 		_pico_free_parser( p );
-		return NULL;
+		return nullptr;
 	}
 	/* do model setup */
 	pmm::pp_set_model_frame_num( model, frameNum );
@@ -533,12 +533,12 @@ static pmm::model_t *_ase_load( PM_PARAMS_LOAD ){
 	while ( 1 )
 	{
 		/* get first token on line */
-		if ( _pico_parse_first( p ) == NULL ) {
+		if ( _pico_parse_first( p ) == nullptr ) {
 			break;
 		}
 
 		/* we just skip empty lines */
-		if ( p->token == NULL || !strlen( p->token ) ) {
+		if ( p->token == nullptr || !strlen( p->token ) ) {
 			continue;
 		}
 
@@ -551,7 +551,7 @@ static pmm::model_t *_ase_load( PM_PARAMS_LOAD ){
 		if ( !_pico_stricmp( p->token,"*node_name" ) ) {
 			/* read node name */
 			char *ptr = _pico_parse( p,0 );
-			if ( ptr == NULL ) {
+			if ( ptr == nullptr ) {
 				_ase_error_return( "Node name parse error" );
 			}
 
@@ -790,19 +790,19 @@ static pmm::model_t *_ase_load( PM_PARAMS_LOAD ){
 			if ( !_pico_parse_float( p,&colorInput ) ) {
 				_ase_error_return( "Color vertex parse error" );
 			}
-			colors[index].color[0] = (pmm::byte_t)( colorInput * 255 );
+			colors[index].color[0] = (pmm::ub8_t)( colorInput * 255 );
 
 			/* get G component */
 			if ( !_pico_parse_float( p,&colorInput ) ) {
 				_ase_error_return( "Color vertex parse error" );
 			}
-			colors[index].color[1] = (pmm::byte_t)( colorInput * 255 );
+			colors[index].color[1] = (pmm::ub8_t)( colorInput * 255 );
 
 			/* get B component */
 			if ( !_pico_parse_float( p,&colorInput ) ) {
 				_ase_error_return( "Color vertex parse error" );
 			}
-			colors[index].color[2] = (pmm::byte_t)( colorInput * 255 );
+			colors[index].color[2] = (pmm::ub8_t)( colorInput * 255 );
 
 			/* leave alpha alone since we don't get any data from the ASE format */
 			colors[index].color[3] = 255;
@@ -845,13 +845,13 @@ static pmm::model_t *_ase_load( PM_PARAMS_LOAD ){
 		}
 		/* model material */
 		else if ( !_pico_stricmp( p->token, "*material" ) ) {
-			aseSubMaterial_t*   subMaterial = NULL;
-			pmm::shader_t        *shader = NULL;
+			aseSubMaterial_t*   subMaterial = nullptr;
+			pmm::shader_t        *shader = nullptr;
 			int level = 1, index;
 			char materialName[ 1024 ];
 			float transValue = 0.0f, shineValue = 1.0f;
 			pmm::color_t ambientColor, diffuseColor, specularColor;
-			char                *mapname = NULL;
+			char                *mapname = nullptr;
 			int subMtlId, subMaterialLevel = -1;
 
 
@@ -867,7 +867,7 @@ static pmm::model_t *_ase_load( PM_PARAMS_LOAD ){
 			while ( 1 )
 			{
 				/* get next token */
-				if ( _pico_parse( p,1 ) == NULL ) {
+				if ( _pico_parse( p,1 ) == nullptr ) {
 					break;
 				}
 				if ( !strlen( p->token ) ) {
@@ -898,7 +898,7 @@ static pmm::model_t *_ase_load( PM_PARAMS_LOAD ){
 					pmm::pp_set_shader_ambient_color( shader,ambientColor );
 
 					/* set diffuse alpha to transparency */
-					diffuseColor[3] = (pmm::byte_t)( transValue * 255.0 );
+					diffuseColor[3] = (pmm::ub8_t)( transValue * 255.0 );
 
 					/* set shader's diffuse color */
 					pmm::pp_set_shader_diffuse_color( shader,diffuseColor );
@@ -922,16 +922,16 @@ static pmm::model_t *_ase_load( PM_PARAMS_LOAD ){
 					_pico_parse_int( p, &subMtlId );
 
 					shader = pmm::pp_new_shader( model );
-					if ( shader == NULL ) {
+					if ( shader == nullptr ) {
 						pmm::pp_free_model( model );
-						return NULL;
+						return nullptr;
 					}
 					subMaterialLevel = level;
 				}
 				/* parse material name */
 				else if ( !_pico_stricmp( p->token,"*material_name" ) ) {
 					char* name = _pico_parse( p,0 );
-					if ( name == NULL ) {
+					if ( name == nullptr ) {
 						_ase_error_return( "Missing material name" );
 					}
 
@@ -1033,7 +1033,7 @@ static pmm::model_t *_ase_load( PM_PARAMS_LOAD ){
 					while ( 1 )
 					{
 						/* get next token */
-						if ( _pico_parse( p,1 ) == NULL ) {
+						if ( _pico_parse( p,1 ) == nullptr ) {
 							break;
 						}
 						if ( !strlen( p->token ) ) {
@@ -1054,7 +1054,7 @@ static pmm::model_t *_ase_load( PM_PARAMS_LOAD ){
 						/* parse diffuse map bitmap */
 						if ( !_pico_stricmp( p->token,"*bitmap" ) ) {
 							char* name = _pico_parse( p,0 );
-							if ( name == NULL ) {
+							if ( name == nullptr ) {
 								_ase_error_return( "Missing material map bitmap name" );
 							}
 							mapname = reinterpret_cast<decltype(mapname)>(_pico_alloc( strlen( name ) + 1 ));
@@ -1069,12 +1069,12 @@ static pmm::model_t *_ase_load( PM_PARAMS_LOAD ){
 			}
 			/* end material block */
 
-			if ( subMaterial == NULL ) {
+			if ( subMaterial == nullptr ) {
 				/* allocate new pico shader */
 				shader = pmm::pp_new_shader( model );
-				if ( shader == NULL ) {
+				if ( shader == nullptr ) {
 					pmm::pp_free_model( model );
-					return NULL;
+					return nullptr;
 				}
 
 				/* set material name */
@@ -1088,7 +1088,7 @@ static pmm::model_t *_ase_load( PM_PARAMS_LOAD ){
 				pmm::pp_set_shader_ambient_color( shader,ambientColor );
 
 				/* set diffuse alpha to transparency */
-				diffuseColor[3] = (pmm::byte_t)( transValue * 255.0 );
+				diffuseColor[3] = (pmm::ub8_t)( transValue * 255.0 );
 
 				/* set shader's diffuse color */
 				pmm::pp_set_shader_diffuse_color( shader,diffuseColor );
@@ -1103,7 +1103,7 @@ static pmm::model_t *_ase_load( PM_PARAMS_LOAD ){
 				pmm::pp_set_shader_map_name( shader, mapname );
 
 				/* extract shadername from bitmap path */
-				if ( mapname != NULL ) {
+				if ( mapname != nullptr ) {
 					char* p = mapname;
 
 					/* convert to shader-name format */
@@ -1111,7 +1111,7 @@ static pmm::model_t *_ase_load( PM_PARAMS_LOAD ){
 					{
 						/* remove extension */
 						char* last_period = strrchr( p, '.' );
-						if ( last_period != NULL ) {
+						if ( last_period != nullptr ) {
 							*last_period = '\0';
 						}
 					}
@@ -1135,7 +1135,7 @@ static pmm::model_t *_ase_load( PM_PARAMS_LOAD ){
 			}
 
 			/* ydnar: free mapname */
-			if ( mapname != NULL ) {
+			if ( mapname != nullptr ) {
 				_pico_free( mapname );
 			}
 		}   // !_pico_stricmp ( "*material" )
@@ -1174,10 +1174,10 @@ extern const pmm::module_t picoModuleASE =
 	"Jared Hefty, seaw0lf",                 /* author's name */
 	"2003 Jared Hefty, 2002 seaw0lf",               /* module copyright */
 	{
-		"ase",NULL,NULL,NULL    /* default extensions to use */
+		"ase",nullptr,nullptr,nullptr    /* default extensions to use */
 	},
 	_ase_canload,               /* validation routine */
 	_ase_load,                  /* load routine */
-	NULL,                       /* save validation routine */
-	NULL                        /* save routine */
+	nullptr,                       /* save validation routine */
+	nullptr                        /* save routine */
 };
