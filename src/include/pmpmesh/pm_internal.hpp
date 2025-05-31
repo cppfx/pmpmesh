@@ -1,3 +1,5 @@
+#pragma once
+
 /* -----------------------------------------------------------------------------
 
    PicoModel Library
@@ -31,8 +33,6 @@
    SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
    ----------------------------------------------------------------------------- */
-
-#pragma once
 
 #include <pmpmesh/platfdefs.hpp>
 
@@ -95,10 +95,6 @@ public:
 /* variables */
 extern const pmm::module_t   *picoModules[];
 
-extern void ( *_pico_ptr_print )( int, const char* );
-
-
-
 /* prototypes */
 
 /* memory */
@@ -109,7 +105,6 @@ void            _pico_first_token( char *str );
 char            *_pico_strltrim( char *str );
 char            *_pico_strrtrim( char *str );
 int             _pico_strchcount( char *str, int ch );
-void            _pico_printf( int level, const char *format, ... );
 const char      *_pico_stristr( const char *str, const char *substr );
 void            _pico_unixify( char *path );
 int             _pico_nofname( const char *path, char *dest, int destSize );

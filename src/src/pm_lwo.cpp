@@ -32,9 +32,10 @@
 
    ----------------------------------------------------------------------------- */
 
-/* dependencies */
 #include <pmpmesh/pm_internal.hpp>
 #include <pmpmesh/lwo/lwo2.hpp>
+#include <pmpmesh/pmpmesh.hpp>
+#include <sstream>
 
 /* uncomment when debugging this module */
 /*#define DEBUG_PM_LWO*/
@@ -125,7 +126,7 @@ static pmm::model_t *_lwo_load( PM_PARAMS_LOAD ){
 
 	/* do frame check */
 	if ( frameNum < 0 || frameNum >= 1 ) {
-		_pico_printf( pmm::pl_error, "Invalid or out-of-range LWO frame specified" );
+		pmm::man.pp_print(pmm::pl_error, "Invalid or out-of-range LWO frame specified");
 		return nullptr;
 	}
 
@@ -140,7 +141,14 @@ static pmm::model_t *_lwo_load( PM_PARAMS_LOAD ){
 	_pico_free_memstream( s );
 
 	if ( !obj ) {
-		_pico_printf( pmm::pl_error, "Couldn't load LWO file, failed on ID '%s', position %d", lwo_lwIDToStr( failID ), failpos );
+		pmm::man.pp_print(
+			pmm::pl_error,
+			(
+				std::ostringstream{}
+				<< "Couldn't load LWO file, failed on ID '" << lwo_lwIDToStr(failID) << "', "
+				<< "position " << failpos
+			).str()
+		);
 		return nullptr;
 	}
 
@@ -156,7 +164,7 @@ static pmm::model_t *_lwo_load( PM_PARAMS_LOAD ){
 	/* create a new pico model */
 	picoModel = pmm::pp_new_model();
 	if ( picoModel == nullptr ) {
-		_pico_printf( pmm::pl_error, "Unable to allocate a new model" );
+		pmm::man.pp_print(pmm::pl_error, "Unable to allocate a new model");
 		return nullptr;
 	}
 
@@ -171,7 +179,15 @@ static pmm::model_t *_lwo_load( PM_PARAMS_LOAD ){
 
 	/* warn the user that other layers are discarded */
 	if ( obj->nlayers > 1 ) {
-		_pico_printf( pmm::pl_warning, "LWO loader discards any geometry data not in Layer 1 (%d layers found)", obj->nlayers );
+		pmm::man.pp_print(
+			pmm::pl_warning,
+			(
+				std::ostringstream{}
+					<< "LWO loader discards any geometry data not in Layer 1 ("
+					<< obj->nlayers
+					<< " layers found)"
+			).str()
+		);
 	}
 
 	/* initialize dummy normal */
@@ -209,7 +225,7 @@ static pmm::model_t *_lwo_load( PM_PARAMS_LOAD ){
 		/* allocate new pico surface */
 		picoSurface = pmm::pp_new_surface( picoModel );
 		if ( picoSurface == nullptr ) {
-			_pico_printf( pmm::pl_error, "Unable to allocate a new model surface" );
+			pmm::man.pp_print(pmm::pl_error, "Unable to allocate a new model surface");
 			pmm::pp_free_model( picoModel );
 			lwFreeObject( obj );
 			return nullptr;
@@ -224,7 +240,7 @@ static pmm::model_t *_lwo_load( PM_PARAMS_LOAD ){
 		/* create new pico shader */
 		picoShader = pmm::pp_new_shader( picoModel );
 		if ( picoShader == nullptr ) {
-			_pico_printf( pmm::pl_error, "Unable to allocate a new model shader" );
+			pmm::man.pp_print(pmm::pl_error, "Unable to allocate a new model shader");
 			pmm::pp_free_model( picoModel );
 			lwFreeObject( obj );
 			return nullptr;
@@ -246,7 +262,7 @@ static pmm::model_t *_lwo_load( PM_PARAMS_LOAD ){
 		hashTable = pmm::pp_new_vertex_combination_hash_table();
 
 		if ( hashTable == nullptr ) {
-			_pico_printf( pmm::pl_error, "Unable to allocate hash table" );
+			pmm::man.pp_print(pmm::pl_error, "Unable to allocate hash table");
 			pmm::pp_free_model( picoModel );
 			lwFreeObject( obj );
 			return nullptr;
@@ -261,13 +277,29 @@ static pmm::model_t *_lwo_load( PM_PARAMS_LOAD ){
 
 			/* we only support polygons of the FACE type */
 			if ( pol->type != ID_FACE ) {
-				_pico_printf( pmm::pl_warning, "LWO loader discarded a polygon because it's type != FACE (%s)", lwo_lwIDToStr( pol->type ) );
+				pmm::man.pp_print(
+					pmm::pl_warning,
+					(
+						std::ostringstream{}
+							<< "LWO loader discarded a polygon because it's type != FACE ("
+							<< lwo_lwIDToStr(pol->type)
+							<< ")"
+					).str()
+				);
 				continue;
 			}
 
 			/* NOTE: LWO has support for non-convex polygons, do we want to store them as well? */
 			if ( pol->nverts != 3 ) {
-				_pico_printf( pmm::pl_warning, "LWO loader discarded a polygon because it has != 3 verts (%d)", pol->nverts );
+				pmm::man.pp_print(
+					pmm::pl_warning,
+					(
+						std::ostringstream{}
+							<< "LWO loader discarded a polygon because it has != 3 verts ("
+							<< pol->nverts
+							<< ")"
+					).str()
+				);
 				continue;
 			}
 
@@ -352,7 +384,7 @@ static pmm::model_t *_lwo_load( PM_PARAMS_LOAD ){
 					vertexCombinationHash = pmm::pp_add_vertex_combination_to_hash_table( hashTable, xyz, normal, st, color, (pmm::index_t) numverts );
 
 					if ( vertexCombinationHash == nullptr ) {
-						_pico_printf( pmm::pl_error, "Unable to allocate hash bucket entry table" );
+						pmm::man.pp_print(pmm::pl_error, "Unable to allocate hash bucket entry table");
 						pmm::pp_free_vertex_combination_hash_table( hashTable );
 						pmm::pp_free_model( picoModel );
 						lwFreeObject( obj );
@@ -396,7 +428,21 @@ static pmm::model_t *_lwo_load( PM_PARAMS_LOAD ){
 	load_finish = clock();
 	load_elapsed += (double)( load_finish - load_start ) / CLOCKS_PER_SEC;
 	convert_elapsed = (double)( convert_finish - convert_start ) / CLOCKS_PER_SEC;
-	_pico_printf( pmm::pl_normal, "Loaded model in in %-.2f second(s) (loading: %-.2fs converting: %-.2fs)\n", load_elapsed + convert_elapsed, load_elapsed, convert_elapsed  );
+	pmm::man.pp_print(
+		pmm::pl_normal,
+		(
+			std::ostringstream{}
+				<< "Loaded model in in "
+				<< std::fixed << std::setprecision(2) << load_elapsed + convert_elapsed
+				<< " second(s) "
+				<< "(loading: "
+				<< std::fixed << std::setprecision(2) << load_elapsed
+				<< "s "
+				<< "converting: "
+				<< std::fixed << std::setprecision(2) << convert_elapsed
+				<< "s)\n"
+		).str()
+	);
 #endif
 
 	/* return the new pico model */

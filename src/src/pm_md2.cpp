@@ -36,8 +36,8 @@
    Nurail: Used pm_md3.c (Randy Reddig) as a template.
  */
 
-/* dependencies */
 #include <pmpmesh/pm_internal.hpp>
+#include <sstream>
 
 /* md2 model format */
 const char *MD2_MAGIC             = "IDP2";
@@ -354,7 +354,10 @@ static pmm::model_t *_md2_load( PM_PARAMS_LOAD ){
 	/* check ident and version */
 	if ( *( (const int*) md2->magic ) != *( (const int*) MD2_MAGIC ) || _pico_little_long( md2->version ) != MD2_version ) {
 		/* not an md2 file (todo: set error) */
-		_pico_printf( pmm::pl_error, "%s is not an MD2 File!", fileName );
+		pmm::man.pp_print(
+			pmm::pl_error,
+			(std::ostringstream{} << fileName << " is not an MD2 File!").str()
+		);
 		pmm::man.pp_m_delete( bb0 );
 		return nullptr;
 	}
@@ -381,14 +384,21 @@ static pmm::model_t *_md2_load( PM_PARAMS_LOAD ){
 	md2->ofsEnd = _pico_little_long( md2->ofsEnd );
 
 	// do frame check
-	if ( md2->numFrames < 1 ) {
-		_pico_printf( pmm::pl_error, "%s has 0 frames!", fileName );
+	if (md2->numFrames < 1)
+	{
+		pmm::man.pp_print(
+			pmm::pl_error,
+			(std::ostringstream{} << fileName << " has 0 frames!").str()
+		);
 		pmm::man.pp_m_delete( bb0 );
 		return nullptr;
 	}
 
 	if ( frameNum < 0 || frameNum >= md2->numFrames ) {
-		_pico_printf( pmm::pl_error, "Invalid or out-of-range MD2 frame specified" );
+		pmm::man.pp_print(
+			pmm::pl_error,
+			"Invalid or out-of-range MD2 frame specified"
+		);
 		pmm::man.pp_m_delete( bb0 );
 		return nullptr;
 	}
@@ -426,7 +436,18 @@ static pmm::model_t *_md2_load( PM_PARAMS_LOAD ){
 	strncpy( skinname, (const char *) ( bb + md2->ofsSkins ), MD2_MAX_SKINNAME );
 
 	// Print out md2 values
-	_pico_printf( pmm::pl_verbose,"Skins: %d  Verts: %d  STs: %d  Triangles: %d  Frames: %d\nSkin Name \"%s\"\n", md2->numSkins, md2->numXYZ, md2->numST, md2->numTris, md2->numFrames, &skinname );
+	pmm::man.pp_print(
+		pmm::pl_verbose,
+		(
+			std::ostringstream{}
+				<< "Skins: " << md2->numSkins << "  "
+				<< "Verts: " << md2->numXYZ << "  "
+				<< "STs: " << md2->numST << "  "
+				<< "Triangles: " << md2->numTris << "  "
+				<< "Frames: " << md2->numFrames << "\n"
+				<< "Skin Name \"" << &skinname << "\"\n"
+		).str()
+	);
 
 	// detox Skin name
 	_pico_setfext( skinname, "" );
@@ -435,7 +456,7 @@ static pmm::model_t *_md2_load( PM_PARAMS_LOAD ){
 	/* create new pico model */
 	picoModel = pmm::pp_new_model();
 	if ( picoModel == nullptr ) {
-		_pico_printf( pmm::pl_error, "Unable to allocate a new model" );
+		pmm::man.pp_print(pmm::pl_error, "Unable to allocate a new model");
 		pmm::man.pp_m_delete( bb0 );
 		return nullptr;
 	}
@@ -449,7 +470,7 @@ static pmm::model_t *_md2_load( PM_PARAMS_LOAD ){
 	// allocate new pico surface
 	picoSurface = pmm::pp_new_surface( picoModel );
 	if ( picoSurface == nullptr ) {
-		_pico_printf( pmm::pl_error, "Unable to allocate a new model surface" );
+		pmm::man.pp_print(pmm::pl_error, "Unable to allocate a new model surface");
 		pmm::pp_free_model( picoModel );
 		pmm::man.pp_m_delete( bb0 );
 		return nullptr;
@@ -460,7 +481,7 @@ static pmm::model_t *_md2_load( PM_PARAMS_LOAD ){
 	pmm::pp_set_surface_name( picoSurface, frame->name );
 	picoShader = pmm::pp_new_shader( picoModel );
 	if ( picoShader == nullptr ) {
-		_pico_printf( pmm::pl_error, "Unable to allocate a new model shader" );
+		pmm::man.pp_print(pmm::pl_error, "Unable to allocate a new model shader");
 		pmm::pp_free_model( picoModel );
 		pmm::man.pp_m_delete( bb0 );
 		return nullptr;
@@ -499,7 +520,7 @@ static pmm::model_t *_md2_load( PM_PARAMS_LOAD ){
 				// Add first entry of LL from Main
 				p_index_LUT2 = (index_LUT_t *)pmm::man.pp_m_new( sizeof( index_LUT_t ) );
 				if ( p_index_LUT2 == nullptr ) {
-					_pico_printf( pmm::pl_error," Couldn't allocate memory!\n" );
+					pmm::man.pp_print(pmm::pl_error, " Couldn't allocate memory!\n");
 				}
 				p_index_LUT[p_md2Triangle->index_xyz[j]].next = (index_LUT_t *)p_index_LUT2;
 				p_index_LUT2->Vert = dups;
@@ -527,7 +548,7 @@ static pmm::model_t *_md2_load( PM_PARAMS_LOAD ){
 					// Add the Entry
 					p_index_LUT3 = (index_LUT_t *)pmm::man.pp_m_new( sizeof( index_LUT_t ) );
 					if ( p_index_LUT3 == nullptr ) {
-						_pico_printf( pmm::pl_error," Couldn't allocate memory!\n" );
+						pmm::man.pp_print(pmm::pl_error, " Couldn't allocate memory!\n");
 					}
 					p_index_LUT2->next = (index_LUT_t *)p_index_LUT3;
 					p_index_LUT3->Vert = p_md2Triangle->index_xyz[j];
@@ -543,7 +564,7 @@ static pmm::model_t *_md2_load( PM_PARAMS_LOAD ){
 	// malloc and build array for Dup STs
 	p_index_LUT_DUPS = (index_DUP_LUT_t *)pmm::man.pp_m_new( sizeof( index_DUP_LUT_t ) * dups );
 	if ( p_index_LUT_DUPS == nullptr ) {
-		_pico_printf( pmm::pl_error," Couldn't allocate memory!\n" );
+		pmm::man.pp_print(pmm::pl_error, " Couldn't allocate memory!\n");
 	}
 
 	dup_index = 0;
@@ -631,7 +652,7 @@ static pmm::model_t *_md2_load( PM_PARAMS_LOAD ){
 	}
 
 	if ( dups ) {
-		_pico_printf( pmm::pl_warning, " Not all LL mallocs freed\n" );
+		pmm::man.pp_print(pmm::pl_warning, " Not all LL mallocs freed\n");
 	}
 
 	// Free malloc'ed LUTs

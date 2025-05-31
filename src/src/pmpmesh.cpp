@@ -32,10 +32,12 @@
 
    ----------------------------------------------------------------------------- */
 
-/* dependencies */
 #include <pmpmesh/pmpmesh.hpp>
 #include <pmpmesh/pm_internal.hpp>
 #include <algorithm>
+#include <iostream>
+#include <sstream>
+#include <string>
 
 ///////////////////////////////////////////////////////////////////////////
 
@@ -122,20 +124,15 @@ int pmm::pp_manager::pp_load_file(const std::string & name__, pmm::ub8_t ** buff
 	return __file_loader(name__, buffer__);
 }
 
-///////////////////////////////////////////////////////////////////////////
-
-/*
-   pmm::pp_set_print_func()
-   sets the ptr to the print function
- */
-
-void pmm::pp_set_print_func( void ( *func )( int, const char* ) ){
-	if ( func != nullptr ) {
-		_pico_ptr_print = func;
-	}
+void pmm::pp_manager::pp_print(pmm::print_level level__, const std::string & str__) const
+{
+	std::string sub = str__;
+	if (sub.back() == '\n')
+		sub.back() == '\0';
+	std::cout << sub << std::flush;
 }
 
-
+///////////////////////////////////////////////////////////////////////////
 
 pmm::model_t *PicoModuleLoadModel( const pmm::module_t* pm, const char* fileName, pmm::ub8_t* buffer, int bufSize, int frameNum ){
 	char                *modelFileName, *remapFileName;
@@ -187,7 +184,7 @@ pmm::model_t *pmm::pp_load_model( const char *fileName, int frameNum ){
 	// make sure we've got a file name
 	if ( fileName == nullptr )
 	{
-		_pico_printf( pmm::pl_error, "pmm::pp_load_model: No filename given (fileName == nullptr)" );
+		pmm::man.pp_print(pmm::pl_error, "pmm::pp_load_model: No filename given (fileName == nullptr)");
 		return nullptr;
 	}
 
@@ -199,7 +196,7 @@ pmm::model_t *pmm::pp_load_model( const char *fileName, int frameNum ){
 	int bufSize = pmm::man.pp_load_file(fileName, &buffer);
 
 	if ( bufSize < 0 ) {
-		_pico_printf( pmm::pl_error, "pmm::pp_load_model: Failed loading model %s", fileName );
+		pmm::man.pp_print(pmm::pl_error, (std::ostringstream{} << "pmm::pp_load_model: Failed loading model " << fileName).str());
 		return nullptr;
 	}
 
@@ -249,12 +246,12 @@ pmm::model_t *pmm::pp_module_load_model_stream( const pmm::module_t* module, voi
 	model = nullptr;
 
 	if ( inputStream == nullptr ) {
-		_pico_printf( pmm::pl_error, "pmm::pp_load_model: invalid input stream (inputStream == nullptr)" );
+		pmm::man.pp_print(pmm::pl_error, "pmm::pp_load_model: invalid input stream (inputStream == nullptr)");
 		return nullptr;
 	}
 
 	if ( inputStreamRead == nullptr ) {
-		_pico_printf( pmm::pl_error, "pmm::pp_load_model: invalid input stream (inputStreamRead == nullptr)" );
+		pmm::man.pp_print(pmm::pl_error, "pmm::pp_load_model: invalid input stream (inputStreamRead == nullptr)");
 		return nullptr;
 	}
 
@@ -2267,7 +2264,7 @@ void pmm::pp_add_triangle_to_model( pmm::model_t *model, pmm::vec3_t** xyz, pmm:
 		/* create a new surface in the model for the unique shader */
 		workSurface = pmm::pp_new_surface( model );
 		if ( !workSurface ) {
-			_pico_printf( pmm::pl_error, "Could not allocate a new surface!\n" );
+			pmm::man.pp_print(pmm::pl_error, "Could not allocate a new surface!\n");
 			return;
 		}
 

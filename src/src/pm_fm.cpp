@@ -36,8 +36,10 @@
    Nurail: Used pm_md3.c (Randy Reddig) as a template.
  */
 
-/* dependencies */
 #include <pmpmesh/pm_fm.hpp>
+#include <pmpmesh/pmpmesh.hpp>
+#include <sstream>
+#include <iomanip>
 
 //#define FM_VERBOSE_DBG	0
 #undef FM_VERBOSE_DBG
@@ -71,11 +73,13 @@ static int _fm_canload( PM_PARAMS_CANLOAD ){
 	fm.fm_header_hdr = (fm_chunk_header_t *) bb;
 	fm_file_pos = sizeof( fm_chunk_header_t ) + fm.fm_header_hdr->size;
 #ifdef FM_VERBOSE_DBG
-	_pico_printf( pmm::pl_verbose, "ident: %s\n", (unsigned char *) fm.fm_header_hdr->ident );
+	pmm::man.pp_print(pmm::pl_verbose,
+		(std::ostringstream{} << "ident: " << (unsigned char *)fm.fm_header_hdr->ident << "\n").str()
+	);
 #endif
 	if ( ( strcmp( fm.fm_header_hdr->ident, FM_HEADERCHUNKNAME ) )  ) {
 #ifdef FM_DBG
-		_pico_printf( pmm::pl_warning, "FM Header Ident incorrect\n" );
+		pmm::man.pp_print(pmm::pl_warning, "FM Header Ident incorrect\n");
 #endif
 		pmm::man.pp_m_delete( bb0 );
 		return pmm::pmv_error_ident;
@@ -84,7 +88,7 @@ static int _fm_canload( PM_PARAMS_CANLOAD ){
 	// check fm
 	if ( _pico_little_long( fm.fm_header_hdr->version ) != FM_HEADERCHUNKVER ) {
 #ifdef FM_DBG
-		_pico_printf( pmm::pl_warning, "FM Header Version incorrect\n" );
+		pmm::man.pp_print(pmm::pl_warning, "FM Header Version incorrect\n");
 #endif
 		pmm::man.pp_m_delete( bb0 );
 		return pmm::pmv_error_version;
@@ -94,11 +98,12 @@ static int _fm_canload( PM_PARAMS_CANLOAD ){
 	fm.fm_skin_hdr = (fm_chunk_header_t *) ( bb + fm_file_pos );
 	fm_file_pos += sizeof( fm_chunk_header_t ) + fm.fm_skin_hdr->size;
 #ifdef FM_VERBOSE_DBG
-	_pico_printf( pmm::pl_verbose, "SKIN: %s\n", (unsigned char *) fm.fm_skin_hdr->ident );
+	pmm::man.pp_print(pmm::pl_verbose,
+		(std::ostringstream{} << "SKIN: " << (unsigned char *) fm.fm_skin_hdr->ident) << "\n").str());
 #endif
 	if ( ( strcmp( fm.fm_skin_hdr->ident, FM_SKINCHUNKNAME ) ) ) {
 #ifdef FM_DBG
-		_pico_printf( pmm::pl_warning, "FM Skin Ident incorrect\n" );
+		pmm::man.pp_print(pmm::pl_warning, "FM Skin Ident incorrect\n");
 #endif
 		pmm::man.pp_m_delete( bb0 );
 		return pmm::pmv_error_ident;
@@ -107,7 +112,7 @@ static int _fm_canload( PM_PARAMS_CANLOAD ){
 	// check fm
 	if ( _pico_little_long( fm.fm_skin_hdr->version ) != FM_SKINCHUNKVER ) {
 #ifdef FM_DBG
-		_pico_printf( pmm::pl_warning, "FM Skin Version incorrect\n" );
+		pmm::man.pp_print(pmm::pl_warning, "FM Skin Version incorrect\n");
 #endif
 		pmm::man.pp_m_delete( bb0 );
 		return pmm::pmv_error_version;
@@ -117,11 +122,16 @@ static int _fm_canload( PM_PARAMS_CANLOAD ){
 	fm.fm_st_hdr = (fm_chunk_header_t *) ( bb + fm_file_pos );
 	fm_file_pos += sizeof( fm_chunk_header_t ) + fm.fm_st_hdr->size;
 #ifdef FM_VERBOSE_DBG
-	_pico_printf( pmm::pl_verbose, "ST: %s\n", (unsigned char *) fm.fm_st_hdr->ident );
+	pmm::man.pp_print(
+		pmm::pl_verbose,
+		(
+			std::ostringstream{} << "ST: " << (unsigned char *) fm.fm_st_hdr->ident << "\n"
+		).str()
+	);
 #endif
 	if ( ( strcmp( fm.fm_st_hdr->ident, FM_STCOORDCHUNKNAME ) ) ) {
 #ifdef FM_DBG
-		_pico_printf( pmm::pl_warning, "FM ST Ident incorrect\n" );
+		pmm::man.pp_print(pmm::pl_warning, "FM ST Ident incorrect\n");
 #endif
 		pmm::man.pp_m_delete( bb0 );
 		return pmm::pmv_error_ident;
@@ -130,7 +140,7 @@ static int _fm_canload( PM_PARAMS_CANLOAD ){
 	// check fm
 	if ( _pico_little_long( fm.fm_st_hdr->version ) != FM_STCOORDCHUNKVER ) {
 #ifdef FM_DBG
-		_pico_printf( pmm::pl_warning, "FM ST Version incorrect\n" );
+		pmm::man.pp_print(pmm::pl_warning, "FM ST Version incorrect\n");
 #endif
 		pmm::man.pp_m_delete( bb0 );
 		return pmm::pmv_error_version;
@@ -140,11 +150,17 @@ static int _fm_canload( PM_PARAMS_CANLOAD ){
 	fm.fm_tri_hdr = (fm_chunk_header_t *) ( bb + fm_file_pos );
 	fm_file_pos += sizeof( fm_chunk_header_t ) + fm.fm_tri_hdr->size;
 #ifdef FM_VERBOSE_DBG
-	_pico_printf( pmm::pl_verbose, "TRI: %s\n", (unsigned char *) fm.fm_tri_hdr->ident );
+	pmm::man.pp_print(
+		pmm::pl_verbose,
+		(
+			std::ostringstream{}
+				<< "TRI: " << (unsigned char *) fm.fm_tri_hdr->ident << "\n"
+		).str()
+	);
 #endif
 	if ( ( strcmp( fm.fm_tri_hdr->ident, FM_TRISCHUNKNAME ) ) ) {
 #ifdef FM_DBG
-		_pico_printf( pmm::pl_warning, "FM Tri Ident incorrect\n" );
+		pmm::man.pp_print(pmm::pl_warning, "FM Tri Ident incorrect\n");
 #endif
 		pmm::man.pp_m_delete( bb0 );
 		return pmm::pmv_error_ident;
@@ -153,7 +169,7 @@ static int _fm_canload( PM_PARAMS_CANLOAD ){
 	// check fm
 	if ( _pico_little_long( fm.fm_tri_hdr->version ) != FM_TRISCHUNKVER ) {
 #ifdef FM_DBG
-		_pico_printf( pmm::pl_warning, "FM Tri Version incorrect\n" );
+		pmm::man.pp_print(pmm::pl_warning, "FM Tri Version incorrect\n");
 #endif
 		pmm::man.pp_m_delete( bb0 );
 		return pmm::pmv_error_version;
@@ -163,11 +179,17 @@ static int _fm_canload( PM_PARAMS_CANLOAD ){
 	fm.fm_frame_hdr = (fm_chunk_header_t *) ( bb + fm_file_pos );
 	fm_file_pos += sizeof( fm_chunk_header_t );
 #ifdef FM_VERBOSE_DBG
-	_pico_printf( pmm::pl_verbose, "FRAME: %s\n", (unsigned char *) fm.fm_frame_hdr->ident );
+	pmm::man.pp_print(
+		pmm::pl_verbose,
+		(
+			std::ostringstream{}
+				<< "FRAME: " << (unsigned char *) fm.fm_frame_hdr->ident << "\n"
+		).str()
+	);
 #endif
 	if ( ( strcmp( fm.fm_frame_hdr->ident, FM_FRAMESCHUNKNAME ) ) ) {
 #ifdef FM_DBG
-		_pico_printf( pmm::pl_warning, "FM Frame Ident incorrect\n" );
+		pmm::man.pp_print(pmm::pl_warning, "FM Frame Ident incorrect\n");
 #endif
 		pmm::man.pp_m_delete( bb0 );
 		return pmm::pmv_error_ident;
@@ -176,7 +198,7 @@ static int _fm_canload( PM_PARAMS_CANLOAD ){
 	// check fm
 	if ( _pico_little_long( fm.fm_frame_hdr->version ) != FM_FRAMESCHUNKVER ) {
 #ifdef FM_DBG
-		_pico_printf( pmm::pl_warning, "FM Frame Version incorrect\n" );
+		pmm::man.pp_print(pmm::pl_warning, "FM Frame Version incorrect\n");
 #endif
 		pmm::man.pp_m_delete( bb0 );
 		return pmm::pmv_error_version;
@@ -221,13 +243,13 @@ static pmm::model_t *_fm_load( PM_PARAMS_LOAD ){
 	fm.fm_header_hdr = (fm_chunk_header_t *) bb;
 	fm_file_pos = sizeof( fm_chunk_header_t ) + fm.fm_header_hdr->size;
 	if ( ( strcmp( fm.fm_header_hdr->ident, FM_HEADERCHUNKNAME ) )  ) {
-		_pico_printf( pmm::pl_warning, "FM Header Ident incorrect\n" );
+		pmm::man.pp_print(pmm::pl_warning, "FM Header Ident incorrect\n");
 		pmm::man.pp_m_delete( bb0 );
 		return nullptr;
 	}
 
 	if ( _pico_little_long( fm.fm_header_hdr->version ) != FM_HEADERCHUNKVER ) {
-		_pico_printf( pmm::pl_warning, "FM Header Version incorrect\n" );
+		pmm::man.pp_print(pmm::pl_warning, "FM Header Version incorrect\n");
 		pmm::man.pp_m_delete( bb0 );
 		return nullptr;
 	}
@@ -236,13 +258,13 @@ static pmm::model_t *_fm_load( PM_PARAMS_LOAD ){
 	fm.fm_skin_hdr = (fm_chunk_header_t *) ( bb + fm_file_pos );
 	fm_file_pos += sizeof( fm_chunk_header_t ) + fm.fm_skin_hdr->size;
 	if ( ( strcmp( fm.fm_skin_hdr->ident, FM_SKINCHUNKNAME ) ) ) {
-		_pico_printf( pmm::pl_warning, "FM Skin Ident incorrect\n" );
+		pmm::man.pp_print(pmm::pl_warning, "FM Skin Ident incorrect\n");
 		pmm::man.pp_m_delete( bb0 );
 		return nullptr;
 	}
 
 	if ( _pico_little_long( fm.fm_skin_hdr->version ) != FM_SKINCHUNKVER ) {
-		_pico_printf( pmm::pl_warning, "FM Skin Version incorrect\n" );
+		pmm::man.pp_print(pmm::pl_warning, "FM Skin Version incorrect\n");
 		pmm::man.pp_m_delete( bb0 );
 		return nullptr;
 	}
@@ -251,13 +273,13 @@ static pmm::model_t *_fm_load( PM_PARAMS_LOAD ){
 	fm.fm_st_hdr = (fm_chunk_header_t *) ( bb + fm_file_pos );
 	fm_file_pos += sizeof( fm_chunk_header_t ) + fm.fm_st_hdr->size;
 	if ( ( strcmp( fm.fm_st_hdr->ident, FM_STCOORDCHUNKNAME ) ) ) {
-		_pico_printf( pmm::pl_warning, "FM ST Ident incorrect\n" );
+		pmm::man.pp_print(pmm::pl_warning, "FM ST Ident incorrect\n");
 		pmm::man.pp_m_delete( bb0 );
 		return nullptr;
 	}
 
 	if ( _pico_little_long( fm.fm_st_hdr->version ) != FM_STCOORDCHUNKVER ) {
-		_pico_printf( pmm::pl_warning, "FM ST Version incorrect\n" );
+		pmm::man.pp_print(pmm::pl_warning, "FM ST Version incorrect\n");
 		pmm::man.pp_m_delete( bb0 );
 		return nullptr;
 	}
@@ -266,13 +288,13 @@ static pmm::model_t *_fm_load( PM_PARAMS_LOAD ){
 	fm.fm_tri_hdr = (fm_chunk_header_t *) ( bb + fm_file_pos );
 	fm_file_pos += sizeof( fm_chunk_header_t ) + fm.fm_tri_hdr->size;
 	if ( ( strcmp( fm.fm_tri_hdr->ident, FM_TRISCHUNKNAME ) ) ) {
-		_pico_printf( pmm::pl_warning, "FM Tri Ident incorrect\n" );
+		pmm::man.pp_print(pmm::pl_warning, "FM Tri Ident incorrect\n");
 		pmm::man.pp_m_delete( bb0 );
 		return nullptr;
 	}
 
 	if ( _pico_little_long( fm.fm_tri_hdr->version ) != FM_TRISCHUNKVER ) {
-		_pico_printf( pmm::pl_warning, "FM Tri Version incorrect\n" );
+		pmm::man.pp_print(pmm::pl_warning, "FM Tri Version incorrect\n");
 		pmm::man.pp_m_delete( bb0 );
 		return nullptr;
 	}
@@ -281,13 +303,13 @@ static pmm::model_t *_fm_load( PM_PARAMS_LOAD ){
 	fm.fm_frame_hdr = (fm_chunk_header_t *) ( bb + fm_file_pos );
 	fm_file_pos += sizeof( fm_chunk_header_t );
 	if ( ( strcmp( fm.fm_frame_hdr->ident, FM_FRAMESCHUNKNAME ) ) ) {
-		_pico_printf( pmm::pl_warning, "FM Frame Ident incorrect\n" );
+		pmm::man.pp_print(pmm::pl_warning, "FM Frame Ident incorrect\n");
 		pmm::man.pp_m_delete( bb0 );
 		return nullptr;
 	}
 
 	if ( _pico_little_long( fm.fm_frame_hdr->version ) != FM_FRAMESCHUNKVER ) {
-		_pico_printf( pmm::pl_warning, "FM Frame Version incorrect\n" );
+		pmm::man.pp_print(pmm::pl_warning, "FM Frame Version incorrect\n");
 		pmm::man.pp_m_delete( bb0 );
 		return nullptr;
 	}
@@ -318,13 +340,13 @@ static pmm::model_t *_fm_load( PM_PARAMS_LOAD ){
 
 	// do frame check
 	if ( fm_head->numFrames < 1 ) {
-		_pico_printf( pmm::pl_error, "%s has 0 frames!", fileName );
+		pmm::man.pp_print(pmm::pl_error, (std::ostringstream{} << fileName << " has 0 frames!").str());
 		pmm::man.pp_m_delete( bb0 );
 		return nullptr;
 	}
 
 	if ( frameNum < 0 || frameNum >= fm_head->numFrames ) {
-		_pico_printf( pmm::pl_error, "Invalid or out-of-range FM frame specified" );
+		pmm::man.pp_print(pmm::pl_error, "Invalid or out-of-range FM frame specified");
 		pmm::man.pp_m_delete( bb0 );
 		return nullptr;
 	}
@@ -370,7 +392,18 @@ static pmm::model_t *_fm_load( PM_PARAMS_LOAD ){
 
 #ifdef FM_VERBOSE_DBG
 	// Print out md2 values
-	_pico_printf( pmm::pl_verbose,"numSkins->%d  numXYZ->%d  numST->%d  numTris->%d  numFrames->%d\nSkin Name \"%s\"\n", fm_head->numSkins, fm_head->numXYZ, fm_head->numST, fm_head->numTris, fm_head->numFrames, &skinname );
+	pmm::man.pp_print(
+		pmm::pl_verbose,
+		(
+			std::ostringstream
+				<< "numSkins->" << fm_head->numSkins << "  "
+				<< "numXYZ->" << fm_head->numXYZ << "  "
+				<< "numST->" << fm_head->numST << "  "
+				<< "numTris->" << fm_head->numTris << "  "
+				<< "numFrames->" << fm_head->numFrames << "\n"
+				<< "Skin Name \"" << &skinname << "\"\n"
+		).str()
+	);
 #endif
 
 	// detox Skin name
@@ -380,7 +413,7 @@ static pmm::model_t *_fm_load( PM_PARAMS_LOAD ){
 	/* create new pico model */
 	picoModel = pmm::pp_new_model();
 	if ( picoModel == nullptr ) {
-		_pico_printf( pmm::pl_error, "Unable to allocate a new model" );
+		pmm::man.pp_print(pmm::pl_error, "Unable to allocate a new model");
 		pmm::man.pp_m_delete( bb0 );
 		return nullptr;
 	}
@@ -394,7 +427,7 @@ static pmm::model_t *_fm_load( PM_PARAMS_LOAD ){
 	// allocate new pico surface
 	picoSurface = pmm::pp_new_surface( picoModel );
 	if ( picoSurface == nullptr ) {
-		_pico_printf( pmm::pl_error, "Unable to allocate a new model surface" );
+		pmm::man.pp_print(pmm::pl_error, "Unable to allocate a new model surface");
 		pmm::pp_free_model( picoModel );
 		pmm::man.pp_m_delete( bb0 );
 		return nullptr;
@@ -405,7 +438,7 @@ static pmm::model_t *_fm_load( PM_PARAMS_LOAD ){
 	pmm::pp_set_surface_name( picoSurface, frame->header.name );
 	picoShader = pmm::pp_new_shader( picoModel );
 	if ( picoShader == nullptr ) {
-		_pico_printf( pmm::pl_error, "Unable to allocate a new model shader" );
+		pmm::man.pp_print(pmm::pl_error, "Unable to allocate a new model shader");
 		pmm::pp_free_model( picoModel );
 		pmm::man.pp_m_delete( bb0 );
 		return nullptr;
@@ -439,7 +472,16 @@ static pmm::model_t *_fm_load( PM_PARAMS_LOAD ){
 
 			else if ( triangle->index_st[j] == p_index_LUT[triangle->index_xyz[j]].ST ) { // Equal to Main Entry
 #ifdef FM_VERBOSE_DBG
-				_pico_printf( pmm::pl_normal, "-> Tri #%d, Vert %d:\t XYZ:%d   ST:%d\n", i, j, triangle->index_xyz[j], triangle->index_st[j] );
+				pmm::man.pp_print(
+					pmm::pl_normal,
+					(
+						std::ostringstream{}
+							<< "-> Tri #" << i << ", "
+							<< "Vert " << j << ":\t "
+							<< "XYZ:" << triangle->index_xyz[j] << "   "
+							<< "ST:" << triangle->index_st[j] << "\n"
+					).str()
+				);
 #endif
 				continue;
 			}
@@ -447,14 +489,21 @@ static pmm::model_t *_fm_load( PM_PARAMS_LOAD ){
 				// Add first entry of LL from Main
 				p_index_LUT2 = (index_LUT_t *)pmm::man.pp_m_new( sizeof( index_LUT_t ) );
 				if ( p_index_LUT2 == nullptr ) {
-					_pico_printf( pmm::pl_normal, " Couldn't allocate memory!\n" );
+					pmm::man.pp_print(pmm::pl_normal, " Couldn't allocate memory!\n");
 				}
 				p_index_LUT[triangle->index_xyz[j]].next = (index_LUT_t *)p_index_LUT2;
 				p_index_LUT2->Vert = dups;
 				p_index_LUT2->ST = triangle->index_st[j];
 				p_index_LUT2->next = nullptr;
 #ifdef FM_VERBOSE_DBG
-				_pico_printf( pmm::pl_normal, " ADDING first LL XYZ:%d DUP:%d ST:%d\n", triangle->index_xyz[j], dups, triangle->index_st[j] );
+				pmm::man.pp_print(pmm::pl_normal,
+					(
+						std::ostringstream{}
+							<< " ADDING first LL XYZ:" << triangle->index_xyz[j] << " "
+							<< "DUP:" << dups << " "
+							<< "ST:" << triangle->index_st[j] << "\n"
+					).str()
+				);
 #endif
 				triangle->index_xyz[j] = dups + fm_head->numXYZ; // Make change in Tri hunk
 				dups++;
@@ -472,7 +521,16 @@ static pmm::model_t *_fm_load( PM_PARAMS_LOAD ){
 				if ( triangle->index_st[j] == p_index_LUT2->ST ) { // Found it
 					triangle->index_xyz[j] = p_index_LUT2->Vert + fm_head->numXYZ; // Make change in Tri hunk
 #ifdef FM_VERBOSE_DBG
-					_pico_printf( pmm::pl_normal, "--> Tri #%d, Vert %d:\t XYZ:%d   ST:%d\n", i, j, triangle->index_xyz[j], triangle->index_st[j] );
+					pmm::man.pp_print(
+						pmm::pl_normal,
+						(
+							std::ostringstream{}
+								<< "--> Tri #" << i << ", "
+								<< "Vert " << j << ":\t "
+								<< "XYZ:" << triangle->index_xyz[j] << "   "
+								<< "ST:" << triangle->index_st[j] << "\n"
+						).str()
+					);
 #endif
 					continue;
 				}
@@ -481,21 +539,39 @@ static pmm::model_t *_fm_load( PM_PARAMS_LOAD ){
 					// Add the Entry
 					p_index_LUT3 = (index_LUT_t *)pmm::man.pp_m_new( sizeof( index_LUT_t ) );
 					if ( p_index_LUT3 == nullptr ) {
-						_pico_printf( pmm::pl_normal, " Couldn't allocate memory!\n" );
+						pmm::man.pp_print(pmm::pl_normal, " Couldn't allocate memory!\n");
 					}
 					p_index_LUT2->next = (index_LUT_t *)p_index_LUT3;
 					p_index_LUT3->Vert = dups;
 					p_index_LUT3->ST = triangle->index_st[j];
 					p_index_LUT3->next = nullptr;
 #ifdef FM_VERBOSE_DBG
-					_pico_printf( pmm::pl_normal, " ADDING additional LL XYZ:%d DUP:%d NewXYZ:%d ST:%d\n", triangle->index_xyz[j], dups, dups + ( fm_head->numXYZ ), triangle->index_st[j] );
+					pmm::man.pp_print(
+						pmm::pl_normal,
+						(
+							std::ostringstream{}
+								<< " ADDING additional LL XYZ:" << triangle->index_xyz[j] << " "
+								<< "DUP:" << dups << " "
+								<< "NewXYZ:" << dups + ( fm_head->numXYZ ) << " "
+								<< "ST:" << triangle->index_st[j] << "\n"
+						).str()
+					);
 #endif
 					triangle->index_xyz[j] = dups + fm_head->numXYZ; // Make change in Tri hunk
 					dups++;
 				}
 			}
 #ifdef FM_VERBOSE_DBG
-			_pico_printf( pmm::pl_normal, "---> Tri #%d, Vert %d:\t XYZ:%d   ST:%d\n", i, j, triangle->index_xyz[j], triangle->index_st[j] );
+			pmm::man.pp_print(
+				pmm::pl_normal,
+				(
+					std::ostringstream{}
+						<< "---> Tri #" << i << ", "
+						<< "Vert " << j << ":\t "
+						<< "XYZ:" << triangle->index_xyz[j] << "   "
+						<< "ST:" << triangle->index_st[j] << "\n"
+				).str()
+			);
 #endif
 		}
 		triangle++;
@@ -504,7 +580,7 @@ static pmm::model_t *_fm_load( PM_PARAMS_LOAD ){
 	// malloc and build array for Dup STs
 	p_index_LUT_DUPS = (index_DUP_LUT_t *)pmm::man.pp_m_new( sizeof( index_DUP_LUT_t ) * dups );
 	if ( p_index_LUT_DUPS == nullptr ) {
-		_pico_printf( pmm::pl_normal, " Couldn't allocate memory!\n" );
+		pmm::man.pp_print(pmm::pl_normal, " Couldn't allocate memory!\n");
 	}
 
 	dup_index = 0;
@@ -520,41 +596,75 @@ static pmm::model_t *_fm_load( PM_PARAMS_LOAD ){
 		}
 	}
 #ifdef FM_VERBOSE_DBG
-	_pico_printf( pmm::pl_normal, " Dups = %d\n", dups );
-	_pico_printf( pmm::pl_normal, " Dup Index = %d\n", dup_index );
+	pmm::man.pp_print(pmm::pl_normal, (std::ostringstream{} << " Dups = " << dups << "\n").str());
+	pmm::man.pp_print(pmm::pl_normal, (std::ostringstream{} << " Dup Index = " << dup_index << "\n").str());
 #endif
 	for ( i = 0; i < fm_head->numXYZ; i++ )
 	{
 #ifdef FM_VERBOSE_DBG
-		_pico_printf( pmm::pl_normal, "Vert: %4d\t%4d",i, p_index_LUT[i].ST );
+		pmm::man.pp_print(
+			pmm::pl_normal,
+			(
+				std::ostringstream{}
+					<< "Vert: "
+					<< std::setw(4) << i << "\t"
+					<< std::setw(4) << p_index_LUT[i].ST
+			).str()
+		);
 #endif
 		if ( p_index_LUT[i].next != nullptr ) {
 
 			p_index_LUT2 = p_index_LUT[i].next;
 			do {
 #ifdef FM_VERBOSE_DBG
-				_pico_printf( pmm::pl_normal, " %4d %4d", p_index_LUT2->Vert, p_index_LUT2->ST );
+				pmm::man.pp_print(
+					pmm::pl_normal,
+					(
+						std::ostringstream{}
+							<< " "
+							<< std::setw(4) << p_index_LUT2->Vert
+							<< " "
+							<< std::setw(4) << p_index_LUT2->ST
+					).str()
+				);
 #endif
 				p_index_LUT2 = p_index_LUT2->next;
 			} while ( p_index_LUT2 != nullptr );
 
 		}
 #ifdef FM_VERBOSE_DBG
-		_pico_printf( pmm::pl_normal, "\n" );
+		pmm::man.pp_print(pmm::pl_normal, "\n");
 #endif
 	}
 
 
 #ifdef FM_VERBOSE_DBG
 	for ( i = 0; i < dup_index; i++ )
-		_pico_printf( pmm::pl_normal, " Dup Index #%d  OldVert: %d  ST: %d\n", i, p_index_LUT_DUPS[i].OldVert, p_index_LUT_DUPS[i].ST );
+		pmm::man.pp_print(
+			pmm::pl_normal,
+			(
+				std::ostringstream{}
+					<< " Dup Index #" << i << "  "
+					<< "OldVert: " << p_index_LUT_DUPS[i].OldVert << "  "
+					<< "ST: " << p_index_LUT_DUPS[i].ST << "\n"
+			).str()
+		);
 
 	triangle = tri_verts;
 	for ( i = 0; i < fm_head->numTris; i++ )
 	{
 		for ( j = 0; j < 3; j++ )
-			_pico_printf( pmm::pl_normal, "Tri #%d, Vert %d:\t XYZ:%d   ST:%d\n", i, j, triangle->index_xyz[j], triangle->index_st[j] );
-		_pico_printf( pmm::pl_normal, "\n" );
+			pmm::man.pp_print(
+				pmm::pl_normal,
+				(
+					std::ostringstream{}
+						<< "Tri #" << i << ", "
+						<< "Vert " << j << ":\t "
+						<< "XYZ:" << triangle->index_xyz[j] << "   "
+						<< "ST:" << triangle->index_st[j] << "\n"
+				).str()
+			);
+		pmm::man.pp_print(pmm::pl_normal, "\n");
 		triangle++;
 	}
 #endif
@@ -629,7 +739,7 @@ static pmm::model_t *_fm_load( PM_PARAMS_LOAD ){
 	}
 
 	if ( dups ) {
-		_pico_printf( pmm::pl_warning, " Not all LL mallocs freed\n" );
+		pmm::man.pp_print(pmm::pl_warning, " Not all LL mallocs freed\n");
 	}
 
 	// Free malloc'ed LUTs

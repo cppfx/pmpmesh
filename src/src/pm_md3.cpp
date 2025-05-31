@@ -32,8 +32,9 @@
 
    ----------------------------------------------------------------------------- */
 
-/* dependencies */
 #include <pmpmesh/pm_internal.hpp>
+#include <pmpmesh/pmpmesh.hpp>
+#include <sstream>
 
 /* md3 model format */
 const char *MD3_MAGIC = "IDP3";
@@ -217,13 +218,13 @@ static pmm::model_t *_md3_load( PM_PARAMS_LOAD ){
 
 	/* do frame check */
 	if ( md3->numFrames < 1 ) {
-		_pico_printf( pmm::pl_error, "MD3 with 0 frames" );
+		pmm::man.pp_print(pmm::pl_error, "MD3 with 0 frames");
 		pmm::man.pp_m_delete( bb0 );
 		return nullptr;
 	}
 
 	if ( frameNum < 0 || frameNum >= md3->numFrames ) {
-		_pico_printf( pmm::pl_error, "Invalid or out-of-range MD3 frame specified" );
+		pmm::man.pp_print(pmm::pl_error, "Invalid or out-of-range MD3 frame specified");
 		pmm::man.pp_m_delete( bb0 );
 		return nullptr;
 	}
@@ -296,7 +297,7 @@ static pmm::model_t *_md3_load( PM_PARAMS_LOAD ){
 	/* create new pico model */
 	picoModel = pmm::pp_new_model();
 	if ( picoModel == nullptr ) {
-		_pico_printf( pmm::pl_error, "Unable to allocate a new model" );
+		pmm::man.pp_print(pmm::pl_error, "Unable to allocate a new model");
 		pmm::man.pp_m_delete( bb0 );
 		return nullptr;
 	}
@@ -316,7 +317,7 @@ static pmm::model_t *_md3_load( PM_PARAMS_LOAD ){
 		/* allocate new pico surface */
 		picoSurface = pmm::pp_new_surface( picoModel );
 		if ( picoSurface == nullptr ) {
-			_pico_printf( pmm::pl_error, "Unable to allocate a new model surface" );
+			pmm::man.pp_print(pmm::pl_error, "Unable to allocate a new model surface");
 			pmm::pp_free_model( picoModel ); /* sea */
 			pmm::man.pp_m_delete( bb0 );
 			return nullptr;
@@ -331,7 +332,7 @@ static pmm::model_t *_md3_load( PM_PARAMS_LOAD ){
 		/* create new pico shader -sea */
 		picoShader = pmm::pp_new_shader( picoModel );
 		if ( picoShader == nullptr ) {
-			_pico_printf( pmm::pl_error, "Unable to allocate a new model shader" );
+			pmm::man.pp_print(pmm::pl_error, "Unable to allocate a new model shader");
 			pmm::pp_free_model( picoModel );
 			pmm::man.pp_m_delete( bb0 );
 			return nullptr;

@@ -1,5 +1,4 @@
-#ifndef PLATFDEF_H
-#define PLATFDEF_H
+#pragma once
 
 // ARCH_ENDIAN
 
@@ -120,6 +119,4 @@
 #undef GDEF_DEBUG
 #define GDEF_DEBUG 1
 #endif
-#endif
-
 #endif

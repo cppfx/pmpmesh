@@ -446,7 +446,7 @@ static int GetMeshShader( T3dsLoaderPers *pers ){
 	}
 	/* we didn't set a shader name; throw out warning */
 	if ( !setShaderName ) {
-		_pico_printf( pmm::pl_warning,"3DS mesh is missing shader name" );
+		pmm::man.pp_print(pmm::pl_warning,"3DS mesh is missing shader name");
 	}
 	/* we don't process the list of shared vertices here; there is a */
 	/* short int that gives the number of faces of the mesh concerned */
@@ -689,8 +689,7 @@ static int DoNextChunk( T3dsLoaderPers *pers, int endofs ){
 
 			/* throw out a warning for version 4 models */
 			if ( version == 4 ) {
-				_pico_printf( pmm::pl_warning,
-							  "3DS version is 4. Model might load incorrectly." );
+				pmm::man.pp_print(pmm::pl_warning, "3DS version is 4. Model might load incorrectly.");
 			}
 			/* store the 3ds file version in pico special field 0 */
 			/* pmm::pp_set_surface_special(pers->surface,0,version); */		/* ydnar: this was causing a crash accessing uninitialized surface */

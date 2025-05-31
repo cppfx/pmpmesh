@@ -32,8 +32,10 @@
 
    ----------------------------------------------------------------------------- */
 
-/* dependencies */
 #include <pmpmesh/pm_internal.hpp>
+#include <pmpmesh/pmpmesh.hpp>
+#include <sstream>
+#include <string>
 
 /* disable warnings */
 #if GDEF_COMPILER_MSVC
@@ -290,7 +292,7 @@ static int _obj_mtl_load( pmm::model_t *model ){
 
 			/* validate material name */
 			if ( name == nullptr || !strlen( name ) ) {
-				_pico_printf( pmm::pl_error,"Missing material name in MTL, line %d.",p->curLine );
+				pmm::man.pp_print(pmm::pl_error, (std::ostringstream{} << "Missing material name in MTL, line " << p->curLine << ".").str());
 				_obj_mtl_error_return;
 			}
 			/* create a new pico shader */
@@ -320,7 +322,7 @@ static int _obj_mtl_load( pmm::model_t *model ){
 
 			/* validate map name */
 			if ( mapName == nullptr || !strlen( mapName ) ) {
-				_pico_printf( pmm::pl_error,"Missing material map name in MTL, line %d.",p->curLine );
+				pmm::man.pp_print(pmm::pl_error, (std::ostringstream{} << "Missing material map name in MTL, line " << p->curLine << ".").str());
 				_obj_mtl_error_return;
 			}
 			/* create a new pico shader */
@@ -539,7 +541,7 @@ static pmm::model_t *_obj_load( PM_PARAMS_LOAD ){
 	/* helper */
 #define _obj_error_return( m ) \
 	{ \
-		_pico_printf( pmm::pl_error, "%s in OBJ %s, line %d.", m, model->fileName, p->curLine ); \
+		pmm::man.pp_print(pmm::pl_error, (std::ostringstream{} << std::string{m} << " in OBJ " << std::string{model->fileName} << ", line " << int(p->curLine) << ".").str()); \
 		_pico_free_parser( p );	\
 		FreeObjVertexData( vertexData ); \
 		pmm::pp_free_model( model );	\
@@ -705,7 +707,15 @@ static pmm::model_t *_obj_load( PM_PARAMS_LOAD ){
 			int i;
 
 			if ( curSurface == nullptr ) {
-				_pico_printf( pmm::pl_warning,"No group defined for faces, so creating an autoSurface in OBJ, line %d.",p->curLine );
+				pmm::man.pp_print(
+					pmm::pl_warning,
+					(
+						std::ostringstream{}
+							<< "No group defined for faces, so creating an autoSurface in OBJ, line "
+							<< p->curLine
+							<< "."
+					).str()
+				);
 				AUTO_GROUPNAME( autoGroupNameBuf );
 				NEW_SURFACE( autoGroupNameBuf );
 			}
@@ -888,20 +898,36 @@ static pmm::model_t *_obj_load( PM_PARAMS_LOAD ){
 			name = _pico_parse( p,0 );
 
 			if ( curFace != 0 || curSurface == nullptr ) {
-				_pico_printf( pmm::pl_warning,"No group defined for usemtl, so creating an autoSurface in OBJ, line %d.",p->curLine );
+				pmm::man.pp_print(
+					pmm::pl_warning,
+					(
+						std::ostringstream{}
+							<< "No group defined for usemtl, so creating an autoSurface in OBJ, line "
+							<< p->curLine
+							<< "."
+					).str()
+				);
 				AUTO_GROUPNAME( autoGroupNameBuf );
 				NEW_SURFACE( autoGroupNameBuf );
 			}
 
 			/* validate material name */
 			if ( name == nullptr || !strlen( name ) ) {
-				_pico_printf( pmm::pl_error,"Missing material name in OBJ, line %d.",p->curLine );
+				pmm::man.pp_print(pmm::pl_error, (std::ostringstream{} << "Missing material name in OBJ, line " << p->curLine << ".").str());
 			}
 			else
 			{
 				shader = pmm::pp_find_shader( model, name, 1 );
 				if ( shader == nullptr ) {
-					_pico_printf( pmm::pl_warning,"Undefined material name in OBJ, line %d. Making a default shader.",p->curLine );
+					pmm::man.pp_print(
+						pmm::pl_warning,
+						(
+							std::ostringstream{}
+								<< "Undefined material name in OBJ, line "
+								<< p->curLine
+								<< ". Making a default shader."
+						).str()
+					);
 
 					/* create a new pico shader */
 					shader = pmm::pp_new_shader( model );

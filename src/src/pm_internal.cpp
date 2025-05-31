@@ -36,14 +36,8 @@
  * - fix p->curLine for parser routines. increased twice
  */
 
-/* dependencies */
 #include <string.h>
 #include <pmpmesh/pm_internal.hpp>
-
-
-
-/* function pointers */
-void ( *_pico_ptr_print     )( int, const char* ) = nullptr;
 
 union floatSwapUnion
 {
@@ -79,35 +73,6 @@ char *_pico_clone_alloc( const char *str ){
 
 	/* return ptr to cloned string */
 	return cloned;
-}
-
-/* _pico_printf:
- * wrapper around the print function pointer -sea
- */
-void _pico_printf( int level, const char *format, ... ){
-	char str[4096];
-	va_list argptr;
-
-	/* sanity checks */
-	if ( format == nullptr ) {
-		return;
-	}
-	if ( _pico_ptr_print == nullptr ) {
-		return;
-	}
-
-	/* format string */
-	va_start( argptr,format );
-	vsprintf( str,format,argptr );
-	va_end( argptr );
-
-	/* remove linefeeds */
-	if ( str[ strlen( str ) - 1 ] == '\n' ) {
-		str[ strlen( str ) - 1 ] = '\0';
-	}
-
-	/* do the actual call */
-	_pico_ptr_print( level,str );
 }
 
 /* _pico_first_token:

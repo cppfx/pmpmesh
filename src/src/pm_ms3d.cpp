@@ -32,8 +32,9 @@
 
    ----------------------------------------------------------------------------- */
 
-/* dependencies */
 #include <pmpmesh/pm_internal.hpp>
+#include <pmpmesh/pmpmesh.hpp>
+#include <sstream>
 
 /* disable warnings */
 #if GDEF_COMPILER_MSVC
@@ -176,9 +177,9 @@ static int _ms3d_canload( PM_PARAMS_CANLOAD ){
 	}
 
 	/* check ms3d version */
-	if ( _pico_little_long( hdr->version ) < 3 ||
-		 _pico_little_long( hdr->version ) > 4 ) {
-		_pico_printf( pmm::pl_error,"MS3D file ignored. Only MS3D 1.3 and 1.4 is supported." );
+	if (_pico_little_long( hdr->version ) < 3 || _pico_little_long( hdr->version ) > 4)
+	{
+		pmm::man.pp_print(pmm::pl_error, "MS3D file ignored. Only MS3D 1.3 and 1.4 is supported.");
 		return pmm::pmv_error_version;
 	}
 	/* file seems to be a valid ms3d */
@@ -280,8 +281,19 @@ static pmm::model_t *_ms3d_load( PM_PARAMS_LOAD ){
 			triangle->vertexNormals[ 2 ][ k ] = _pico_little_float( triangle->vertexNormals[ 2 ][ k ] );
 
 			/* check for out of range indices */
-			if ( triangle->vertexIndices[ k ] >= numVerts ) {
-				_pico_printf( pmm::pl_error,"Vertex %d index %d out of range (%d, max %d)",i,k,triangle->vertexIndices[k],numVerts - 1 );
+			if (triangle->vertexIndices[ k ] >= numVerts)
+			{
+				pmm::man.pp_print(
+					pmm::pl_error,
+					(
+						std::ostringstream{}
+							<< "Vertex " << i << " index " << k
+							<< " out of range ("
+							<< triangle->vertexIndices[k]
+							<< ", max " << numVerts-1
+							<< ")"
+					).str()
+				);
 				pmm::pp_free_model( model );
 				pmm::man.pp_m_delete( bufptr0 );
 				return nullptr; /* yuck */

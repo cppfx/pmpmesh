@@ -22,9 +22,10 @@
   SOFTWARE.
 ----------------------------------------------------------------------------- */
 
-/* dependencies */
 #include <pmpmesh/pm_internal.hpp>
 #include <string.h>
+#include <pmpmesh/pmpmesh.hpp>
+#include <sstream>
 
 #define MDL_NUMVERTEXNORMALS 162
 
@@ -402,7 +403,7 @@ static pmm::model_t *_mdl_load(PM_PARAMS_LOAD) {
 
 	/* check ident and version */
 	if (mdlHeader->ident != *((int*)MDL_ident) || _pico_little_long(mdlHeader->version) != MDL_version) {
-		_pico_printf(pmm::pl_error, "%s is not an MDL File!", fileName);
+		pmm::man.pp_print(pmm::pl_error, (std::ostringstream{} << fileName << " is not an MDL File!").str());
 		pmm::man.pp_m_delete(buff);
 		return nullptr;
 	}
@@ -428,39 +429,39 @@ static pmm::model_t *_mdl_load(PM_PARAMS_LOAD) {
 
 	/* do sanity checks */
 	if (mdlHeader->numFrames < 1) {
-		_pico_printf(pmm::pl_error, "MDL with 0 frames");
+		pmm::man.pp_print(pmm::pl_error, "MDL with 0 frames");
 		pmm::man.pp_m_delete(buff);
 		return nullptr;
 	}
 
 	if (frameNum < 0 || frameNum >= mdlHeader->numFrames) {
-		_pico_printf(pmm::pl_error, "Invalid or out-of-range MDL frame specified");
+		pmm::man.pp_print(pmm::pl_error, "Invalid or out-of-range MDL frame specified");
 		pmm::man.pp_m_delete(buff);
 		return nullptr;
 	}
 
 	if (mdlHeader->skinHeight > MAX_LBM_HEIGHT) {
-		_pico_printf(pmm::pl_error, "Skin is taller than %d", MAX_LBM_HEIGHT);
+		pmm::man.pp_print(pmm::pl_error, (std::ostringstream{} << "Skin is taller than " << MAX_LBM_HEIGHT).str());
 	}
 
 	if (mdlHeader->numVerts <= 0) {
-		_pico_printf(pmm::pl_error, "MDL has no vertices");
+		pmm::man.pp_print(pmm::pl_error, "MDL has no vertices");
 	}
 
 	if (mdlHeader->numVerts > MAXALIASVERTS) {
-		_pico_printf(pmm::pl_error, "MDL has too many vertices, max is %d", MAXALIASVERTS);
+		pmm::man.pp_print(pmm::pl_error, (std::ostringstream{} << "MDL has too many vertices, max is " << MAXALIASVERTS).str());
 	}
 
 	if (mdlHeader->numTris <= 0) {
-		_pico_printf(pmm::pl_error, "MDL has no triangles");
+		pmm::man.pp_print(pmm::pl_error, "MDL has no triangles");
 	}
 
 	if (mdlHeader->skinWidth & 0x03) {
-		_pico_printf(pmm::pl_error, "Skin width not multiple of 4");
+		pmm::man.pp_print(pmm::pl_error, "Skin width not multiple of 4");
 	}
 
 	if (mdlHeader->numSkins < 1) {
-		_pico_printf(pmm::pl_error, "Invalid number of skins: %d", mdlHeader->numSkins);
+		pmm::man.pp_print(pmm::pl_error, (std::ostringstream{} << "Invalid number of skins: " << mdlHeader->numSkins).str());
 	}
 
 	/* -------------------------------------------------
@@ -470,7 +471,7 @@ static pmm::model_t *_mdl_load(PM_PARAMS_LOAD) {
 	/* create new pico model */
 	picoModel = pmm::pp_new_model();
 	if (picoModel == nullptr) {
-		_pico_printf(pmm::pl_error, "Unable to allocate a new model");
+		pmm::man.pp_print(pmm::pl_error, "Unable to allocate a new model");
 		pmm::man.pp_m_delete(buff);
 		return nullptr;
 	}
@@ -487,7 +488,7 @@ static pmm::model_t *_mdl_load(PM_PARAMS_LOAD) {
 	/* allocate new pico surface */
 	picoSurface = pmm::pp_new_surface(picoModel);
 	if (picoSurface == nullptr) {
-		_pico_printf(pmm::pl_error, "Unable to allocate a new model surface");
+		pmm::man.pp_print(pmm::pl_error, "Unable to allocate a new model surface");
 		pmm::pp_free_model(picoModel);
 		pmm::man.pp_m_delete(buff);
 		return nullptr;
@@ -499,7 +500,7 @@ static pmm::model_t *_mdl_load(PM_PARAMS_LOAD) {
 	/* create new pico shader */
 	picoShader = pmm::pp_new_shader(picoModel);
 	if (picoShader == nullptr) {
-		_pico_printf(pmm::pl_error, "Unable to allocate a new model shader");
+		pmm::man.pp_print(pmm::pl_error, "Unable to allocate a new model shader");
 		pmm::pp_free_model(picoModel);
 		pmm::man.pp_m_delete(buff);
 		return nullptr;

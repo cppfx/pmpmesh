@@ -32,10 +32,7 @@
 
    ----------------------------------------------------------------------------- */
 
-/* dependencies */
 #include <pmpmesh/pm_internal.hpp>
-
-
 
 /* external modules */
 extern const pmm::module_t picoModuleMD3;
@@ -49,8 +46,6 @@ extern const pmm::module_t picoModuleFM;
 extern const pmm::module_t picoModuleLWO;
 extern const pmm::module_t picoModuleTerrain;
 extern const pmm::module_t picoModuleMDL;
-
-
 
 /* list of all supported file format modules */
 const pmm::module_t *picoModules[] =

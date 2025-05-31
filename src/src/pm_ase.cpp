@@ -37,8 +37,9 @@
 //#define DEBUG_PM_ASE_EX
 
 
-/* dependencies */
 #include <pmpmesh/pm_internal.hpp>
+#include <pmpmesh/pmpmesh.hpp>
+#include <sstream>
 
 #ifdef DEBUG_PM_ASE
 #include "time.h"
@@ -88,7 +89,13 @@ static aseSubMaterial_t* _ase_get_submaterial( aseMaterial_t* list, int mtlIdPar
 	aseSubMaterial_t* subMtl = nullptr;
 
 	if ( !parent ) {
-		_pico_printf( pmm::pl_error, "No ASE material exists with id %i\n", mtlIdParent );
+		pmm::man.pp_print(
+			pmm::pl_error,
+			(
+				std::ostringstream{}
+					<< "No ASE material exists with id " << mtlIdParent << "\n"
+			).str()
+		);
 		return nullptr;
 	}
 
@@ -115,7 +122,14 @@ aseSubMaterial_t* _ase_get_submaterial_or_default( aseMaterial_t* materials, int
 		return subMtl;
 	}
 
-	_pico_printf( pmm::pl_error, "Could not find material/submaterial for id %d/%d\n", mtlIdParent, subMtlId );
+	pmm::man.pp_print(
+		pmm::pl_error,
+		(
+			std::ostringstream{}
+				<< "Could not find material/submaterial for id "
+				<< mtlIdParent << "/" << subMtlId << "\n"
+		).str()
+	);
 	return nullptr;
 }
 
@@ -178,11 +192,11 @@ static void _ase_print_materials( aseMaterial_t *list ){
 
 	while ( mtl )
 	{
-		_pico_printf( pmm::pl_normal,  "ASE Material %i", mtl->mtlId );
+		pmm::man.pp_print(pmm::pl_normal, (std::ostringstream{} << "ASE Material " << mtl->mtlId).str());
 		subMtl = mtl->subMtls;
 		while ( subMtl )
 		{
-			_pico_printf( pmm::pl_normal,  " -- ASE SubMaterial %i - %s\n", subMtl->subMtlId, subMtl->shader->name );
+			pmm::man.pp_print(pmm::pl_normal, (std::ostringstream{} << " -- ASE SubMaterial " << subMtl->subMtlId << " - " << subMtl->shader->name << "\n").str());
 			subMtl = subMtl->next;
 		}
 		mtl = mtl->next;
@@ -277,7 +291,7 @@ pmm::surface_t* PicoModelFindOrAddSurface( pmm::model_t *model, pmm::shader_t* s
 		/* create a new surface in the model for the unique shader */
 		pmm::surface_t* workSurface = pmm::pp_new_surface( model );
 		if ( !workSurface ) {
-			_pico_printf( pmm::pl_error, "Could not allocate a new surface!\n" );
+			pmm::man.pp_print(pmm::pl_error, "Could not allocate a new surface!\n");
 			return 0;
 		}
 
@@ -504,7 +518,7 @@ static pmm::model_t *_ase_load( PM_PARAMS_LOAD ){
 	/* helper */
 	#define _ase_error_return( m ) \
 	{ \
-		_pico_printf( pmm::pl_error,"%s in ASE, line %d.",m,p->curLine ); \
+		pmm::man.pp_print(pmm::pl_error, (std::ostringstream{} << std::string{m} << " in ASE, line " << (int)p->curLine << ".").str()); \
 		_pico_free_parser( p );	\
 		pmm::pp_free_model( model );	\
 		return nullptr; \
@@ -1155,7 +1169,7 @@ static pmm::model_t *_ase_load( PM_PARAMS_LOAD ){
 	_ase_print_materials( materials );
 	finish = clock();
 	elapsed = (double)( finish - start ) / CLOCKS_PER_SEC;
-	_pico_printf( pmm::pl_normal, "Loaded model in in %-.2f second(s)\n", elapsed );
+	pmm::man.pp_print(pmm::pl_normal, (std::ostringstream{} << "Loaded model in in " << std::fixed << std::setprecision(2) << elapsed << " second(s)\n").str());
 #endif //DEBUG_PM_ASE
 
 	_ase_free_materials( &materials );

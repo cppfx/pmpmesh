@@ -1,3 +1,5 @@
+#pragma once
+
 //
 // PicoModel Library
 
@@ -29,8 +31,6 @@
 // (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
 // SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 //
-
-#pragma once
 
 #include <string_view>
 #include <string>
@@ -211,11 +211,11 @@ public:
 public:
 	void pp_set_file_loader(const file_loader_type & file_loader__);
 	int pp_load_file(const std::string & name__, pmm::ub8_t ** buffer__);
+public:
+	void pp_print(pmm::print_level level__, const std::string & str__) const;
 };
 
 inline pmm::pp_manager man{};
-
-void pp_set_print_func( void ( *func )( int, const char* ) );
 
 const pmm::module_t ** pp_module_list( int *numModules );
 
