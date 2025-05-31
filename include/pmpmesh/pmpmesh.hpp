@@ -1,56 +1,56 @@
-/* -----------------------------------------------------------------------------
+//
+// PicoModel Library
 
-   PicoModel Library
+// Copyright (c) 2002, Randy Reddig & seaw0lf
+// All rights reserved.
 
-   Copyright (c) 2002, Randy Reddig & seaw0lf
-   All rights reserved.
+// Redistribution and use in source and binary forms, with or without modification,
+// are permitted provided that the following conditions are met:
 
-   Redistribution and use in source and binary forms, with or without modification,
-   are permitted provided that the following conditions are met:
+// Redistributions of source code must retain the above copyright notice, this list
+// of conditions and the following disclaimer.
 
-   Redistributions of source code must retain the above copyright notice, this list
-   of conditions and the following disclaimer.
+// Redistributions in binary form must reproduce the above copyright notice, this
+// list of conditions and the following disclaimer in the documentation and/or
+// other materials provided with the distribution.
 
-   Redistributions in binary form must reproduce the above copyright notice, this
-   list of conditions and the following disclaimer in the documentation and/or
-   other materials provided with the distribution.
+// Neither the names of the copyright holders nor the names of its contributors may
+// be used to endorse or promote products derived from this software without
+// specific prior written permission.
 
-   Neither the names of the copyright holders nor the names of its contributors may
-   be used to endorse or promote products derived from this software without
-   specific prior written permission.
-
-   THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
-   ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
-   WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
-   DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR CONTRIBUTORS BE LIABLE FOR
-   ANY DIRECT, INDIRECT, INCidentAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
-   (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
-   LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON
-   ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
-   (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
-   SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-
-   ----------------------------------------------------------------------------- */
+// THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
+// ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
+// WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+// DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR CONTRIBUTORS BE LIABLE FOR
+// ANY DIRECT, INDIRECT, INCidentAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
+// (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
+// LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON
+// ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+// (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
+// SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+//
 
 #pragma once
+
+#include <string_view>
 
 namespace pmm
 {
 
-/* version */
-#define	PICOMODEL_version 0.8.20
+// version
+constexpr std::string_view pmpmesh_version = "0.8.20";
 
-/* constants */
-#define PICO_GROW_SHADERS       16
-#define PICO_GROW_SURFACES      16
-#define PICO_GROW_VERTEXES      1024
-#define PICO_GROW_INDEXES       1024
-#define PICO_GROW_ARRAYS        8
-#define PICO_GROW_FACES         256
-#define PICO_MAX_SPECIAL        8
-#define PICO_MAX_DEFAULT_EXTS   4       /* max default extensions per module */
+// constants
+constexpr int ee_grow_shaders         = 16;
+constexpr int ee_grow_surfaces        = 16;
+constexpr int ee_grow_vertices        = 1024;
+constexpr int ee_grow_indices         = 1024;
+constexpr int ee_grow_arrays          = 8;
+constexpr int ee_grow_faces           = 256;
+constexpr int ee_max_special          = 8;
+constexpr int ee_max_default_exts     = 4;	// max default extensions per module
 
-/* types */
+// types
 using byte_t = unsigned char;
 using vec_t = float;
 using vec2_t = float[2];
@@ -109,7 +109,7 @@ public:
 	int numFaceNormals, maxFaceNormals;
 	pmm::vec3_t                  *faceNormal;
 
-	int special[ PICO_MAX_SPECIAL ];
+	int special[ pmm::ee_max_special ];
 };
 
 /* seaw0lf */
@@ -161,7 +161,7 @@ enum
 	pmv_error_memory,  /* out of memory error */
 };
 
-/* convenience (makes it easy to add new params to the callbacks) */
+// convenience (makes it easy to add new params to the callbacks)
 #define PM_PARAMS_CANLOAD \
 	const char *fileName, const void *buffer, int bufSize
 
@@ -184,17 +184,22 @@ public:
 	const char         *authorName;       /* author name (eg. 'My Real Name') */
 	const char         *copyright;        /* copyright year and holder (eg. '2002 My Company') */
 
-	const char         *defaultExts[ PICO_MAX_DEFAULT_EXTS ];  /* default file extensions used by this file type */
+	const char         *defaultExts[ pmm::ee_max_default_exts ];  /* default file extensions used by this file type */
 	int ( *canload )( PM_PARAMS_CANLOAD );     /* checks whether module can load given file (returns pmvR_*) */
 	pmm::model_t  *( *load )( PM_PARAMS_LOAD );  /* parses model file data */
 	int ( *cansave )( PM_PARAMS_CANSAVE );     /* checks whether module can save (returns 1 or 0 and might spit out a message) */
 	int ( *save )( PM_PARAMS_SAVE );           /* saves a pico model in module's native model format */
 };
 
-/* general functions */
-int pp_init( void );
-void pp_shutdown( void );
-int pp_error( void );
+class pp_manager final
+{
+public:
+	int pp_init();      // Initialize the pmpmesh library
+	void pp_close();    // Close the pmpmesh library
+	int pp_error();     // Return last error code (see PME_ * defines)
+};
+
+inline pmm::pp_manager man{};
 
 void pp_set_malloc_func( void *( *func )( pmm::std_size_t ) );
 void pp_set_free_func( void ( *func )( void* ) );

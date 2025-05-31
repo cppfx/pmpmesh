@@ -7,7 +7,7 @@
    Ernie Wright  17 Sep 00
    ====================================================================== */
 
-#include <pmpmesh/picointernal.hpp>
+#include <pmpmesh/pm_internal.hpp>
 #include <pmpmesh/lwo/lwo2.hpp>
 #include <limits.h>
 

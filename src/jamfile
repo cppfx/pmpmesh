@@ -10,8 +10,8 @@ pmpmesh-prj-srcs =
 	lwo/vecmath.cpp
 	lwo/vmap.cpp
 
-	picointernal.cpp
-	picomodel.cpp
+	pm_internal.cpp
+	pmpmesh.cpp
 
 	pm_3ds.cpp
 	pm_ase.cpp
@@ -25,7 +25,7 @@ pmpmesh-prj-srcs =
 	pm_obj.cpp
 	pm_terrain.cpp
 
-	picomodules.cpp
+	pm_modules.cpp
 ;
 pmpmesh-prj-srcs = src/$(pmpmesh-prj-srcs) ;
 pmpmesh-prj-srcs = $(pmpmesh-prj-src-dir)/$(pmpmesh-prj-srcs) ;
@@ -40,4 +40,7 @@ lib
 	$(pmpmesh-prj-srcs)
 :
 	<include>$(pmpmesh-prj-src-headers-dir)
+:
+:
+	<include>$(pmpmesh-prj-headers-dir)
 ;

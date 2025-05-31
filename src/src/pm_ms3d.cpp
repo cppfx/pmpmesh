@@ -33,7 +33,7 @@
    ----------------------------------------------------------------------------- */
 
 /* dependencies */
-#include <pmpmesh/picointernal.hpp>
+#include <pmpmesh/pm_internal.hpp>
 
 /* disable warnings */
 #if GDEF_COMPILER_MSVC

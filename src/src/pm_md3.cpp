@@ -33,7 +33,7 @@
    ----------------------------------------------------------------------------- */
 
 /* dependencies */
-#include <pmpmesh/picointernal.hpp>
+#include <pmpmesh/pm_internal.hpp>
 
 /* md3 model format */
 const char *MD3_MAGIC = "IDP3";

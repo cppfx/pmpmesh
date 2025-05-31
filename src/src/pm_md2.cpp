@@ -37,7 +37,7 @@
  */
 
 /* dependencies */
-#include <pmpmesh/picointernal.hpp>
+#include <pmpmesh/pm_internal.hpp>
 
 /* md2 model format */
 const char *MD2_MAGIC             = "IDP2";

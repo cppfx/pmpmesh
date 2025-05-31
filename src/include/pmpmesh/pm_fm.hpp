@@ -44,7 +44,7 @@
 #ifndef __PM_FM_H__
 #define __PM_FM_H__
 
-#include "picointernal.hpp"
+#include "pm_internal.hpp"
 
 
 //

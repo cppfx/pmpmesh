@@ -33,45 +33,29 @@
    ----------------------------------------------------------------------------- */
 
 /* dependencies */
-#include <pmpmesh/picointernal.hpp>
+#include <pmpmesh/pm_internal.hpp>
 
+///////////////////////////////////////////////////////////////////////////
 
-
-/*
-   pmm::pp_init()
-   initializes the picomodel library
- */
-
-int pmm::pp_init( void ){
-	/* successfully initialized -sea */
+int pmm::pp_manager::pp_init()
+{
+	// todo
 	return 1;
 }
 
-
-
-/*
-   pmm::pp_shutdown()
-   shuts the pico model library down
- */
-
-void pmm::pp_shutdown( void ){
-	/* do something interesting here in the future */
+void pmm::pp_manager::pp_close()
+{
+	// todo
 	return;
 }
 
-
-
-/*
-   pmm::pp_error()
-   returns last picomodel error code (see PME_* defines)
- */
-
-int pmm::pp_error( void ){
-	/* todo: do something here */
+int pmm::pp_manager::pp_error()
+{
+	// todo
 	return 0;
 }
 
-
+///////////////////////////////////////////////////////////////////////////
 
 /*
    pmm::pp_set_malloc_func()
@@ -374,7 +358,7 @@ int pmm::pp_adjust_model( pmm::model_t *model, int num_shaders, int num_surfaces
 	/* additional shaders? */
 	while ( num_shaders > model->maxShaders )
 	{
-		model->maxShaders += PICO_GROW_SHADERS;
+		model->maxShaders += pmm::ee_grow_shaders;
 		if ( !_pico_realloc( (void **) &model->shader, model->num_shaders * sizeof( *model->shader ), model->maxShaders * sizeof( *model->shader ) ) ) {
 			return 0;
 		}
@@ -388,7 +372,7 @@ int pmm::pp_adjust_model( pmm::model_t *model, int num_shaders, int num_surfaces
 	/* additional surfaces? */
 	while ( num_surfaces > model->maxSurfaces )
 	{
-		model->maxSurfaces += PICO_GROW_SURFACES;
+		model->maxSurfaces += pmm::ee_grow_surfaces;
 		if ( !_pico_realloc( (void **) &model->surface, model->num_surfaces * sizeof( *model->surface ), model->maxSurfaces * sizeof( *model->surface ) ) ) {
 			return 0;
 		}
@@ -631,7 +615,7 @@ int pmm::pp_adjust_surface( pmm::surface_t *surface, int numVertexes, int numSTA
 	/* additional vertices? */
 	while ( numVertexes > surface->maxVertexes ) /* fix */
 	{
-		surface->maxVertexes += PICO_GROW_VERTEXES;
+		surface->maxVertexes += pmm::ee_grow_vertices;
 		if ( !_pico_realloc( (void **) &surface->xyz, surface->numVertexes * sizeof( *surface->xyz ), surface->maxVertexes * sizeof( *surface->xyz ) ) ) {
 			return 0;
 		}
@@ -659,7 +643,7 @@ int pmm::pp_adjust_surface( pmm::surface_t *surface, int numVertexes, int numSTA
 	/* additional st arrays? */
 	while ( numSTArrays > surface->maxSTArrays ) /* fix */
 	{
-		surface->maxSTArrays += PICO_GROW_ARRAYS;
+		surface->maxSTArrays += pmm::ee_grow_arrays;
 		if ( !_pico_realloc( (void **) &surface->st, surface->numSTArrays * sizeof( *surface->st ), surface->maxSTArrays * sizeof( *surface->st ) ) ) {
 			return 0;
 		}
@@ -674,7 +658,7 @@ int pmm::pp_adjust_surface( pmm::surface_t *surface, int numVertexes, int numSTA
 	/* additional color arrays? */
 	while ( numColorArrays > surface->maxColorArrays ) /* fix */
 	{
-		surface->maxColorArrays += PICO_GROW_ARRAYS;
+		surface->maxColorArrays += pmm::ee_grow_arrays;
 		if ( !_pico_realloc( (void **) &surface->color, surface->numColorArrays * sizeof( *surface->color ), surface->maxColorArrays * sizeof( *surface->color ) ) ) {
 			return 0;
 		}
@@ -689,7 +673,7 @@ int pmm::pp_adjust_surface( pmm::surface_t *surface, int numVertexes, int numSTA
 	/* additional indices? */
 	while ( numIndexes > surface->maxIndexes ) /* fix */
 	{
-		surface->maxIndexes += PICO_GROW_INDEXES;
+		surface->maxIndexes += pmm::ee_grow_indices;
 		if ( !_pico_realloc( (void **) &surface->index, surface->numIndexes * sizeof( *surface->index ), surface->maxIndexes * sizeof( *surface->index ) ) ) {
 			return 0;
 		}
@@ -703,7 +687,7 @@ int pmm::pp_adjust_surface( pmm::surface_t *surface, int numVertexes, int numSTA
 	/* additional face normals? */
 	while ( numFaceNormals > surface->maxFaceNormals ) /* fix */
 	{
-		surface->maxFaceNormals += PICO_GROW_FACES;
+		surface->maxFaceNormals += pmm::ee_grow_faces;
 		if ( !_pico_realloc( (void **) &surface->faceNormal, surface->numFaceNormals * sizeof( *surface->faceNormal ), surface->maxFaceNormals * sizeof( *surface->faceNormal ) ) ) {
 			return 0;
 		}
@@ -1053,7 +1037,7 @@ void pmm::pp_set_surface_smoothing_group( pmm::surface_t *surface, int num, pmm:
 
 
 void pmm::pp_set_surface_special( pmm::surface_t *surface, int num, int special ){
-	if ( surface == NULL || num < 0 || num >= PICO_MAX_SPECIAL ) {
+	if ( surface == NULL || num < 0 || num >= pmm::ee_max_special ) {
 		return;
 	}
 	surface->special[ num ] = special;
@@ -1405,7 +1389,7 @@ pmm::index_t PicoGetSurfaceSmoothingGroup( pmm::surface_t *surface, int num ){
 
 
 int pmm::pp_get_surface_special( pmm::surface_t *surface, int num ){
-	if ( surface == NULL || num < 0 || num >= PICO_MAX_SPECIAL ) {
+	if ( surface == NULL || num < 0 || num >= pmm::ee_max_special ) {
 		return 0;
 	}
 	return surface->special[ num ];

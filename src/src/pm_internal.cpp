@@ -38,7 +38,7 @@
 
 /* dependencies */
 #include <string.h>
-#include <pmpmesh/picointernal.hpp>
+#include <pmpmesh/pm_internal.hpp>
 
 
 

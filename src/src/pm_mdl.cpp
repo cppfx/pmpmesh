@@ -23,7 +23,7 @@
 ----------------------------------------------------------------------------- */
 
 /* dependencies */
-#include <pmpmesh/picointernal.hpp>
+#include <pmpmesh/pm_internal.hpp>
 #include <string.h>
 
 #define MDL_NUMVERTEXNORMALS 162

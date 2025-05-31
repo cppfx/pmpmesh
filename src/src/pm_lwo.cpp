@@ -33,7 +33,7 @@
    ----------------------------------------------------------------------------- */
 
 /* dependencies */
-#include <pmpmesh/picointernal.hpp>
+#include <pmpmesh/pm_internal.hpp>
 #include <pmpmesh/lwo/lwo2.hpp>
 
 /* uncomment when debugging this module */

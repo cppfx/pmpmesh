@@ -38,7 +38,7 @@
 
 
 /* dependencies */
-#include <pmpmesh/picointernal.hpp>
+#include <pmpmesh/pm_internal.hpp>
 
 #ifdef DEBUG_PM_ASE
 #include "time.h"

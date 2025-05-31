@@ -33,7 +33,7 @@
    ----------------------------------------------------------------------------- */
 
 /* dependencies */
-#include <pmpmesh/picointernal.hpp>
+#include <pmpmesh/pm_internal.hpp>
 
 /* mdc model format */
 const char *MDC_MAGIC = "IDPC";
