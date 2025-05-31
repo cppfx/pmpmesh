@@ -607,7 +607,7 @@ static int DoNextEditorDataChunk( T3dsLoaderPers *pers, long endofs ){
 #ifdef DEBUG_PM_3DS
 				printf( "NewShader: '%s'\n", cleanedName );
 #endif
-				_pico_free( cleanedName );
+				pmm::man.pp_m_delete( cleanedName );
 			}
 		}
 		if ( chunk->id == CHUNK_MATDIFFUSE ) {
@@ -734,7 +734,7 @@ static pmm::model_t *_3ds_load( PM_PARAMS_LOAD ){
 
 	/* initialize persistant vars (formerly static) */
 	pers.model    =  model;
-	pers.bufptr   = (pmm::ub8_t *)_pico_alloc( bufSize );
+	pers.bufptr   = (pmm::ub8_t *)pmm::man.pp_m_new( bufSize );
 	memcpy( pers.bufptr, buffer, bufSize );
 	pers.basename = (char *)basename;
 	pers.maxofs   =  bufSize;

@@ -25,13 +25,13 @@ void lwFreePoints( lwPointList *point ){
 		if ( point->pt ) {
 			for ( i = 0; i < point->count; i++ ) {
 				if ( point->pt[ i ].pol ) {
-					_pico_free( point->pt[ i ].pol );
+					pmm::man.pp_m_delete( point->pt[ i ].pol );
 				}
 				if ( point->pt[ i ].vm ) {
-					_pico_free( point->pt[ i ].vm );
+					pmm::man.pp_m_delete( point->pt[ i ].vm );
 				}
 			}
-			_pico_free( point->pt );
+			pmm::man.pp_m_delete( point->pt );
 		}
 		memset( point, 0, sizeof( lwPointList ) );
 	}
@@ -54,14 +54,14 @@ void lwFreePolygons( lwPolygonList *plist ){
 				if ( plist->pol[ i ].v ) {
 					for ( j = 0; j < plist->pol[ i ].nverts; j++ )
 						if ( plist->pol[ i ].v[ j ].vm ) {
-							_pico_free( plist->pol[ i ].v[ j ].vm );
+							pmm::man.pp_m_delete( plist->pol[ i ].v[ j ].vm );
 						}
 				}
 			}
 			if ( plist->pol[ 0 ].v ) {
-				_pico_free( plist->pol[ 0 ].v );
+				pmm::man.pp_m_delete( plist->pol[ 0 ].v );
 			}
-			_pico_free( plist->pol );
+			pmm::man.pp_m_delete( plist->pol );
 		}
 		memset( plist, 0, sizeof( lwPolygonList ) );
 	}
@@ -89,7 +89,7 @@ int lwGetPoints( picoMemStream_t *fp, int cksize, lwPointList *point ){
 	np = cksize / 12;
 	point->offset = point->count;
 	point->count += np;
-	if ( !_pico_realloc( (void **) &point->pt, ( point->count - np ) * sizeof( lwPoint ), point->count * sizeof( lwPoint ) ) ) {
+	if ( !pmm::man.pp_m_renew( (void **) &point->pt, ( point->count - np ) * sizeof( lwPoint ), point->count * sizeof( lwPoint ) ) ) {
 		return 0;
 	}
 	memset( &point->pt[ point->offset ], 0, np * sizeof( lwPoint ) );
@@ -110,7 +110,7 @@ int lwGetPoints( picoMemStream_t *fp, int cksize, lwPointList *point ){
 		point->pt[ i ].pos[ 2 ] = f[ j + 2 ];
 	}
 
-	_pico_free( f );
+	pmm::man.pp_m_delete( f );
 	return 1;
 }
 
@@ -162,14 +162,14 @@ int lwAllocPolygons( lwPolygonList *plist, int npols, int nverts ){
 
 	plist->offset = plist->count;
 	plist->count += npols;
-	if ( !_pico_realloc( (void **) &plist->pol, ( plist->count - npols ) * sizeof( lwPolygon ), plist->count * sizeof( lwPolygon ) ) ) {
+	if ( !pmm::man.pp_m_renew( (void **) &plist->pol, ( plist->count - npols ) * sizeof( lwPolygon ), plist->count * sizeof( lwPolygon ) ) ) {
 		return 0;
 	}
 	memset( plist->pol + plist->offset, 0, npols * sizeof( lwPolygon ) );
 
 	plist->voffset = plist->vcount;
 	plist->vcount += nverts;
-	if ( !_pico_realloc( (void **) &plist->pol[ 0 ].v, ( plist->vcount - nverts ) * sizeof( lwPolVert ), plist->vcount * sizeof( lwPolVert ) ) ) {
+	if ( !pmm::man.pp_m_renew( (void **) &plist->pol[ 0 ].v, ( plist->vcount - nverts ) * sizeof( lwPolVert ), plist->vcount * sizeof( lwPolVert ) ) ) {
 		return 0;
 	}
 	memset( plist->pol[ 0 ].v + plist->voffset, 0, nverts * sizeof( lwPolVert ) );
@@ -255,12 +255,12 @@ int lwGetPolygons( picoMemStream_t *fp, int cksize, lwPolygonList *plist, int pt
 		pv += nv;
 	}
 
-	_pico_free( buf );
+	pmm::man.pp_m_delete( buf );
 	return 1;
 
 Fail:
 	if ( buf ) {
-		_pico_free( buf );
+		pmm::man.pp_m_delete( buf );
 	}
 	lwFreePolygons( plist );
 	return 0;
@@ -326,7 +326,7 @@ int lwGetPointPolygons( lwPointList *point, lwPolygonList *polygon ){
 		if ( point->pt[ i ].npols == 0 ) {
 			continue;
 		}
-		point->pt[i].pol = reinterpret_cast<decltype(point->pt[i].pol)>(_pico_calloc( point->pt[ i ].npols, sizeof( int ) ));
+		point->pt[i].pol = reinterpret_cast<decltype(point->pt[i].pol)>(pmm::man.pp_k_new( point->pt[ i ].npols, sizeof( int ) ));
 		if ( !point->pt[ i ].pol ) {
 			return 0;
 		}
@@ -365,7 +365,7 @@ int lwResolvePolySurfaces( lwPolygonList *polygon, lwTagList *tlist,
 		return 1;
 	}
 
-	s = reinterpret_cast<decltype(s)>(_pico_calloc( tlist->count, sizeof( lwSurface * ) ));
+	s = reinterpret_cast<decltype(s)>(pmm::man.pp_k_new( tlist->count, sizeof( lwSurface * ) ));
 	if ( !s ) {
 		return 0;
 	}
@@ -382,7 +382,7 @@ int lwResolvePolySurfaces( lwPolygonList *polygon, lwTagList *tlist,
 	}
 
 	for ( i = 0; i < polygon->count; i++ ) {
-		index = ( pmm::std_size_t ) polygon->pol[ i ].surf;
+		index = ( pmm::size_type ) polygon->pol[ i ].surf;
 		if ( index < 0 || index > tlist->count ) {
 			return 0;
 		}
@@ -391,7 +391,7 @@ int lwResolvePolySurfaces( lwPolygonList *polygon, lwTagList *tlist,
 			if ( !s[ index ] ) {
 				return 0;
 			}
-			s[index]->name = reinterpret_cast<decltype(s[index]->name)>(_pico_alloc( strlen( tlist->tag[ index ] ) + 1 ));
+			s[index]->name = reinterpret_cast<decltype(s[index]->name)>(pmm::man.pp_m_new( strlen( tlist->tag[ index ] ) + 1 ));
 			if ( !s[ index ]->name ) {
 				return 0;
 			}
@@ -402,7 +402,7 @@ int lwResolvePolySurfaces( lwPolygonList *polygon, lwTagList *tlist,
 		polygon->pol[ i ].surf = s[ index ];
 	}
 
-	_pico_free( s );
+	pmm::man.pp_m_delete( s );
 	return 1;
 }
 
@@ -475,9 +475,9 @@ void lwFreeTags( lwTagList *tlist ){
 		if ( tlist->tag ) {
 			for ( i = 0; i < tlist->count; i++ )
 				if ( tlist->tag[ i ] ) {
-					_pico_free( tlist->tag[ i ] );
+					pmm::man.pp_m_delete( tlist->tag[ i ] );
 				}
-			_pico_free( tlist->tag );
+			pmm::man.pp_m_delete( tlist->tag );
 		}
 		memset( tlist, 0, sizeof( lwTagList ) );
 	}
@@ -523,7 +523,7 @@ int lwGetTags( picoMemStream_t *fp, int cksize, lwTagList *tlist ){
 
 	tlist->offset = tlist->count;
 	tlist->count += ntags;
-	if ( !_pico_realloc( (void **) &tlist->tag, ( tlist->count - ntags ) * sizeof( char * ), tlist->count * sizeof( char * ) ) ) {
+	if ( !pmm::man.pp_m_renew( (void **) &tlist->tag, ( tlist->count - ntags ) * sizeof( char * ), tlist->count * sizeof( char * ) ) ) {
 		goto Fail;
 	}
 	memset( &tlist->tag[ tlist->offset ], 0, ntags * sizeof( char * ) );
@@ -534,12 +534,12 @@ int lwGetTags( picoMemStream_t *fp, int cksize, lwTagList *tlist ){
 	for ( i = 0; i < ntags; i++ )
 		tlist->tag[ i + tlist->offset ] = sgetS0( (unsigned char **) &bp );
 
-	_pico_free( buf );
+	pmm::man.pp_m_delete( buf );
 	return 1;
 
 Fail:
 	if ( buf ) {
-		_pico_free( buf );
+		pmm::man.pp_m_delete( buf );
 	}
 	return 0;
 }
@@ -578,7 +578,7 @@ int lwGetPolygonTags( picoMemStream_t *fp, int cksize, lwTagList *tlist,
 		}
 
 		switch ( type ) {
-		case ID_SURF:  plist->pol[ i ].surf = ( lwSurface * ) (pmm::std_size_t) j;  break;
+		case ID_SURF:  plist->pol[ i ].surf = ( lwSurface * ) (pmm::size_type) j;  break;
 		case ID_PART:  plist->pol[ i ].part = j;  break;
 		case ID_SMGP:  plist->pol[ i ].smoothgrp = j;  break;
 		}

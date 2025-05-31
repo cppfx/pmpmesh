@@ -298,7 +298,7 @@ static int _md2_canload( PM_PARAMS_CANLOAD ){
 	const md2_t *md2;
 
 	/* sanity check */
-	if ( (pmm::std_size_t) bufSize < ( sizeof( *md2 ) * 2 ) ) {
+	if ( (pmm::size_type) bufSize < ( sizeof( *md2 ) * 2 ) ) {
 		return pmm::pmv_error_size;
 	}
 
@@ -347,7 +347,7 @@ static pmm::model_t *_md2_load( PM_PARAMS_LOAD ){
 
 
 	/* set as md2 */
-	bb0 = bb = (pmm::ub8_t*) _pico_alloc( bufSize );
+	bb0 = bb = (pmm::ub8_t*) pmm::man.pp_m_new( bufSize );
 	memcpy( bb, buffer, bufSize );
 	md2 = (md2_t*) bb;
 
@@ -355,7 +355,7 @@ static pmm::model_t *_md2_load( PM_PARAMS_LOAD ){
 	if ( *( (const int*) md2->magic ) != *( (const int*) MD2_MAGIC ) || _pico_little_long( md2->version ) != MD2_version ) {
 		/* not an md2 file (todo: set error) */
 		_pico_printf( pmm::pl_error, "%s is not an MD2 File!", fileName );
-		_pico_free( bb0 );
+		pmm::man.pp_m_delete( bb0 );
 		return nullptr;
 	}
 
@@ -383,13 +383,13 @@ static pmm::model_t *_md2_load( PM_PARAMS_LOAD ){
 	// do frame check
 	if ( md2->numFrames < 1 ) {
 		_pico_printf( pmm::pl_error, "%s has 0 frames!", fileName );
-		_pico_free( bb0 );
+		pmm::man.pp_m_delete( bb0 );
 		return nullptr;
 	}
 
 	if ( frameNum < 0 || frameNum >= md2->numFrames ) {
 		_pico_printf( pmm::pl_error, "Invalid or out-of-range MD2 frame specified" );
-		_pico_free( bb0 );
+		pmm::man.pp_m_delete( bb0 );
 		return nullptr;
 	}
 
@@ -436,7 +436,7 @@ static pmm::model_t *_md2_load( PM_PARAMS_LOAD ){
 	picoModel = pmm::pp_new_model();
 	if ( picoModel == nullptr ) {
 		_pico_printf( pmm::pl_error, "Unable to allocate a new model" );
-		_pico_free( bb0 );
+		pmm::man.pp_m_delete( bb0 );
 		return nullptr;
 	}
 
@@ -451,7 +451,7 @@ static pmm::model_t *_md2_load( PM_PARAMS_LOAD ){
 	if ( picoSurface == nullptr ) {
 		_pico_printf( pmm::pl_error, "Unable to allocate a new model surface" );
 		pmm::pp_free_model( picoModel );
-		_pico_free( bb0 );
+		pmm::man.pp_m_delete( bb0 );
 		return nullptr;
 	}
 
@@ -462,7 +462,7 @@ static pmm::model_t *_md2_load( PM_PARAMS_LOAD ){
 	if ( picoShader == nullptr ) {
 		_pico_printf( pmm::pl_error, "Unable to allocate a new model shader" );
 		pmm::pp_free_model( picoModel );
-		_pico_free( bb0 );
+		pmm::man.pp_m_delete( bb0 );
 		return nullptr;
 	}
 
@@ -472,7 +472,7 @@ static pmm::model_t *_md2_load( PM_PARAMS_LOAD ){
 	pmm::pp_set_surface_shader( picoSurface, picoShader );
 
 	// Init LUT for Verts
-	p_index_LUT = (index_LUT_t *)_pico_alloc( sizeof( index_LUT_t ) * md2->numXYZ );
+	p_index_LUT = (index_LUT_t *)pmm::man.pp_m_new( sizeof( index_LUT_t ) * md2->numXYZ );
 	for ( i = 0; i < md2->numXYZ; i++ )
 	{
 		p_index_LUT[i].Vert = -1;
@@ -497,7 +497,7 @@ static pmm::model_t *_md2_load( PM_PARAMS_LOAD ){
 
 			else if ( ( p_index_LUT[p_md2Triangle->index_xyz[j]].next == nullptr ) ) { // Not equal to Main entry, and no LL entry
 				// Add first entry of LL from Main
-				p_index_LUT2 = (index_LUT_t *)_pico_alloc( sizeof( index_LUT_t ) );
+				p_index_LUT2 = (index_LUT_t *)pmm::man.pp_m_new( sizeof( index_LUT_t ) );
 				if ( p_index_LUT2 == nullptr ) {
 					_pico_printf( pmm::pl_error," Couldn't allocate memory!\n" );
 				}
@@ -525,7 +525,7 @@ static pmm::model_t *_md2_load( PM_PARAMS_LOAD ){
 
 				if ( p_index_LUT2->next == nullptr ) { // Didn't find it. Add entry to LL.
 					// Add the Entry
-					p_index_LUT3 = (index_LUT_t *)_pico_alloc( sizeof( index_LUT_t ) );
+					p_index_LUT3 = (index_LUT_t *)pmm::man.pp_m_new( sizeof( index_LUT_t ) );
 					if ( p_index_LUT3 == nullptr ) {
 						_pico_printf( pmm::pl_error," Couldn't allocate memory!\n" );
 					}
@@ -541,7 +541,7 @@ static pmm::model_t *_md2_load( PM_PARAMS_LOAD ){
 	}
 
 	// malloc and build array for Dup STs
-	p_index_LUT_DUPS = (index_DUP_LUT_t *)_pico_alloc( sizeof( index_DUP_LUT_t ) * dups );
+	p_index_LUT_DUPS = (index_DUP_LUT_t *)pmm::man.pp_m_new( sizeof( index_DUP_LUT_t ) * dups );
 	if ( p_index_LUT_DUPS == nullptr ) {
 		_pico_printf( pmm::pl_error," Couldn't allocate memory!\n" );
 	}
@@ -623,7 +623,7 @@ static pmm::model_t *_md2_load( PM_PARAMS_LOAD ){
 			p_index_LUT2 = p_index_LUT[i].next;
 			do {
 				p_index_LUT3 = p_index_LUT2->next;
-				_pico_free( p_index_LUT2 );
+				pmm::man.pp_m_delete( p_index_LUT2 );
 				p_index_LUT2 = p_index_LUT3;
 				dups--;
 			} while ( p_index_LUT2 != nullptr );
@@ -635,11 +635,11 @@ static pmm::model_t *_md2_load( PM_PARAMS_LOAD ){
 	}
 
 	// Free malloc'ed LUTs
-	_pico_free( p_index_LUT );
-	_pico_free( p_index_LUT_DUPS );
+	pmm::man.pp_m_delete( p_index_LUT );
+	pmm::man.pp_m_delete( p_index_LUT_DUPS );
 
 	/* return the new pico model */
-	_pico_free( bb0 );
+	pmm::man.pp_m_delete( bb0 );
 	return picoModel;
 
 }

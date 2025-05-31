@@ -93,14 +93,14 @@ void *getbytes( picoMemStream_t *fp, int size ){
 		flen = FLEN_error;
 		return nullptr;
 	}
-	data = reinterpret_cast<decltype(data)>(_pico_alloc(size));
+	data = reinterpret_cast<decltype(data)>(pmm::man.pp_m_new(size));
 	if ( !data ) {
 		flen = FLEN_error;
 		return nullptr;
 	}
 	if ( 1 != _pico_memstream_read( fp, data, size ) ) {
 		flen = FLEN_error;
-		_pico_free( data );
+		pmm::man.pp_m_delete( data );
 		return nullptr;
 	}
 
@@ -300,7 +300,7 @@ char *getS0( picoMemStream_t *fp ){
 	}
 
 	len = i + ( i & 1 );
-	s = reinterpret_cast<decltype(s)>(_pico_alloc(len));
+	s = reinterpret_cast<decltype(s)>(pmm::man.pp_m_new(len));
 	if ( !s ) {
 		flen = FLEN_error;
 		return nullptr;
@@ -457,7 +457,7 @@ char *sgetS0( unsigned char **bp ){
 		return nullptr;
 	}
 	len += len & 1;
-	s = reinterpret_cast<decltype(s)>(_pico_alloc(len));
+	s = reinterpret_cast<decltype(s)>(pmm::man.pp_m_new(len));
 	if ( !s ) {
 		flen = FLEN_error;
 		return nullptr;

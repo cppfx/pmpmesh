@@ -95,10 +95,6 @@ public:
 /* variables */
 extern const pmm::module_t   *picoModules[];
 
-extern void                 *( *_pico_ptr_malloc )( pmm::std_size_t );
-extern void ( *_pico_ptr_free )( void* );
-extern void ( *_pico_ptr_load_file )( const char*, unsigned char**, int* );
-extern void ( *_pico_ptr_free_file )( void* );
 extern void ( *_pico_ptr_print )( int, const char* );
 
 
@@ -106,15 +102,7 @@ extern void ( *_pico_ptr_print )( int, const char* );
 /* prototypes */
 
 /* memory */
-void            *_pico_alloc( pmm::std_size_t size );
-void            *_pico_calloc( pmm::std_size_t num, pmm::std_size_t size );
-void            *_pico_realloc( void **ptr, pmm::std_size_t oldSize, pmm::std_size_t newSize );
 char            *_pico_clone_alloc( const char *str );
-void            _pico_free( void *ptr );
-
-/* files */
-void            _pico_load_file( const char *name, unsigned char **buffer, int *bufSize );
-void            _pico_free_file( void *buffer );
 
 /* strings */
 void            _pico_first_token( char *str );

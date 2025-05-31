@@ -163,7 +163,7 @@ static int _ms3d_canload( PM_PARAMS_CANLOAD ){
 
 
 	/* sanity check */
-	if ( (pmm::std_size_t) bufSize < sizeof( TMsHeader ) ) {
+	if ( (pmm::size_type) bufSize < sizeof( TMsHeader ) ) {
 		return pmm::pmv_error_size;
 	}
 
@@ -220,7 +220,7 @@ static pmm::model_t *_ms3d_load( PM_PARAMS_LOAD ){
 	pmm::pp_set_model_name( model, fileName );
 	pmm::pp_set_model_file_name( model, fileName );
 
-	bufptr0 = bufptr = (pmm::ub8_t*) _pico_alloc( bufSize );
+	bufptr0 = bufptr = (pmm::ub8_t*) pmm::man.pp_m_new( bufSize );
 	memcpy( bufptr, buffer, bufSize );
 	/* skip header */
 	bufptr += sizeof( TMsHeader );
@@ -283,7 +283,7 @@ static pmm::model_t *_ms3d_load( PM_PARAMS_LOAD ){
 			if ( triangle->vertexIndices[ k ] >= numVerts ) {
 				_pico_printf( pmm::pl_error,"Vertex %d index %d out of range (%d, max %d)",i,k,triangle->vertexIndices[k],numVerts - 1 );
 				pmm::pp_free_model( model );
-				_pico_free( bufptr0 );
+				pmm::man.pp_m_delete( bufptr0 );
 				return nullptr; /* yuck */
 			}
 		}
@@ -316,7 +316,7 @@ static pmm::model_t *_ms3d_load( PM_PARAMS_LOAD ){
 		surface = pmm::pp_new_surface( model );
 		if ( surface == nullptr ) {
 			pmm::pp_free_model( model );
-			_pico_free( bufptr0 );
+			pmm::man.pp_m_delete( bufptr0 );
 			return nullptr;
 		}
 		/* do surface setup */
@@ -409,7 +409,7 @@ static pmm::model_t *_ms3d_load( PM_PARAMS_LOAD ){
 		shader = pmm::pp_new_shader( model );
 		if ( shader == nullptr ) {
 			pmm::pp_free_model( model );
-			_pico_free( bufptr0 );
+			pmm::man.pp_m_delete( bufptr0 );
 			return nullptr;
 		}
 		/* scale shader colors */
@@ -473,7 +473,7 @@ static pmm::model_t *_ms3d_load( PM_PARAMS_LOAD ){
 #endif
 	}
 	/* return allocated pico model */
-	_pico_free( bufptr0 );
+	pmm::man.pp_m_delete( bufptr0 );
 	return model;
 //	return nullptr;
 }

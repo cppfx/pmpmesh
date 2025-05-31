@@ -10,6 +10,8 @@
 #ifndef LWO2_H
 #define LWO2_H
 
+#include <functional>
+
 #include "../platfdefs.hpp"
 
 /* chunk and subchunk IDs */
@@ -599,14 +601,14 @@ public:
 };
 
 
-/* lwo2.c */
+/* lwo2.cpp */
 
 void lwFreeLayer( lwLayer *layer );
 void lwFreeObject( lwObject *object );
 lwObject *lwGetObject( const char *filename, picoMemStream_t *fp, unsigned int *failID, int *failpos );
 int lwValidateObject( const char *filename, picoMemStream_t *fp, unsigned int *failID, int *failpos );
 
-/* pntspols.c */
+/* pntspols.cpp */
 
 void lwFreePoints( lwPointList *point );
 void lwFreePolygons( lwPolygonList *plist );
@@ -624,7 +626,7 @@ int lwGetTags( picoMemStream_t *fp, int cksize, lwTagList *tlist );
 int lwGetPolygonTags( picoMemStream_t *fp, int cksize, lwTagList *tlist,
 					  lwPolygonList *plist );
 
-/* vmap.c */
+/* vmap.cpp */
 
 void lwFreeVMap( lwVMap *vmap );
 lwVMap *lwGetVMap( picoMemStream_t *fp, int cksize, int ptoffset, int poloffset,
@@ -632,20 +634,20 @@ lwVMap *lwGetVMap( picoMemStream_t *fp, int cksize, int ptoffset, int poloffset,
 int lwGetPointVMaps( lwPointList *point, lwVMap *vmap );
 int lwGetPolyVMaps( lwPolygonList *polygon, lwVMap *vmap );
 
-/* clip.c */
+/* clip.cpp */
 
 void lwFreeClip( lwClip *clip );
 lwClip *lwGetClip( picoMemStream_t *fp, int cksize );
 lwClip *lwFindClip( lwClip *list, int index );
 
-/* envelope.c */
+/* envelope.cpp */
 
 void lwFreeEnvelope( lwEnvelope *env );
 lwEnvelope *lwGetEnvelope( picoMemStream_t *fp, int cksize );
 lwEnvelope *lwFindEnvelope( lwEnvelope *list, int index );
 float lwEvalEnvelope( lwEnvelope *env, float time );
 
-/* surface.c */
+/* surface.cpp */
 
 void lwFreePlugin( lwPlugin *p );
 void lwFreeTexture( lwTexture *t );
@@ -660,28 +662,28 @@ lwPlugin *lwGetShader( picoMemStream_t *fp, int bloksz );
 lwSurface *lwGetSurface( picoMemStream_t *fp, int cksize );
 lwSurface *lwDefaultSurface( void );
 
-/* lwob.c */
+/* lwob.cpp */
 
 lwSurface *lwGetSurface5( picoMemStream_t *fp, int cksize, lwObject *obj );
 int lwGetPolygons5( picoMemStream_t *fp, int cksize, lwPolygonList *plist, int ptoffset );
 lwObject *lwGetObject5( const char *filename, picoMemStream_t *fp, unsigned int *failID, int *failpos );
 int lwValidateObject5( const char *filename, picoMemStream_t *fp, unsigned int *failID, int *failpos );
 
-/* list.c */
+/* list.cpp */
 
-void lwListFree( void *list, void ( *freeNode )( void * ) );
+void lwListFree(void * list, std::function<void(void *)> freeNode);
 void lwListAdd( void **list, void *node );
 void lwListInsert( void **vlist, void *vitem,
 				   int ( *compare )( void *, void * ) );
 
-/* vecmath.c */
+/* vecmath.cpp */
 
 float dot( float a[], float b[] );
 void cross( float a[], float b[], float c[] );
 void normalize( float v[] );
 #define vecangle( a, b ) ( float ) acos( dot( a, b ) )
 
-/* lwio.c */
+/* lwio.cpp */
 
 void  set_flen( int i );
 int   get_flen( void );

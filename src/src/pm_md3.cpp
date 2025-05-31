@@ -139,7 +139,7 @@ static int _md3_canload( PM_PARAMS_CANLOAD ){
 
 
 	/* sanity check */
-	if ( (pmm::std_size_t) bufSize < ( sizeof( *md3 ) * 2 ) ) {
+	if ( (pmm::size_type) bufSize < ( sizeof( *md3 ) * 2 ) ) {
 		return pmm::pmv_error_size;
 	}
 
@@ -193,14 +193,14 @@ static pmm::model_t *_md3_load( PM_PARAMS_LOAD ){
 
 
 	/* set as md3 */
-	bb0 = bb = (pmm::ub8_t*) _pico_alloc( bufSize );
+	bb0 = bb = (pmm::ub8_t*) pmm::man.pp_m_new( bufSize );
 	memcpy( bb, buffer, bufSize );
 	md3 = (md3_t*) bb;
 
 	/* check ident and version */
 	if ( *( (int*) md3->magic ) != *( (int*) MD3_MAGIC ) || _pico_little_long( md3->version ) != MD3_version ) {
 		/* not an md3 file (todo: set error) */
-		_pico_free( bb0 );
+		pmm::man.pp_m_delete( bb0 );
 		return nullptr;
 	}
 
@@ -218,13 +218,13 @@ static pmm::model_t *_md3_load( PM_PARAMS_LOAD ){
 	/* do frame check */
 	if ( md3->numFrames < 1 ) {
 		_pico_printf( pmm::pl_error, "MD3 with 0 frames" );
-		_pico_free( bb0 );
+		pmm::man.pp_m_delete( bb0 );
 		return nullptr;
 	}
 
 	if ( frameNum < 0 || frameNum >= md3->numFrames ) {
 		_pico_printf( pmm::pl_error, "Invalid or out-of-range MD3 frame specified" );
-		_pico_free( bb0 );
+		pmm::man.pp_m_delete( bb0 );
 		return nullptr;
 	}
 
@@ -297,7 +297,7 @@ static pmm::model_t *_md3_load( PM_PARAMS_LOAD ){
 	picoModel = pmm::pp_new_model();
 	if ( picoModel == nullptr ) {
 		_pico_printf( pmm::pl_error, "Unable to allocate a new model" );
-		_pico_free( bb0 );
+		pmm::man.pp_m_delete( bb0 );
 		return nullptr;
 	}
 
@@ -318,7 +318,7 @@ static pmm::model_t *_md3_load( PM_PARAMS_LOAD ){
 		if ( picoSurface == nullptr ) {
 			_pico_printf( pmm::pl_error, "Unable to allocate a new model surface" );
 			pmm::pp_free_model( picoModel ); /* sea */
-			_pico_free( bb0 );
+			pmm::man.pp_m_delete( bb0 );
 			return nullptr;
 		}
 
@@ -333,7 +333,7 @@ static pmm::model_t *_md3_load( PM_PARAMS_LOAD ){
 		if ( picoShader == nullptr ) {
 			_pico_printf( pmm::pl_error, "Unable to allocate a new model shader" );
 			pmm::pp_free_model( picoModel );
-			_pico_free( bb0 );
+			pmm::man.pp_m_delete( bb0 );
 			return nullptr;
 		}
 
@@ -393,7 +393,7 @@ static pmm::model_t *_md3_load( PM_PARAMS_LOAD ){
 	}
 
 	/* return the new pico model */
-	_pico_free( bb0 );
+	pmm::man.pp_m_delete( bb0 );
 	return picoModel;
 }
 

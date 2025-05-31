@@ -163,7 +163,7 @@ static TObjVertexData *SizeObjVertexData(
 #endif
 		/* first time allocation */
 		vertexData = (TObjVertexData *)
-					 _pico_alloc( sizeof( TObjVertexData ) * newAllocated );
+					 pmm::man.pp_m_new( sizeof( TObjVertexData ) * newAllocated );
 
 		/* allocation failed */
 		if ( vertexData == nullptr ) {
@@ -186,7 +186,7 @@ static TObjVertexData *SizeObjVertexData(
 #endif
 		/* try to reallocate */
 		vertexData = (TObjVertexData *)
-					 _pico_realloc( (void **)&vertexData,
+					 pmm::man.pp_m_renew( (void **)&vertexData,
 									sizeof( TObjVertexData ) * ( *allocated ),
 									sizeof( TObjVertexData ) * ( newAllocated ) );
 
@@ -231,8 +231,8 @@ static int _obj_mtl_load( pmm::model_t *model ){
 	#define _obj_mtl_error_return \
 	{ \
 		_pico_free_parser( p );	\
-		_pico_free_file( mtlBuffer ); \
-		_pico_free( fileName );	\
+		pmm::man.pp_f_delete( mtlBuffer ); \
+		pmm::man.pp_m_delete( fileName );	\
 		return 0; \
 	}
 	/* alloc copy of model file name */
@@ -244,8 +244,8 @@ static int _obj_mtl_load( pmm::model_t *model ){
 	/* change extension of model file to .mtl */
 	_pico_setfext( fileName, "mtl" );
 
-	/* load .mtl file contents */
-	_pico_load_file( fileName,&mtlBuffer,&mtlBufSize );
+	// load .mtl file contents
+	mtlBufSize = pmm::man.pp_load_file(fileName, &mtlBuffer);
 
 	/* check result */
 	if ( mtlBufSize == 0 ) {
@@ -488,8 +488,8 @@ static int _obj_mtl_load( pmm::model_t *model ){
 
 	/* free parser, file buffer, and file name */
 	_pico_free_parser( p );
-	_pico_free_file( mtlBuffer );
-	_pico_free( fileName );
+	pmm::man.pp_f_delete(mtlBuffer);
+	pmm::man.pp_m_delete(fileName);
 
 	/* return with success */
 	return 1;

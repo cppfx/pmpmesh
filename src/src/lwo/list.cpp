@@ -9,6 +9,7 @@
 
 #include <pmpmesh/pm_internal.hpp>
 #include <pmpmesh/lwo/lwo2.hpp>
+#include <functional>
 
 
 /*
@@ -18,13 +19,14 @@
    Free the items in a list.
    ====================================================================== */
 
-void lwListFree( void *list, void ( *freeNode )( void * ) ){
-	lwNode *node, *next;
-
-	node = ( lwNode * ) list;
-	while ( node ) {
+void lwListFree(void * list, std::function<void (void *)> freeNode)
+{
+	lwNode * node = reinterpret_cast<lwNode *>(list);
+	lwNode * next;
+	while (node)
+	{
 		next = node->next;
-		freeNode( node );
+		freeNode(node);
 		node = next;
 	}
 }

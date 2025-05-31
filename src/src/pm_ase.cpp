@@ -123,7 +123,7 @@ aseSubMaterial_t* _ase_get_submaterial_or_default( aseMaterial_t* materials, int
 
 
 static aseMaterial_t* _ase_add_material( aseMaterial_t **list, int mtlIdParent ){
-	aseMaterial_t * mtl = reinterpret_cast<decltype(mtl)>(_pico_calloc( 1, sizeof( aseMaterial_t ) ));
+	aseMaterial_t * mtl = reinterpret_cast<decltype(mtl)>(pmm::man.pp_k_new( 1, sizeof( aseMaterial_t ) ));
 	mtl->mtlId = mtlIdParent;
 	mtl->subMtls = nullptr;
 	mtl->next = *list;
@@ -134,7 +134,7 @@ static aseMaterial_t* _ase_add_material( aseMaterial_t **list, int mtlIdParent )
 
 static aseSubMaterial_t* _ase_add_submaterial( aseMaterial_t **list, int mtlIdParent, int subMtlId, pmm::shader_t* shader ){
 	aseMaterial_t *parent = _ase_get_material( *list,  mtlIdParent );
-	aseSubMaterial_t * subMtl = reinterpret_cast<decltype(subMtl)>(_pico_calloc( 1, sizeof( aseSubMaterial_t ) ));
+	aseSubMaterial_t * subMtl = reinterpret_cast<decltype(subMtl)>(pmm::man.pp_k_new( 1, sizeof( aseSubMaterial_t ) ));
 
 	if ( !parent ) {
 		parent = _ase_add_material( list, mtlIdParent );
@@ -161,11 +161,11 @@ static void _ase_free_materials( aseMaterial_t **list ){
 		while ( subMtl )
 		{
 			subMtlTemp = subMtl->next;
-			_pico_free( subMtl );
+			pmm::man.pp_m_delete( subMtl );
 			subMtl = subMtlTemp;
 		}
 		mtlTemp = mtl->next;
-		_pico_free( mtl );
+		pmm::man.pp_m_delete( mtl );
 		mtl = mtlTemp;
 	}
 	( *list ) = nullptr;
@@ -312,16 +312,16 @@ public:
 	aseFace_t* faces;
 };
 
-pmm::std_size_t aseUniqueIndices_size( aseUniqueIndices_t* self ){
+pmm::size_type aseUniqueIndices_size( aseUniqueIndices_t* self ){
 	return self->last - self->data;
 }
 
 void aseUniqueIndices_reserve( aseUniqueIndices_t* self, pmm::index_t size ){
-	self->data = self->last = (pmm::index_t*)_pico_calloc( size, sizeof( pmm::index_t ) );
+	self->data = self->last = (pmm::index_t*)pmm::man.pp_k_new( size, sizeof( pmm::index_t ) );
 }
 
 void aseUniqueIndices_clear( aseUniqueIndices_t* self ){
-	_pico_free( self->data );
+	pmm::man.pp_m_delete( self->data );
 }
 
 void aseUniqueIndices_pushBack( aseUniqueIndices_t* self, pmm::index_t index ){
@@ -562,31 +562,31 @@ static pmm::model_t *_ase_load( PM_PARAMS_LOAD ){
 		else if ( !_pico_stricmp( p->token,"*mesh" ) ) {
 			/* finish existing surface */
 			_ase_submit_triangles( model, materials, vertices, texcoords, colors, faces, numFaces, lastNodeName );
-			_pico_free( faces );
-			_pico_free( vertices );
-			_pico_free( texcoords );
-			_pico_free( colors );
+			pmm::man.pp_m_delete( faces );
+			pmm::man.pp_m_delete( vertices );
+			pmm::man.pp_m_delete( texcoords );
+			pmm::man.pp_m_delete( colors );
 		}
 		else if ( !_pico_stricmp( p->token,"*mesh_numvertex" ) ) {
 			if ( !_pico_parse_int( p, &numVertices ) ) {
 				_ase_error_return( "Missing MESH_NUMVERTEX value" );
 			}
 
-			vertices = reinterpret_cast<decltype(vertices)>(_pico_calloc( numVertices, sizeof( aseVertex_t ) ));
+			vertices = reinterpret_cast<decltype(vertices)>(pmm::man.pp_k_new( numVertices, sizeof( aseVertex_t ) ));
 		}
 		else if ( !_pico_stricmp( p->token,"*mesh_numfaces" ) ) {
 			if ( !_pico_parse_int( p, &numFaces ) ) {
 				_ase_error_return( "Missing MESH_NUMFACES value" );
 			}
 
-			faces = reinterpret_cast<decltype(faces)>(_pico_calloc( numFaces, sizeof( aseFace_t ) ));
+			faces = reinterpret_cast<decltype(faces)>(pmm::man.pp_k_new( numFaces, sizeof( aseFace_t ) ));
 		}
 		else if ( !_pico_stricmp( p->token,"*mesh_numtvertex" ) ) {
 			if ( !_pico_parse_int( p, &numTextureVertices ) ) {
 				_ase_error_return( "Missing MESH_NUMTVERTEX value" );
 			}
 
-			texcoords = reinterpret_cast<decltype(texcoords)>(_pico_calloc( numTextureVertices, sizeof( aseTexCoord_t ) ));
+			texcoords = reinterpret_cast<decltype(texcoords)>(pmm::man.pp_k_new( numTextureVertices, sizeof( aseTexCoord_t ) ));
 		}
 		else if ( !_pico_stricmp( p->token,"*mesh_numtvfaces" ) ) {
 			if ( !_pico_parse_int( p, &numTextureVertexFaces ) ) {
@@ -598,7 +598,7 @@ static pmm::model_t *_ase_load( PM_PARAMS_LOAD ){
 				_ase_error_return( "Missing MESH_NUMCVERTEX value" );
 			}
 
-			colors = reinterpret_cast<decltype(colors)>(_pico_calloc( numColorVertices, sizeof( aseColor_t ) ));
+			colors = reinterpret_cast<decltype(colors)>(pmm::man.pp_k_new( numColorVertices, sizeof( aseColor_t ) ));
 			memset( colors, 255, numColorVertices * sizeof( aseColor_t ) ); /* ydnar: force colors to white initially */
 		}
 		else if ( !_pico_stricmp( p->token,"*mesh_numcvfaces" ) ) {
@@ -1057,7 +1057,7 @@ static pmm::model_t *_ase_load( PM_PARAMS_LOAD ){
 							if ( name == nullptr ) {
 								_ase_error_return( "Missing material map bitmap name" );
 							}
-							mapname = reinterpret_cast<decltype(mapname)>(_pico_alloc( strlen( name ) + 1 ));
+							mapname = reinterpret_cast<decltype(mapname)>(pmm::man.pp_m_new( strlen( name ) + 1 ));
 							strcpy( mapname, name );
 							/* skip rest and continue with next token */
 							_pico_parse_skip_rest( p );
@@ -1136,7 +1136,7 @@ static pmm::model_t *_ase_load( PM_PARAMS_LOAD ){
 
 			/* ydnar: free mapname */
 			if ( mapname != nullptr ) {
-				_pico_free( mapname );
+				pmm::man.pp_m_delete( mapname );
 			}
 		}   // !_pico_stricmp ( "*material" )
 
@@ -1146,10 +1146,10 @@ static pmm::model_t *_ase_load( PM_PARAMS_LOAD ){
 
 	/* ydnar: finish existing surface */
 	_ase_submit_triangles( model, materials, vertices, texcoords, colors, faces, numFaces, lastNodeName );
-	_pico_free( faces );
-	_pico_free( vertices );
-	_pico_free( texcoords );
-	_pico_free( colors );
+	pmm::man.pp_m_delete( faces );
+	pmm::man.pp_m_delete( vertices );
+	pmm::man.pp_m_delete( texcoords );
+	pmm::man.pp_m_delete( colors );
 
 #ifdef DEBUG_PM_ASE
 	_ase_print_materials( materials );

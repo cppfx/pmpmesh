@@ -43,10 +43,6 @@
 
 
 /* function pointers */
-void *( *_pico_ptr_malloc    )( pmm::std_size_t ) = malloc;
-void ( *_pico_ptr_free      )( void* ) = free;
-void ( *_pico_ptr_load_file )( const char*, unsigned char**, int* ) = nullptr;
-void ( *_pico_ptr_free_file )( void* ) = nullptr;
 void ( *_pico_ptr_print     )( int, const char* ) = nullptr;
 
 union floatSwapUnion
@@ -54,95 +50,6 @@ union floatSwapUnion
 	float f;
 	char c[4];
 };
-
-/* _pico_alloc:
- *  kludged memory allocation wrapper
- */
-void *_pico_alloc( pmm::std_size_t size ){
-	void *ptr;
-
-	/* some sanity checks */
-	if ( size == 0 ) {
-		return nullptr;
-	}
-	if ( _pico_ptr_malloc == nullptr ) {
-		return nullptr;
-	}
-
-	/* allocate memory */
-	ptr = _pico_ptr_malloc( size );
-	if ( ptr == nullptr ) {
-		return nullptr;
-	}
-
-	/* zero out allocated memory */
-	memset( ptr,0,size );
-
-	/* return pointer to allocated memory */
-	return ptr;
-}
-
-/* _pico_calloc:
- *  _pico_calloc wrapper
- */
-void *_pico_calloc( pmm::std_size_t num, pmm::std_size_t size ){
-	void *ptr;
-
-	/* some sanity checks */
-	if ( num == 0 || size == 0 ) {
-		return nullptr;
-	}
-	if ( _pico_ptr_malloc == nullptr ) {
-		return nullptr;
-	}
-
-	/* allocate memory */
-	ptr = _pico_ptr_malloc( num * size );
-	if ( ptr == nullptr ) {
-		return nullptr;
-	}
-
-	/* zero out allocated memory */
-	memset( ptr,0,num * size );
-
-	/* return pointer to allocated memory */
-	return ptr;
-}
-
-/* _pico_realloc:
- *  memory reallocation wrapper (note: only grows,
- *  but never shrinks or frees)
- */
-void *_pico_realloc( void **ptr, pmm::std_size_t oldSize, pmm::std_size_t newSize ){
-	void *ptr2;
-
-	/* sanity checks */
-	if ( ptr == nullptr ) {
-		return nullptr;
-	}
-	if ( newSize < oldSize ) {
-		return *ptr;
-	}
-	if ( _pico_ptr_malloc == nullptr ) {
-		return nullptr;
-	}
-
-	/* allocate new pointer */
-	ptr2 = reinterpret_cast<decltype(ptr2)>(_pico_alloc( newSize ));
-	if ( ptr2 == nullptr ) {
-		return nullptr;
-	}
-
-	/* copy */
-	if ( *ptr != nullptr ) {
-		memcpy( ptr2, *ptr, oldSize );
-		_pico_free( *ptr );
-	}
-
-	/* fix up and return */
-	*ptr = ptr2;
-	return *ptr;
-}
 
 /* _pico_clone_alloc:
  *  handy function for quick string allocation/copy. it clones
@@ -162,7 +69,7 @@ char *_pico_clone_alloc( const char *str ){
 	}
 
 	/* allocate memory */
-	cloned = reinterpret_cast<decltype(cloned)>(_pico_alloc( strlen( str ) + 1 ));
+	cloned = reinterpret_cast<decltype(cloned)>(pmm::man.pp_m_new( strlen( str ) + 1 ));
 	if ( cloned == nullptr ) {
 		return nullptr;
 	}
@@ -172,58 +79,6 @@ char *_pico_clone_alloc( const char *str ){
 
 	/* return ptr to cloned string */
 	return cloned;
-}
-
-/* _pico_free:
- * wrapper around the free function pointer
- */
-void _pico_free( void *ptr ){
-	/* sanity checks */
-	if ( ptr == nullptr ) {
-		return;
-	}
-	if ( _pico_ptr_free == nullptr ) {
-		return;
-	}
-
-	/* free the allocated memory */
-	_pico_ptr_free( ptr );
-}
-
-/* _pico_load_file:
- * wrapper around the loadfile function pointer
- */
-void _pico_load_file( const char *name, unsigned char **buffer, int *bufSize ){
-	/* sanity checks */
-	if ( name == nullptr ) {
-		*bufSize = -1;
-		return;
-	}
-	if ( _pico_ptr_load_file == nullptr ) {
-		*bufSize = -1;
-		return;
-	}
-	/* do the actual call to read in the file; */
-	/* BUFFER IS ALLOCATED BY THE EXTERNAL LOADFILE FUNC */
-	_pico_ptr_load_file( name,buffer,bufSize );
-}
-
-/* _pico_free_file:
- * wrapper around the file free function pointer
- */
-void _pico_free_file( void *buffer ){
-	/* sanity checks */
-	if ( buffer == nullptr ) {
-		return;
-	}
-
-	/* use default free */
-	if ( _pico_ptr_free_file == nullptr ) {
-		free( buffer );
-		return;
-	}
-	/* free the allocated file */
-	_pico_ptr_free_file( buffer );
 }
 
 /* _pico_printf:
@@ -535,7 +390,7 @@ float _pico_big_float( float src ){
  *  case-insensitive strstr. -sea
  */
 const char *_pico_stristr( const char *str, const char *substr ){
-	const pmm::std_size_t sublen = strlen( substr );
+	const pmm::size_type sublen = strlen( substr );
 	while ( *str )
 	{
 		if ( !_pico_strnicmp( str,substr,sublen ) ) {
@@ -739,7 +594,7 @@ picoParser_t *_pico_new_parser( const pmm::ub8_t *buffer, int bufSize ){
 	}
 
 	/* allocate reader */
-	p = reinterpret_cast<decltype(p)>(_pico_alloc( sizeof( picoParser_t ) ));
+	p = reinterpret_cast<decltype(p)>(pmm::man.pp_m_new( sizeof( picoParser_t ) ));
 	if ( p == nullptr ) {
 		return nullptr;
 	}
@@ -748,9 +603,9 @@ picoParser_t *_pico_new_parser( const pmm::ub8_t *buffer, int bufSize ){
 	/* allocate token space */
 	p->tokenSize = 0;
 	p->tokenMax = 1024;
-	p->token = reinterpret_cast<decltype(p->token)>(_pico_alloc( p->tokenMax ));
+	p->token = reinterpret_cast<decltype(p->token)>(pmm::man.pp_m_new( p->tokenMax ));
 	if ( p->token == nullptr ) {
-		_pico_free( p );
+		pmm::man.pp_m_delete( p );
 		return nullptr;
 	}
 	/* setup */
@@ -775,9 +630,9 @@ void _pico_free_parser( picoParser_t *p ){
 
 	/* free the parser */
 	if ( p->token != nullptr ) {
-		_pico_free( p->token );
+		pmm::man.pp_m_delete( p->token );
 	}
-	_pico_free( p );
+	pmm::man.pp_m_delete( p );
 }
 
 /* _pico_parse_ex:
@@ -1221,7 +1076,7 @@ picoMemStream_t *_pico_new_memstream( const pmm::ub8_t *buffer, int bufSize ){
 	}
 
 	/* allocate stream */
-	s = reinterpret_cast<decltype(s)>(_pico_alloc( sizeof( picoMemStream_t ) ));
+	s = reinterpret_cast<decltype(s)>(pmm::man.pp_m_new( sizeof( picoMemStream_t ) ));
 	if ( s == nullptr ) {
 		return nullptr;
 	}
@@ -1247,7 +1102,7 @@ void _pico_free_memstream( picoMemStream_t *s ){
 	}
 
 	/* free the stream */
-	_pico_free( s );
+	pmm::man.pp_m_delete( s );
 }
 
 /* _pico_memstream_read:

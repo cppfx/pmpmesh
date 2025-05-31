@@ -21,21 +21,21 @@
 void lwFreeVMap( lwVMap *vmap ){
 	if ( vmap ) {
 		if ( vmap->name ) {
-			_pico_free( vmap->name );
+			pmm::man.pp_m_delete( vmap->name );
 		}
 		if ( vmap->vindex ) {
-			_pico_free( vmap->vindex );
+			pmm::man.pp_m_delete( vmap->vindex );
 		}
 		if ( vmap->pindex ) {
-			_pico_free( vmap->pindex );
+			pmm::man.pp_m_delete( vmap->pindex );
 		}
 		if ( vmap->val ) {
 			if ( vmap->val[ 0 ] ) {
-				_pico_free( vmap->val[ 0 ] );
+				pmm::man.pp_m_delete( vmap->val[ 0 ] );
 			}
-			_pico_free( vmap->val );
+			pmm::man.pp_m_delete( vmap->val );
 		}
-		_pico_free( vmap );
+		pmm::man.pp_m_delete( vmap );
 	}
 }
 
@@ -63,9 +63,9 @@ lwVMap *lwGetVMap( picoMemStream_t *fp, int cksize, int ptoffset, int poloffset,
 		return nullptr;
 	}
 
-	vmap = reinterpret_cast<decltype(vmap)>(_pico_calloc( 1, sizeof( lwVMap ) ));
+	vmap = reinterpret_cast<decltype(vmap)>(pmm::man.pp_k_new( 1, sizeof( lwVMap ) ));
 	if ( !vmap ) {
-		_pico_free( buf );
+		pmm::man.pp_m_delete( buf );
 		return nullptr;
 	}
 
@@ -95,23 +95,23 @@ lwVMap *lwGetVMap( picoMemStream_t *fp, int cksize, int ptoffset, int poloffset,
 	/* allocate the vmap */
 
 	vmap->nverts = npts;
-	vmap->vindex = reinterpret_cast<decltype(vmap->vindex)>(_pico_calloc( npts, sizeof( int ) ));
+	vmap->vindex = reinterpret_cast<decltype(vmap->vindex)>(pmm::man.pp_k_new( npts, sizeof( int ) ));
 	if ( !vmap->vindex ) {
 		goto Fail;
 	}
 	if ( perpoly ) {
-		vmap->pindex = reinterpret_cast<decltype(vmap->pindex)>(_pico_calloc( npts, sizeof( int ) ));
+		vmap->pindex = reinterpret_cast<decltype(vmap->pindex)>(pmm::man.pp_k_new( npts, sizeof( int ) ));
 		if ( !vmap->pindex ) {
 			goto Fail;
 		}
 	}
 
 	if ( vmap->dim > 0 ) {
-		vmap->val = reinterpret_cast<decltype(vmap->val)>(_pico_calloc( npts, sizeof( float * ) ));
+		vmap->val = reinterpret_cast<decltype(vmap->val)>(pmm::man.pp_k_new( npts, sizeof( float * ) ));
 		if ( !vmap->val ) {
 			goto Fail;
 		}
-		f = reinterpret_cast<decltype(f)>(_pico_alloc( npts * vmap->dim * sizeof( float ) ));
+		f = reinterpret_cast<decltype(f)>(pmm::man.pp_m_new( npts * vmap->dim * sizeof( float ) ));
 		if ( !f ) {
 			goto Fail;
 		}
@@ -131,12 +131,12 @@ lwVMap *lwGetVMap( picoMemStream_t *fp, int cksize, int ptoffset, int poloffset,
 			vmap->val[ i ][ j ] = sgetF4( &bp );
 	}
 
-	_pico_free( buf );
+	pmm::man.pp_m_delete( buf );
 	return vmap;
 
 Fail:
 	if ( buf ) {
-		_pico_free( buf );
+		pmm::man.pp_m_delete( buf );
 	}
 	lwFreeVMap( vmap );
 	return nullptr;
@@ -169,7 +169,7 @@ int lwGetPointVMaps( lwPointList *point, lwVMap *vmap ){
 
 	for ( i = 0; i < point->count; i++ ) {
 		if ( point->pt[ i ].nvmaps ) {
-			point->pt[i].vm = reinterpret_cast<decltype(point->pt[i].vm)>(_pico_calloc( point->pt[ i ].nvmaps, sizeof( lwVMapPt ) ));
+			point->pt[i].vm = reinterpret_cast<decltype(point->pt[i].vm)>(pmm::man.pp_k_new( point->pt[ i ].nvmaps, sizeof( lwVMapPt ) ));
 			if ( !point->pt[ i ].vm ) {
 				return 0;
 			}
@@ -233,7 +233,7 @@ int lwGetPolyVMaps( lwPolygonList *polygon, lwVMap *vmap ){
 		for ( j = 0; j < polygon->pol[ i ].nverts; j++ ) {
 			pv = &polygon->pol[ i ].v[ j ];
 			if ( pv->nvmaps ) {
-				pv->vm = reinterpret_cast<decltype(pv->vm)>(_pico_calloc( pv->nvmaps, sizeof( lwVMapPt ) ));
+				pv->vm = reinterpret_cast<decltype(pv->vm)>(pmm::man.pp_k_new( pv->nvmaps, sizeof( lwVMapPt ) ));
 				if ( !pv->vm ) {
 					return 0;
 				}

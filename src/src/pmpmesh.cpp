@@ -33,7 +33,9 @@
    ----------------------------------------------------------------------------- */
 
 /* dependencies */
+#include <pmpmesh/pmpmesh.hpp>
 #include <pmpmesh/pm_internal.hpp>
+#include <algorithm>
 
 ///////////////////////////////////////////////////////////////////////////
 
@@ -55,59 +57,72 @@ int pmm::pp_manager::pp_error()
 	return 0;
 }
 
+void * pmm::pp_manager::pp_m_new(pmm::size_type bytes) const
+{
+	if (bytes < 1u)
+		return nullptr;
+	auto * ptr = new pmm::ub8_t[bytes];
+	std::fill_n(ptr, bytes, pmm::ub8_t{0});
+	return ptr;
+}
+
+void * pmm::pp_manager::pp_k_new(pmm::size_type num, pmm::size_type bytes) const
+{
+	if (num == 0u || bytes == 0u)
+		return nullptr;
+	return this->pp_m_new(num * bytes);
+}
+
+void * pmm::pp_manager::pp_m_renew(void ** ptr, pmm::size_type oldsize, pmm::size_type newsize) const
+{
+	if (! ptr)
+		return nullptr;
+	if (newsize < oldsize)
+		return *ptr;
+	void * ptr2 = pmm::man.pp_m_new(newsize);
+	if (! ptr2)
+		return *ptr;
+	if (*ptr)
+	{
+		std::copy_n(
+			reinterpret_cast<pmm::ub8_t *>(* ptr),
+			oldsize,
+			reinterpret_cast<pmm::ub8_t *>(ptr2)
+		);
+		pmm::man.pp_m_delete(*ptr);
+	}
+	*ptr = ptr2;
+	return *ptr;
+}
+
+void pmm::pp_manager::pp_m_delete(void * ptr) const
+{
+	if (! ptr)
+		return;
+	delete [] reinterpret_cast<pmm::ub8_t *>(ptr);
+}
+
+void pmm::pp_manager::pp_f_delete(void * ptr) const
+{
+	this->pp_m_delete(ptr);
+}
+
+void pmm::pp_manager::pp_set_file_loader(const pmm::pp_manager::file_loader_type & file_loader__)
+{
+	this->__file_loader = file_loader__;
+}
+
+int pmm::pp_manager::pp_load_file(const std::string & name__, pmm::ub8_t ** buffer__)
+{
+	if (name__.empty())
+		return -1;
+	if (! __file_loader)
+		return -1;
+
+	return __file_loader(name__, buffer__);
+}
+
 ///////////////////////////////////////////////////////////////////////////
-
-/*
-   pmm::pp_set_malloc_func()
-   sets the ptr to the malloc function
- */
-
-void pmm::pp_set_malloc_func( void *( *func )( pmm::std_size_t ) ){
-	if ( func != nullptr ) {
-		_pico_ptr_malloc = func;
-	}
-}
-
-
-
-/*
-   pmm::pp_set_free_func()
-   sets the ptr to the free function
- */
-
-void pmm::pp_set_free_func( void ( *func )( void* ) ){
-	if ( func != nullptr ) {
-		_pico_ptr_free = func;
-	}
-}
-
-
-
-/*
-   pmm::pp_set_load_file_func()
-   sets the ptr to the file load function
- */
-
-void pmm::pp_set_load_file_func( void ( *func )( const char*, unsigned char**, int* ) ){
-	if ( func != nullptr ) {
-		_pico_ptr_load_file = func;
-	}
-}
-
-
-
-/*
-   pmm::pp_set_free_file_func()
-   sets the ptr to the free function
- */
-
-void pmm::pp_set_free_file_func( void ( *func )( void* ) ){
-	if ( func != nullptr ) {
-		_pico_ptr_free_file = func;
-	}
-}
-
-
 
 /*
    pmm::pp_set_print_func()
@@ -130,7 +145,7 @@ pmm::model_t *PicoModuleLoadModel( const pmm::module_t* pm, const char* fileName
 		/* use loader provided by module to read the model data */
 		pmm::model_t* model = pm->load( fileName, frameNum, buffer, bufSize );
 		if ( model == nullptr ) {
-			_pico_free_file( buffer );
+			pmm::man.pp_f_delete(buffer);
 			return nullptr;
 		}
 
@@ -143,7 +158,7 @@ pmm::model_t *PicoModuleLoadModel( const pmm::module_t* pm, const char* fileName
 		/* apply model remappings from <model>.remap */
 		if ( strlen( modelFileName ) ) {
 			/* alloc copy of model file name */
-			remapFileName = reinterpret_cast<decltype(remapFileName)>(_pico_alloc( strlen( modelFileName ) + 20 ));
+			remapFileName = reinterpret_cast<decltype(remapFileName)>(pmm::man.pp_m_new( strlen( modelFileName ) + 20 ));
 			if ( remapFileName != nullptr ) {
 				/* copy model file name and change extension */
 				strcpy( remapFileName, modelFileName );
@@ -153,7 +168,7 @@ pmm::model_t *PicoModuleLoadModel( const pmm::module_t* pm, const char* fileName
 				pmm::pp_remap_model( model, remapFileName );
 
 				/* free the remap file name string */
-				_pico_free( remapFileName );
+				pmm::man.pp_m_delete( remapFileName );
 			}
 		}
 
@@ -169,23 +184,20 @@ pmm::model_t *PicoModuleLoadModel( const pmm::module_t* pm, const char* fileName
  */
 
 pmm::model_t *pmm::pp_load_model( const char *fileName, int frameNum ){
-	const pmm::module_t  **modules, *pm;
-	pmm::model_t         *model;
-	pmm::ub8_t          *buffer;
-	int bufSize;
-
-
-	/* init */
-	model = nullptr;
-
-	/* make sure we've got a file name */
-	if ( fileName == nullptr ) {
+	// make sure we've got a file name
+	if ( fileName == nullptr )
+	{
 		_pico_printf( pmm::pl_error, "pmm::pp_load_model: No filename given (fileName == nullptr)" );
 		return nullptr;
 	}
 
-	/* load file data (buffer is allocated by host app) */
-	_pico_load_file( fileName, &buffer, &bufSize );
+	const pmm::module_t  **modules, *pm;
+	pmm::model_t         *model = nullptr;
+	pmm::ub8_t          *buffer;
+
+	// load file data (buffer is allocated by host app)
+	int bufSize = pmm::man.pp_load_file(fileName, &buffer);
+
 	if ( bufSize < 0 ) {
 		_pico_printf( pmm::pl_error, "pmm::pp_load_model: Failed loading model %s", fileName );
 		return nullptr;
@@ -220,14 +232,14 @@ pmm::model_t *pmm::pp_load_model( const char *fileName, int frameNum ){
 
 	/* free memory used by file buffer */
 	if ( buffer ) {
-		_pico_free_file( buffer );
+		pmm::man.pp_f_delete(buffer);
 	}
 
 	/* return */
 	return model;
 }
 
-pmm::model_t *pmm::pp_module_load_model_stream( const pmm::module_t* module, void* inputStream, pmm::pp_input_stream_read_func inputStreamRead, pmm::std_size_t streamLength, int frameNum, const char *fileName ){
+pmm::model_t *pmm::pp_module_load_model_stream( const pmm::module_t* module, void* inputStream, pmm::pp_input_stream_read_func inputStreamRead, pmm::size_type streamLength, int frameNum, const char *fileName ){
 	pmm::model_t         *model;
 	pmm::ub8_t          *buffer;
 	int bufSize;
@@ -246,7 +258,7 @@ pmm::model_t *pmm::pp_module_load_model_stream( const pmm::module_t* module, voi
 		return nullptr;
 	}
 
-	buffer = reinterpret_cast<decltype(buffer)>(_pico_alloc( streamLength + 1 ));
+	buffer = reinterpret_cast<decltype(buffer)>(pmm::man.pp_m_new( streamLength + 1 ));
 
 	bufSize = (int)inputStreamRead( inputStream, buffer, streamLength );
 	buffer[bufSize] = '\0';
@@ -254,7 +266,7 @@ pmm::model_t *pmm::pp_module_load_model_stream( const pmm::module_t* module, voi
 	model = PicoModuleLoadModel( module, fileName, buffer, bufSize, frameNum );
 
 	if ( model != 0 ) {
-		_pico_free( buffer );
+		pmm::man.pp_m_delete( buffer );
 	}
 
 	/* return */
@@ -275,7 +287,7 @@ pmm::model_t *pmm::pp_new_model( void ){
 	pmm::model_t *model;
 
 	/* allocate */
-	model = reinterpret_cast<decltype(model)>(_pico_alloc( sizeof( pmm::model_t ) ));
+	model = reinterpret_cast<decltype(model)>(pmm::man.pp_m_new( sizeof( pmm::model_t ) ));
 	if ( model == nullptr ) {
 		return nullptr;
 	}
@@ -311,11 +323,11 @@ void pmm::pp_free_model( pmm::model_t *model ){
 
 	/* free bits */
 	if ( model->name ) {
-		_pico_free( model->name );
+		pmm::man.pp_m_delete( model->name );
 	}
 
 	if ( model->fileName ) {
-		_pico_free( model->fileName );
+		pmm::man.pp_m_delete( model->fileName );
 	}
 
 	/* free shaders */
@@ -329,7 +341,7 @@ void pmm::pp_free_model( pmm::model_t *model ){
 	free( model->surface );
 
 	/* free the model */
-	_pico_free( model );
+	pmm::man.pp_m_delete( model );
 }
 
 
@@ -359,7 +371,7 @@ int pmm::pp_adjust_model( pmm::model_t *model, int num_shaders, int num_surfaces
 	while ( num_shaders > model->maxShaders )
 	{
 		model->maxShaders += pmm::ee_grow_shaders;
-		if ( !_pico_realloc( (void **) &model->shader, model->num_shaders * sizeof( *model->shader ), model->maxShaders * sizeof( *model->shader ) ) ) {
+		if ( !pmm::man.pp_m_renew( (void **) &model->shader, model->num_shaders * sizeof( *model->shader ), model->maxShaders * sizeof( *model->shader ) ) ) {
 			return 0;
 		}
 	}
@@ -373,7 +385,7 @@ int pmm::pp_adjust_model( pmm::model_t *model, int num_shaders, int num_surfaces
 	while ( num_surfaces > model->maxSurfaces )
 	{
 		model->maxSurfaces += pmm::ee_grow_surfaces;
-		if ( !_pico_realloc( (void **) &model->surface, model->num_surfaces * sizeof( *model->surface ), model->maxSurfaces * sizeof( *model->surface ) ) ) {
+		if ( !pmm::man.pp_m_renew( (void **) &model->surface, model->num_surfaces * sizeof( *model->surface ), model->maxSurfaces * sizeof( *model->surface ) ) ) {
 			return 0;
 		}
 	}
@@ -403,7 +415,7 @@ pmm::shader_t *pmm::pp_new_shader( pmm::model_t *model ){
 
 
 	/* allocate and clear */
-	shader = reinterpret_cast<decltype(shader)>(_pico_alloc( sizeof( pmm::shader_t ) ));
+	shader = reinterpret_cast<decltype(shader)>(pmm::man.pp_m_new( sizeof( pmm::shader_t ) ));
 	if ( shader == nullptr ) {
 		return nullptr;
 	}
@@ -413,7 +425,7 @@ pmm::shader_t *pmm::pp_new_shader( pmm::model_t *model ){
 	if ( model != nullptr ) {
 		/* adjust model */
 		if ( !pmm::pp_adjust_model( model, model->num_shaders + 1, 0 ) ) {
-			_pico_free( shader );
+			pmm::man.pp_m_delete( shader );
 			return nullptr;
 		}
 
@@ -450,14 +462,14 @@ void pmm::pp_free_shader( pmm::shader_t *shader ){
 
 	/* free bits */
 	if ( shader->name ) {
-		_pico_free( shader->name );
+		pmm::man.pp_m_delete( shader->name );
 	}
 	if ( shader->mapName ) {
-		_pico_free( shader->mapName );
+		pmm::man.pp_m_delete( shader->mapName );
 	}
 
 	/* free the shader */
-	_pico_free( shader );
+	pmm::man.pp_m_delete( shader );
 }
 
 
@@ -516,7 +528,7 @@ pmm::surface_t *pmm::pp_new_surface( pmm::model_t *model ){
 	char surfaceName[64];
 
 	/* allocate and clear */
-	surface = reinterpret_cast<decltype(surface)>(_pico_alloc( sizeof( *surface ) ));
+	surface = reinterpret_cast<decltype(surface)>(pmm::man.pp_m_new( sizeof( *surface ) ));
 	if ( surface == nullptr ) {
 		return nullptr;
 	}
@@ -526,7 +538,7 @@ pmm::surface_t *pmm::pp_new_surface( pmm::model_t *model ){
 	if ( model != nullptr ) {
 		/* adjust model */
 		if ( !pmm::pp_adjust_model( model, 0, model->num_surfaces + 1 ) ) {
-			_pico_free( surface );
+			pmm::man.pp_m_delete( surface );
 			return nullptr;
 		}
 
@@ -559,26 +571,26 @@ void pmm::pp_free_surface( pmm::surface_t *surface ){
 	}
 
 	/* free bits */
-	_pico_free( surface->xyz );
-	_pico_free( surface->normal );
-	_pico_free( surface->smoothingGroup );
-	_pico_free( surface->index );
-	_pico_free( surface->faceNormal );
+	pmm::man.pp_m_delete( surface->xyz );
+	pmm::man.pp_m_delete( surface->normal );
+	pmm::man.pp_m_delete( surface->smoothingGroup );
+	pmm::man.pp_m_delete( surface->index );
+	pmm::man.pp_m_delete( surface->faceNormal );
 
 	if ( surface->name ) {
-		_pico_free( surface->name );
+		pmm::man.pp_m_delete( surface->name );
 	}
 
 	/* free arrays */
 	for ( i = 0; i < surface->numSTArrays; i++ )
-		_pico_free( surface->st[ i ] );
+		pmm::man.pp_m_delete( surface->st[ i ] );
 	free( surface->st );
 	for ( i = 0; i < surface->numColorArrays; i++ )
-		_pico_free( surface->color[ i ] );
+		pmm::man.pp_m_delete( surface->color[ i ] );
 	free( surface->color );
 
 	/* free the surface */
-	_pico_free( surface );
+	pmm::man.pp_m_delete( surface );
 }
 
 
@@ -616,21 +628,21 @@ int pmm::pp_adjust_surface( pmm::surface_t *surface, int numVertexes, int numSTA
 	while ( numVertexes > surface->maxVertexes ) /* fix */
 	{
 		surface->maxVertexes += pmm::ee_grow_vertices;
-		if ( !_pico_realloc( (void **) &surface->xyz, surface->numVertexes * sizeof( *surface->xyz ), surface->maxVertexes * sizeof( *surface->xyz ) ) ) {
+		if ( !pmm::man.pp_m_renew( (void **) &surface->xyz, surface->numVertexes * sizeof( *surface->xyz ), surface->maxVertexes * sizeof( *surface->xyz ) ) ) {
 			return 0;
 		}
-		if ( !_pico_realloc( (void **) &surface->normal, surface->numVertexes * sizeof( *surface->normal ), surface->maxVertexes * sizeof( *surface->normal ) ) ) {
+		if ( !pmm::man.pp_m_renew( (void **) &surface->normal, surface->numVertexes * sizeof( *surface->normal ), surface->maxVertexes * sizeof( *surface->normal ) ) ) {
 			return 0;
 		}
-		if ( !_pico_realloc( (void **) &surface->smoothingGroup, surface->numVertexes * sizeof( *surface->smoothingGroup ), surface->maxVertexes * sizeof( *surface->smoothingGroup ) ) ) {
+		if ( !pmm::man.pp_m_renew( (void **) &surface->smoothingGroup, surface->numVertexes * sizeof( *surface->smoothingGroup ), surface->maxVertexes * sizeof( *surface->smoothingGroup ) ) ) {
 			return 0;
 		}
 		for ( i = 0; i < surface->numSTArrays; i++ )
-			if ( !_pico_realloc( (void **) &surface->st[ i ], surface->numVertexes * sizeof( *surface->st[ i ] ), surface->maxVertexes * sizeof( *surface->st[ i ] ) ) ) {
+			if ( !pmm::man.pp_m_renew( (void **) &surface->st[ i ], surface->numVertexes * sizeof( *surface->st[ i ] ), surface->maxVertexes * sizeof( *surface->st[ i ] ) ) ) {
 				return 0;
 			}
 		for ( i = 0; i < surface->numColorArrays; i++ )
-			if ( !_pico_realloc( (void **) &surface->color[ i ], surface->numVertexes * sizeof( *surface->color[ i ] ), surface->maxVertexes * sizeof( *surface->color[ i ] ) ) ) {
+			if ( !pmm::man.pp_m_renew( (void **) &surface->color[ i ], surface->numVertexes * sizeof( *surface->color[ i ] ), surface->maxVertexes * sizeof( *surface->color[ i ] ) ) ) {
 				return 0;
 			}
 	}
@@ -644,12 +656,12 @@ int pmm::pp_adjust_surface( pmm::surface_t *surface, int numVertexes, int numSTA
 	while ( numSTArrays > surface->maxSTArrays ) /* fix */
 	{
 		surface->maxSTArrays += pmm::ee_grow_arrays;
-		if ( !_pico_realloc( (void **) &surface->st, surface->numSTArrays * sizeof( *surface->st ), surface->maxSTArrays * sizeof( *surface->st ) ) ) {
+		if ( !pmm::man.pp_m_renew( (void **) &surface->st, surface->numSTArrays * sizeof( *surface->st ), surface->maxSTArrays * sizeof( *surface->st ) ) ) {
 			return 0;
 		}
 		while ( surface->numSTArrays < numSTArrays )
 		{
-			surface->st[surface->numSTArrays] = reinterpret_cast<decltype(&*surface->st[0])>(_pico_alloc(surface->maxVertexes * sizeof (*surface->st[0])));
+			surface->st[surface->numSTArrays] = reinterpret_cast<decltype(&*surface->st[0])>(pmm::man.pp_m_new(surface->maxVertexes * sizeof (*surface->st[0])));
 			memset( surface->st[ surface->numSTArrays ], 0, surface->maxVertexes * sizeof( *surface->st[ 0 ] ) );
 			surface->numSTArrays++;
 		}
@@ -659,12 +671,12 @@ int pmm::pp_adjust_surface( pmm::surface_t *surface, int numVertexes, int numSTA
 	while ( numColorArrays > surface->maxColorArrays ) /* fix */
 	{
 		surface->maxColorArrays += pmm::ee_grow_arrays;
-		if ( !_pico_realloc( (void **) &surface->color, surface->numColorArrays * sizeof( *surface->color ), surface->maxColorArrays * sizeof( *surface->color ) ) ) {
+		if ( !pmm::man.pp_m_renew( (void **) &surface->color, surface->numColorArrays * sizeof( *surface->color ), surface->maxColorArrays * sizeof( *surface->color ) ) ) {
 			return 0;
 		}
 		while ( surface->numColorArrays < numColorArrays )
 		{
-			surface->color[surface->numColorArrays] = reinterpret_cast<decltype(&*surface->color[0])>(_pico_alloc(surface->maxVertexes * sizeof (*surface->color[0])));
+			surface->color[surface->numColorArrays] = reinterpret_cast<decltype(&*surface->color[0])>(pmm::man.pp_m_new(surface->maxVertexes * sizeof (*surface->color[0])));
 			memset( surface->color[ surface->numColorArrays ], 0, surface->maxVertexes * sizeof( *surface->color[ 0 ] ) );
 			surface->numColorArrays++;
 		}
@@ -674,7 +686,7 @@ int pmm::pp_adjust_surface( pmm::surface_t *surface, int numVertexes, int numSTA
 	while ( numIndexes > surface->maxIndexes ) /* fix */
 	{
 		surface->maxIndexes += pmm::ee_grow_indices;
-		if ( !_pico_realloc( (void **) &surface->index, surface->numIndexes * sizeof( *surface->index ), surface->maxIndexes * sizeof( *surface->index ) ) ) {
+		if ( !pmm::man.pp_m_renew( (void **) &surface->index, surface->numIndexes * sizeof( *surface->index ), surface->maxIndexes * sizeof( *surface->index ) ) ) {
 			return 0;
 		}
 	}
@@ -688,7 +700,7 @@ int pmm::pp_adjust_surface( pmm::surface_t *surface, int numVertexes, int numSTA
 	while ( numFaceNormals > surface->maxFaceNormals ) /* fix */
 	{
 		surface->maxFaceNormals += pmm::ee_grow_faces;
-		if ( !_pico_realloc( (void **) &surface->faceNormal, surface->numFaceNormals * sizeof( *surface->faceNormal ), surface->maxFaceNormals * sizeof( *surface->faceNormal ) ) ) {
+		if ( !pmm::man.pp_m_renew( (void **) &surface->faceNormal, surface->numFaceNormals * sizeof( *surface->faceNormal ), surface->maxFaceNormals * sizeof( *surface->faceNormal ) ) ) {
 			return 0;
 		}
 	}
@@ -751,7 +763,7 @@ void pmm::pp_set_model_name( pmm::model_t *model, const char *name ){
 		return;
 	}
 	if ( model->name != nullptr ) {
-		_pico_free( model->name );
+		pmm::man.pp_m_delete( model->name );
 	}
 
 	model->name = _pico_clone_alloc( name );
@@ -764,7 +776,7 @@ void pmm::pp_set_model_file_name( pmm::model_t *model, const char *fileName ){
 		return;
 	}
 	if ( model->fileName != nullptr ) {
-		_pico_free( model->fileName );
+		pmm::man.pp_m_delete( model->fileName );
 	}
 
 	model->fileName = _pico_clone_alloc( fileName );
@@ -804,7 +816,7 @@ void pmm::pp_set_shader_name( pmm::shader_t *shader, char *name ){
 		return;
 	}
 	if ( shader->name != nullptr ) {
-		_pico_free( shader->name );
+		pmm::man.pp_m_delete( shader->name );
 	}
 
 	shader->name = _pico_clone_alloc( name );
@@ -817,7 +829,7 @@ void pmm::pp_set_shader_map_name( pmm::shader_t *shader, char *mapName ){
 		return;
 	}
 	if ( shader->mapName != nullptr ) {
-		_pico_free( shader->mapName );
+		pmm::man.pp_m_delete( shader->mapName );
 	}
 
 	shader->mapName = _pico_clone_alloc( mapName );
@@ -918,7 +930,7 @@ void pmm::pp_set_surface_name( pmm::surface_t *surface, const char *name ){
 		return;
 	}
 	if ( surface->name != nullptr ) {
-		_pico_free( surface->name );
+		pmm::man.pp_m_delete( surface->name );
 	}
 
 	surface->name = _pico_clone_alloc( name );
@@ -1450,7 +1462,7 @@ unsigned int pmm::pp_vertex_coord_generate_hash( pmm::vec3_t xyz ){
 }
 
 pmm::pp_vertex_comnination_hash_t **pmm::pp_new_vertex_combination_hash_table( void ){
-	pmm::pp_vertex_comnination_hash_t ** hashTable = reinterpret_cast<decltype(hashTable)>(_pico_alloc(HASHTABLE_size * sizeof (pmm::pp_vertex_comnination_hash_t*)));
+	pmm::pp_vertex_comnination_hash_t ** hashTable = reinterpret_cast<decltype(hashTable)>(pmm::man.pp_m_new(HASHTABLE_size * sizeof (pmm::pp_vertex_comnination_hash_t*)));
 
 	memset( hashTable, 0, HASHTABLE_size * sizeof( pmm::pp_vertex_comnination_hash_t* ) );
 
@@ -1476,14 +1488,14 @@ void pmm::pp_free_vertex_combination_hash_table( pmm::pp_vertex_comnination_hash
 			{
 				nextVertexCombinationHash = vertexCombinationHash->next;
 				if ( vertexCombinationHash->data != nullptr ) {
-					_pico_free( vertexCombinationHash->data );
+					pmm::man.pp_m_delete( vertexCombinationHash->data );
 				}
-				_pico_free( vertexCombinationHash );
+				pmm::man.pp_m_delete( vertexCombinationHash );
 			}
 		}
 	}
 
-	_pico_free( hashTable );
+	pmm::man.pp_m_delete( hashTable );
 }
 
 pmm::pp_vertex_comnination_hash_t *pmm::pp_find_vertex_combination_in_hash_table( pmm::pp_vertex_comnination_hash_t **hashTable, pmm::vec3_t xyz, pmm::vec3_t normal, pmm::vec3_t st, pmm::color_t color ){
@@ -1557,7 +1569,7 @@ pmm::pp_vertex_comnination_hash_t *pmm::pp_add_vertex_combination_to_hash_table(
 		return nullptr;
 	}
 
-	vertexCombinationHash = reinterpret_cast<decltype(vertexCombinationHash)>(_pico_alloc( sizeof( pmm::pp_vertex_comnination_hash_t ) ));
+	vertexCombinationHash = reinterpret_cast<decltype(vertexCombinationHash)>(pmm::man.pp_m_new( sizeof( pmm::pp_vertex_comnination_hash_t ) ));
 
 	if ( !vertexCombinationHash ) {
 		return nullptr;
@@ -1662,17 +1674,17 @@ void indexarray_push_back( IndexArray* self, pmm::index_t value ){
 	*self->last++ = value;
 }
 
-pmm::std_size_t indexarray_size( IndexArray* self ){
+pmm::size_type indexarray_size( IndexArray* self ){
 	return self->last - self->data;
 }
 
-void indexarray_reserve( IndexArray* self, pmm::std_size_t size ){
-	self->last = reinterpret_cast<decltype(self->last)>(_pico_calloc(size, sizeof (pmm::index_t)));
+void indexarray_reserve( IndexArray* self, pmm::size_type size ){
+	self->last = reinterpret_cast<decltype(self->last)>(pmm::man.pp_k_new(size, sizeof (pmm::index_t)));
 	self->data = reinterpret_cast<decltype(self->data)>(self->last);
 }
 
 void indexarray_clear( IndexArray* self ){
-	_pico_free( self->data );
+	pmm::man.pp_m_delete( self->data );
 }
 
 class BinaryTreeNode
@@ -1695,17 +1707,17 @@ void binarytree_extend( BinaryTree* self ){
 	++self->last;
 }
 
-pmm::std_size_t binarytree_size( BinaryTree* self ){
+pmm::size_type binarytree_size( BinaryTree* self ){
 	return self->last - self->data;
 }
 
-void binarytree_reserve( BinaryTree* self, pmm::std_size_t size ){
-	self->last = reinterpret_cast<decltype(self->last)>(_pico_calloc(size, sizeof (BinaryTreeNode)));
+void binarytree_reserve( BinaryTree* self, pmm::size_type size ){
+	self->last = reinterpret_cast<decltype(self->last)>(pmm::man.pp_k_new(size, sizeof (BinaryTreeNode)));
 	self->data = reinterpret_cast<decltype(self->data)>(self->last);
 }
 
 void binarytree_clear( BinaryTree* self ){
-	_pico_free( self->data );
+	pmm::man.pp_m_delete( self->data );
 }
 
 using LessFunc = int(*)(void *, pmm::index_t, pmm::index_t);
@@ -1719,11 +1731,11 @@ public:
 	void* lessData;
 };
 
-pmm::std_size_t UniqueIndices_size( UniqueIndices* self ){
+pmm::size_type UniqueIndices_size( UniqueIndices* self ){
 	return binarytree_size( &self->tree );
 }
 
-void UniqueIndices_reserve( UniqueIndices* self, pmm::std_size_t size ){
+void UniqueIndices_reserve( UniqueIndices* self, pmm::size_type size ){
 	binarytree_reserve( &self->tree, size );
 	indexarray_reserve( &self->indices, size );
 }
@@ -1827,9 +1839,9 @@ void _pico_vertices_combine_shared_normals( pmm::vec3_t* xyz, pmm::index_t* smoo
 		pmm::index_t i = 0;
 		for (; i < numVertices; ++i )
 		{
-			pmm::std_size_t size = UniqueIndices_size( &vertices );
+			pmm::size_type size = UniqueIndices_size( &vertices );
 			pmm::index_t index = UniqueIndices_insert( &vertices, i );
-			if ( (pmm::std_size_t)index != size ) {
+			if ( (pmm::size_type)index != size ) {
 				float* normal = normals[vertices.indices.data[index]];
 				_pico_add_vec( normal, normals[i], normal );
 			}
@@ -1939,7 +1951,7 @@ void _pico_normals_assign_generated_normals( picoNormalIter_t first, picoNormalI
 }
 
 void pmm::pp_fix_surface_normals( pmm::surface_t* surface ){
-	pmm::vec3_t* normals = (pmm::vec3_t*)_pico_calloc( surface->numVertexes, sizeof( pmm::vec3_t ) );
+	pmm::vec3_t* normals = (pmm::vec3_t*)pmm::man.pp_k_new( surface->numVertexes, sizeof( pmm::vec3_t ) );
 
 	_pico_normals_zero( normals, normals + surface->numVertexes );
 
@@ -1950,7 +1962,7 @@ void pmm::pp_fix_surface_normals( pmm::surface_t* surface ){
 
 	_pico_normals_assign_generated_normals( surface->normal, surface->normal + surface->numVertexes, normals );
 
-	_pico_free( normals );
+	pmm::man.pp_m_delete( normals );
 }
 
 
@@ -1964,23 +1976,22 @@ void pmm::pp_fix_surface_normals( pmm::surface_t* surface ){
 #define _prm_error_return \
 	{ \
 		_pico_free_parser( p );	\
-		_pico_free_file( remapBuffer );	\
+		pmm::man.pp_f_delete( remapBuffer );	\
 		return 0; \
 	}
 
 int pmm::pp_remap_model( pmm::model_t *model, char *remapFile ){
-	picoParser_t    *p;
-	pmm::ub8_t      *remapBuffer;
-	int remapBufSize;
-
-
-	/* sanity checks */
-	if ( model == nullptr || remapFile == nullptr ) {
+	// sanity checks
+	if ( model == nullptr || remapFile == nullptr )
+	{
 		return 0;
 	}
 
-	/* load remap file contents */
-	_pico_load_file( remapFile,&remapBuffer,&remapBufSize );
+	picoParser_t    *p;
+	pmm::ub8_t      *remapBuffer;
+
+	// load remap file contents
+	int remapBufSize = pmm::man.pp_load_file(remapFile, &remapBuffer);
 
 	/* check result */
 	if ( remapBufSize == 0 ) {
@@ -2053,7 +2064,7 @@ int pmm::pp_remap_model( pmm::model_t *model, char *remapFile ){
 
 				/* get next token (assignment token or shader name) */
 				if ( !_pico_parse( p,0 ) ) {
-					_pico_free( materialName );
+					pmm::man.pp_m_delete( materialName );
 					_prm_error_return;
 				}
 				/* skip assignment token (if present) */
@@ -2062,7 +2073,7 @@ int pmm::pp_remap_model( pmm::model_t *model, char *remapFile ){
 					 !strcmp( p->token,"=" ) ) {
 					/* simply grab the next token */
 					if ( !_pico_parse( p,0 ) ) {
-						_pico_free( materialName );
+						pmm::man.pp_m_delete( materialName );
 						_prm_error_return;
 					}
 				}
@@ -2074,7 +2085,7 @@ int pmm::pp_remap_model( pmm::model_t *model, char *remapFile ){
 					pmm::pp_set_shader_name( shader,p->token );
 				}
 				/* free memory used by material name */
-				_pico_free( materialName );
+				pmm::man.pp_m_delete( materialName );
 
 				/* skip rest */
 				_pico_parse_skip_rest( p );
@@ -2107,7 +2118,7 @@ int pmm::pp_remap_model( pmm::model_t *model, char *remapFile ){
 			shader = pmm::pp_find_shader( model,tempMaterialName,0 );
 
 			/* free memory used by temporary material name */
-			_pico_free( tempMaterialName );
+			pmm::man.pp_m_delete( tempMaterialName );
 
 			/* we haven't found a material matching the name */
 			/* so we simply skip the braced section now and */
@@ -2220,7 +2231,7 @@ int pmm::pp_remap_model( pmm::model_t *model, char *remapFile ){
 
 	/* free both parser and file buffer */
 	_pico_free_parser( p );
-	_pico_free_file( remapBuffer );
+	pmm::man.pp_f_delete(remapBuffer);
 
 	/* return with success */
 	return 1;

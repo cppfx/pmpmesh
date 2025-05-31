@@ -9,6 +9,7 @@
 
 #include <pmpmesh/pm_internal.hpp>
 #include <pmpmesh/lwo/lwo2.hpp>
+#include <functional>
 
 /*
    ======================================================================
@@ -20,11 +21,11 @@
 void lwFreeEnvelope( lwEnvelope *env ){
 	if ( env ) {
 		if ( env->name ) {
-			_pico_free( env->name );
+			pmm::man.pp_m_delete( env->name );
 		}
-		lwListFree( env->key, _pico_free );
+		lwListFree(env->key, std::bind(&pmm::pp_manager::pp_m_delete, pmm::man, std::placeholders::_1));
 		lwListFree(env->cfilter, (void (*)(void *)) lwFreePlugin);
-		_pico_free( env );
+		pmm::man.pp_m_delete( env );
 	}
 }
 
@@ -53,7 +54,7 @@ lwEnvelope *lwGetEnvelope( picoMemStream_t *fp, int cksize ){
 
 	/* allocate the Envelope class */
 
-	env = reinterpret_cast<decltype(env)>(_pico_calloc(1, sizeof(lwEnvelope)));
+	env = reinterpret_cast<decltype(env)>(pmm::man.pp_k_new(1, sizeof(lwEnvelope)));
 	if ( !env ) {
 		goto Fail;
 	}
@@ -99,7 +100,7 @@ lwEnvelope *lwGetEnvelope( picoMemStream_t *fp, int cksize ){
 			break;
 
 		case ID_KEY:
-			key = reinterpret_cast<decltype(key)>(_pico_calloc(1, sizeof(lwKey)));
+			key = reinterpret_cast<decltype(key)>(pmm::man.pp_k_new(1, sizeof(lwKey)));
 			if ( !key ) {
 				goto Fail;
 			}
@@ -139,7 +140,7 @@ lwEnvelope *lwGetEnvelope( picoMemStream_t *fp, int cksize ){
 			break;
 
 		case ID_CHAN:
-			plug = reinterpret_cast<decltype(plug)>(_pico_calloc(1, sizeof(lwPlugin)));
+			plug = reinterpret_cast<decltype(plug)>(pmm::man.pp_k_new(1, sizeof(lwPlugin)));
 			if ( !plug ) {
 				goto Fail;
 			}

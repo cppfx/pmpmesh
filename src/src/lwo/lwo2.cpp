@@ -26,12 +26,12 @@
 void lwFreeLayer( lwLayer *layer ){
 	if ( layer ) {
 		if ( layer->name ) {
-			_pico_free( layer->name );
+			pmm::man.pp_m_delete( layer->name );
 		}
 		lwFreePoints( &layer->point );
 		lwFreePolygons( &layer->polygon );
 		lwListFree(layer->vmap, (void (*)(void *)) lwFreeVMap);
-		_pico_free( layer );
+		pmm::man.pp_m_delete( layer );
 	}
 }
 
@@ -50,7 +50,7 @@ void lwFreeObject( lwObject *object ){
 		lwListFree(object->clip, (void (*)(void *)) lwFreeClip);
 		lwListFree(object->surf, (void (*)(void *)) lwFreeSurface);
 		lwFreeTags( &object->taglist );
-		_pico_free( object );
+		pmm::man.pp_m_delete( object );
 	}
 }
 
@@ -122,12 +122,12 @@ lwObject *lwGetObject( const char *filename, picoMemStream_t *fp, unsigned int *
 
 	/* allocate an object and a default layer */
 
-	object = reinterpret_cast<decltype(object)>(_pico_calloc(1, sizeof(lwObject)));
+	object = reinterpret_cast<decltype(object)>(pmm::man.pp_k_new(1, sizeof(lwObject)));
 	if ( !object ) {
 		goto Fail;
 	}
 
-	layer = reinterpret_cast<decltype(layer)>(_pico_calloc( 1, sizeof(lwLayer)));
+	layer = reinterpret_cast<decltype(layer)>(pmm::man.pp_k_new( 1, sizeof(lwLayer)));
 	if ( !layer ) {
 		goto Fail;
 	}
@@ -150,7 +150,7 @@ lwObject *lwGetObject( const char *filename, picoMemStream_t *fp, unsigned int *
 		{
 		case ID_LAYR:
 			if ( object->nlayers > 0 ) {
-				layer = reinterpret_cast<decltype(layer)>(_pico_calloc(1, sizeof(lwLayer)));
+				layer = reinterpret_cast<decltype(layer)>(pmm::man.pp_k_new(1, sizeof(lwLayer)));
 				if ( !layer ) {
 					goto Fail;
 				}

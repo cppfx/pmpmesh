@@ -334,7 +334,7 @@ static int _mdl_canload(PM_PARAMS_CANLOAD) {
 	const mdl_header_t *mdl;
 
 	/* sanity check */
-	if ((pmm::std_size_t)bufSize < (sizeof(*mdl) * 2)) {
+	if ((pmm::size_type)bufSize < (sizeof(*mdl) * 2)) {
 		return pmm::pmv_error_size;
 	}
 
@@ -355,7 +355,7 @@ static int _mdl_canload(PM_PARAMS_CANLOAD) {
 	return pmm::pmv_ok;
 }
 
-static void* _offset_to(void **buf, pmm::std_size_t size) {
+static void* _offset_to(void **buf, pmm::size_type size) {
 	char **ptr = (char **)buf;
 	char *before = (char *)*buf;
 	*ptr += size;
@@ -396,14 +396,14 @@ static pmm::model_t *_mdl_load(PM_PARAMS_LOAD) {
 	------------------------------------------------- */
 
 	/* set as mdl */
-	buff = ptr = (pmm::ub8_t*)_pico_alloc(bufSize);
+	buff = ptr = (pmm::ub8_t*)pmm::man.pp_m_new(bufSize);
 	memcpy(ptr, buffer, bufSize);
 	mdlHeader = (mdl_header_t*)ptr;
 
 	/* check ident and version */
 	if (mdlHeader->ident != *((int*)MDL_ident) || _pico_little_long(mdlHeader->version) != MDL_version) {
 		_pico_printf(pmm::pl_error, "%s is not an MDL File!", fileName);
-		_pico_free(buff);
+		pmm::man.pp_m_delete(buff);
 		return nullptr;
 	}
 
@@ -429,13 +429,13 @@ static pmm::model_t *_mdl_load(PM_PARAMS_LOAD) {
 	/* do sanity checks */
 	if (mdlHeader->numFrames < 1) {
 		_pico_printf(pmm::pl_error, "MDL with 0 frames");
-		_pico_free(buff);
+		pmm::man.pp_m_delete(buff);
 		return nullptr;
 	}
 
 	if (frameNum < 0 || frameNum >= mdlHeader->numFrames) {
 		_pico_printf(pmm::pl_error, "Invalid or out-of-range MDL frame specified");
-		_pico_free(buff);
+		pmm::man.pp_m_delete(buff);
 		return nullptr;
 	}
 
@@ -471,7 +471,7 @@ static pmm::model_t *_mdl_load(PM_PARAMS_LOAD) {
 	picoModel = pmm::pp_new_model();
 	if (picoModel == nullptr) {
 		_pico_printf(pmm::pl_error, "Unable to allocate a new model");
-		_pico_free(buff);
+		pmm::man.pp_m_delete(buff);
 		return nullptr;
 	}
 
@@ -489,7 +489,7 @@ static pmm::model_t *_mdl_load(PM_PARAMS_LOAD) {
 	if (picoSurface == nullptr) {
 		_pico_printf(pmm::pl_error, "Unable to allocate a new model surface");
 		pmm::pp_free_model(picoModel);
-		_pico_free(buff);
+		pmm::man.pp_m_delete(buff);
 		return nullptr;
 	}
 
@@ -501,7 +501,7 @@ static pmm::model_t *_mdl_load(PM_PARAMS_LOAD) {
 	if (picoShader == nullptr) {
 		_pico_printf(pmm::pl_error, "Unable to allocate a new model shader");
 		pmm::pp_free_model(picoModel);
-		_pico_free(buff);
+		pmm::man.pp_m_delete(buff);
 		return nullptr;
 	}
 
@@ -588,7 +588,7 @@ static pmm::model_t *_mdl_load(PM_PARAMS_LOAD) {
 		pmm::pp_set_surface_index(picoSurface, iTemp + 2, iTemp + 2);
 	}
 
-	_pico_free(buff);
+	pmm::man.pp_m_delete(buff);
 
 	return picoModel;
 }

@@ -25,33 +25,33 @@ void lwFreeClip( lwClip *clip ){
 
 		switch ( clip->type ) {
 		case ID_STIL:
-			_pico_free( clip->source.still.name );
+			pmm::man.pp_m_delete( clip->source.still.name );
 			break;
 
 		case ID_ISEQ:
-			_pico_free( clip->source.seq.prefix );
-			_pico_free( clip->source.seq.suffix );
+			pmm::man.pp_m_delete( clip->source.seq.prefix );
+			pmm::man.pp_m_delete( clip->source.seq.suffix );
 			break;
 
 		case ID_ANIM:
-			_pico_free( clip->source.anim.name );
-			_pico_free( clip->source.anim.server );
-			_pico_free( clip->source.anim.data );
+			pmm::man.pp_m_delete( clip->source.anim.name );
+			pmm::man.pp_m_delete( clip->source.anim.server );
+			pmm::man.pp_m_delete( clip->source.anim.data );
 			break;
 
 		case ID_XREF:
-			_pico_free( clip->source.xref.string );
+			pmm::man.pp_m_delete( clip->source.xref.string );
 			break;
 
 		case ID_STCC:
-			_pico_free( clip->source.cycle.name );
+			pmm::man.pp_m_delete( clip->source.cycle.name );
 			break;
 
 		default:
 			break;
 		}
 
-		_pico_free( clip );
+		pmm::man.pp_m_delete( clip );
 	}
 }
 
@@ -73,7 +73,7 @@ lwClip *lwGetClip( picoMemStream_t *fp, int cksize ){
 
 	/* allocate the Clip class */
 
-	clip = reinterpret_cast<decltype(clip)>(_pico_calloc( 1, sizeof( lwClip ) ));
+	clip = reinterpret_cast<decltype(clip)>(pmm::man.pp_k_new( 1, sizeof( lwClip ) ));
 	if ( !clip ) {
 		goto Fail;
 	}
@@ -214,7 +214,7 @@ lwClip *lwGetClip( picoMemStream_t *fp, int cksize ){
 
 		case ID_IFLT:
 		case ID_PFLT:
-			filt = reinterpret_cast<decltype(filt)>(_pico_calloc( 1, sizeof( lwPlugin ) ));
+			filt = reinterpret_cast<decltype(filt)>(pmm::man.pp_k_new( 1, sizeof( lwPlugin ) ));
 			if ( !filt ) {
 				goto Fail;
 			}

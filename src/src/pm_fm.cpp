@@ -64,7 +64,7 @@ static int _fm_canload( PM_PARAMS_CANLOAD ){
 	unsigned char   *bb, *bb0;
 	int fm_file_pos;
 
-	bb0 = bb = (pmm::ub8_t*) _pico_alloc( bufSize );
+	bb0 = bb = (pmm::ub8_t*) pmm::man.pp_m_new( bufSize );
 	memcpy( bb, buffer, bufSize );
 
 	// Header
@@ -77,7 +77,7 @@ static int _fm_canload( PM_PARAMS_CANLOAD ){
 #ifdef FM_DBG
 		_pico_printf( pmm::pl_warning, "FM Header Ident incorrect\n" );
 #endif
-		_pico_free( bb0 );
+		pmm::man.pp_m_delete( bb0 );
 		return pmm::pmv_error_ident;
 	}
 
@@ -86,7 +86,7 @@ static int _fm_canload( PM_PARAMS_CANLOAD ){
 #ifdef FM_DBG
 		_pico_printf( pmm::pl_warning, "FM Header Version incorrect\n" );
 #endif
-		_pico_free( bb0 );
+		pmm::man.pp_m_delete( bb0 );
 		return pmm::pmv_error_version;
 	}
 
@@ -100,7 +100,7 @@ static int _fm_canload( PM_PARAMS_CANLOAD ){
 #ifdef FM_DBG
 		_pico_printf( pmm::pl_warning, "FM Skin Ident incorrect\n" );
 #endif
-		_pico_free( bb0 );
+		pmm::man.pp_m_delete( bb0 );
 		return pmm::pmv_error_ident;
 	}
 
@@ -109,7 +109,7 @@ static int _fm_canload( PM_PARAMS_CANLOAD ){
 #ifdef FM_DBG
 		_pico_printf( pmm::pl_warning, "FM Skin Version incorrect\n" );
 #endif
-		_pico_free( bb0 );
+		pmm::man.pp_m_delete( bb0 );
 		return pmm::pmv_error_version;
 	}
 
@@ -123,7 +123,7 @@ static int _fm_canload( PM_PARAMS_CANLOAD ){
 #ifdef FM_DBG
 		_pico_printf( pmm::pl_warning, "FM ST Ident incorrect\n" );
 #endif
-		_pico_free( bb0 );
+		pmm::man.pp_m_delete( bb0 );
 		return pmm::pmv_error_ident;
 	}
 
@@ -132,7 +132,7 @@ static int _fm_canload( PM_PARAMS_CANLOAD ){
 #ifdef FM_DBG
 		_pico_printf( pmm::pl_warning, "FM ST Version incorrect\n" );
 #endif
-		_pico_free( bb0 );
+		pmm::man.pp_m_delete( bb0 );
 		return pmm::pmv_error_version;
 	}
 
@@ -146,7 +146,7 @@ static int _fm_canload( PM_PARAMS_CANLOAD ){
 #ifdef FM_DBG
 		_pico_printf( pmm::pl_warning, "FM Tri Ident incorrect\n" );
 #endif
-		_pico_free( bb0 );
+		pmm::man.pp_m_delete( bb0 );
 		return pmm::pmv_error_ident;
 	}
 
@@ -155,7 +155,7 @@ static int _fm_canload( PM_PARAMS_CANLOAD ){
 #ifdef FM_DBG
 		_pico_printf( pmm::pl_warning, "FM Tri Version incorrect\n" );
 #endif
-		_pico_free( bb0 );
+		pmm::man.pp_m_delete( bb0 );
 		return pmm::pmv_error_version;
 	}
 
@@ -169,7 +169,7 @@ static int _fm_canload( PM_PARAMS_CANLOAD ){
 #ifdef FM_DBG
 		_pico_printf( pmm::pl_warning, "FM Frame Ident incorrect\n" );
 #endif
-		_pico_free( bb0 );
+		pmm::man.pp_m_delete( bb0 );
 		return pmm::pmv_error_ident;
 	}
 
@@ -178,7 +178,7 @@ static int _fm_canload( PM_PARAMS_CANLOAD ){
 #ifdef FM_DBG
 		_pico_printf( pmm::pl_warning, "FM Frame Version incorrect\n" );
 #endif
-		_pico_free( bb0 );
+		pmm::man.pp_m_delete( bb0 );
 		return pmm::pmv_error_version;
 	}
 
@@ -214,7 +214,7 @@ static pmm::model_t *_fm_load( PM_PARAMS_LOAD ){
 	pmm::color_t color;
 
 
-	bb0 = bb = (pmm::ub8_t*) _pico_alloc( bufSize );
+	bb0 = bb = (pmm::ub8_t*) pmm::man.pp_m_new( bufSize );
 	memcpy( bb, buffer, bufSize );
 
 	// Header Header
@@ -222,13 +222,13 @@ static pmm::model_t *_fm_load( PM_PARAMS_LOAD ){
 	fm_file_pos = sizeof( fm_chunk_header_t ) + fm.fm_header_hdr->size;
 	if ( ( strcmp( fm.fm_header_hdr->ident, FM_HEADERCHUNKNAME ) )  ) {
 		_pico_printf( pmm::pl_warning, "FM Header Ident incorrect\n" );
-		_pico_free( bb0 );
+		pmm::man.pp_m_delete( bb0 );
 		return nullptr;
 	}
 
 	if ( _pico_little_long( fm.fm_header_hdr->version ) != FM_HEADERCHUNKVER ) {
 		_pico_printf( pmm::pl_warning, "FM Header Version incorrect\n" );
-		_pico_free( bb0 );
+		pmm::man.pp_m_delete( bb0 );
 		return nullptr;
 	}
 
@@ -237,13 +237,13 @@ static pmm::model_t *_fm_load( PM_PARAMS_LOAD ){
 	fm_file_pos += sizeof( fm_chunk_header_t ) + fm.fm_skin_hdr->size;
 	if ( ( strcmp( fm.fm_skin_hdr->ident, FM_SKINCHUNKNAME ) ) ) {
 		_pico_printf( pmm::pl_warning, "FM Skin Ident incorrect\n" );
-		_pico_free( bb0 );
+		pmm::man.pp_m_delete( bb0 );
 		return nullptr;
 	}
 
 	if ( _pico_little_long( fm.fm_skin_hdr->version ) != FM_SKINCHUNKVER ) {
 		_pico_printf( pmm::pl_warning, "FM Skin Version incorrect\n" );
-		_pico_free( bb0 );
+		pmm::man.pp_m_delete( bb0 );
 		return nullptr;
 	}
 
@@ -252,13 +252,13 @@ static pmm::model_t *_fm_load( PM_PARAMS_LOAD ){
 	fm_file_pos += sizeof( fm_chunk_header_t ) + fm.fm_st_hdr->size;
 	if ( ( strcmp( fm.fm_st_hdr->ident, FM_STCOORDCHUNKNAME ) ) ) {
 		_pico_printf( pmm::pl_warning, "FM ST Ident incorrect\n" );
-		_pico_free( bb0 );
+		pmm::man.pp_m_delete( bb0 );
 		return nullptr;
 	}
 
 	if ( _pico_little_long( fm.fm_st_hdr->version ) != FM_STCOORDCHUNKVER ) {
 		_pico_printf( pmm::pl_warning, "FM ST Version incorrect\n" );
-		_pico_free( bb0 );
+		pmm::man.pp_m_delete( bb0 );
 		return nullptr;
 	}
 
@@ -267,13 +267,13 @@ static pmm::model_t *_fm_load( PM_PARAMS_LOAD ){
 	fm_file_pos += sizeof( fm_chunk_header_t ) + fm.fm_tri_hdr->size;
 	if ( ( strcmp( fm.fm_tri_hdr->ident, FM_TRISCHUNKNAME ) ) ) {
 		_pico_printf( pmm::pl_warning, "FM Tri Ident incorrect\n" );
-		_pico_free( bb0 );
+		pmm::man.pp_m_delete( bb0 );
 		return nullptr;
 	}
 
 	if ( _pico_little_long( fm.fm_tri_hdr->version ) != FM_TRISCHUNKVER ) {
 		_pico_printf( pmm::pl_warning, "FM Tri Version incorrect\n" );
-		_pico_free( bb0 );
+		pmm::man.pp_m_delete( bb0 );
 		return nullptr;
 	}
 
@@ -282,13 +282,13 @@ static pmm::model_t *_fm_load( PM_PARAMS_LOAD ){
 	fm_file_pos += sizeof( fm_chunk_header_t );
 	if ( ( strcmp( fm.fm_frame_hdr->ident, FM_FRAMESCHUNKNAME ) ) ) {
 		_pico_printf( pmm::pl_warning, "FM Frame Ident incorrect\n" );
-		_pico_free( bb0 );
+		pmm::man.pp_m_delete( bb0 );
 		return nullptr;
 	}
 
 	if ( _pico_little_long( fm.fm_frame_hdr->version ) != FM_FRAMESCHUNKVER ) {
 		_pico_printf( pmm::pl_warning, "FM Frame Version incorrect\n" );
-		_pico_free( bb0 );
+		pmm::man.pp_m_delete( bb0 );
 		return nullptr;
 	}
 
@@ -319,13 +319,13 @@ static pmm::model_t *_fm_load( PM_PARAMS_LOAD ){
 	// do frame check
 	if ( fm_head->numFrames < 1 ) {
 		_pico_printf( pmm::pl_error, "%s has 0 frames!", fileName );
-		_pico_free( bb0 );
+		pmm::man.pp_m_delete( bb0 );
 		return nullptr;
 	}
 
 	if ( frameNum < 0 || frameNum >= fm_head->numFrames ) {
 		_pico_printf( pmm::pl_error, "Invalid or out-of-range FM frame specified" );
-		_pico_free( bb0 );
+		pmm::man.pp_m_delete( bb0 );
 		return nullptr;
 	}
 
@@ -381,7 +381,7 @@ static pmm::model_t *_fm_load( PM_PARAMS_LOAD ){
 	picoModel = pmm::pp_new_model();
 	if ( picoModel == nullptr ) {
 		_pico_printf( pmm::pl_error, "Unable to allocate a new model" );
-		_pico_free( bb0 );
+		pmm::man.pp_m_delete( bb0 );
 		return nullptr;
 	}
 
@@ -396,7 +396,7 @@ static pmm::model_t *_fm_load( PM_PARAMS_LOAD ){
 	if ( picoSurface == nullptr ) {
 		_pico_printf( pmm::pl_error, "Unable to allocate a new model surface" );
 		pmm::pp_free_model( picoModel );
-		_pico_free( bb0 );
+		pmm::man.pp_m_delete( bb0 );
 		return nullptr;
 	}
 
@@ -407,7 +407,7 @@ static pmm::model_t *_fm_load( PM_PARAMS_LOAD ){
 	if ( picoShader == nullptr ) {
 		_pico_printf( pmm::pl_error, "Unable to allocate a new model shader" );
 		pmm::pp_free_model( picoModel );
-		_pico_free( bb0 );
+		pmm::man.pp_m_delete( bb0 );
 		return nullptr;
 	}
 
@@ -417,7 +417,7 @@ static pmm::model_t *_fm_load( PM_PARAMS_LOAD ){
 	pmm::pp_set_surface_shader( picoSurface, picoShader );
 
 	// Init LUT for Verts
-	p_index_LUT = (index_LUT_t *)_pico_alloc( sizeof( index_LUT_t ) * fm_head->numXYZ );
+	p_index_LUT = (index_LUT_t *)pmm::man.pp_m_new( sizeof( index_LUT_t ) * fm_head->numXYZ );
 	for ( i = 0; i < fm_head->numXYZ; i++ )
 	{
 		p_index_LUT[i].Vert = -1;
@@ -445,7 +445,7 @@ static pmm::model_t *_fm_load( PM_PARAMS_LOAD ){
 			}
 			else if ( ( p_index_LUT[triangle->index_xyz[j]].next == nullptr ) ) { // Not equal to Main entry, and no LL entry
 				// Add first entry of LL from Main
-				p_index_LUT2 = (index_LUT_t *)_pico_alloc( sizeof( index_LUT_t ) );
+				p_index_LUT2 = (index_LUT_t *)pmm::man.pp_m_new( sizeof( index_LUT_t ) );
 				if ( p_index_LUT2 == nullptr ) {
 					_pico_printf( pmm::pl_normal, " Couldn't allocate memory!\n" );
 				}
@@ -479,7 +479,7 @@ static pmm::model_t *_fm_load( PM_PARAMS_LOAD ){
 
 				if ( p_index_LUT2->next == nullptr ) { // Didn't find it. Add entry to LL.
 					// Add the Entry
-					p_index_LUT3 = (index_LUT_t *)_pico_alloc( sizeof( index_LUT_t ) );
+					p_index_LUT3 = (index_LUT_t *)pmm::man.pp_m_new( sizeof( index_LUT_t ) );
 					if ( p_index_LUT3 == nullptr ) {
 						_pico_printf( pmm::pl_normal, " Couldn't allocate memory!\n" );
 					}
@@ -502,7 +502,7 @@ static pmm::model_t *_fm_load( PM_PARAMS_LOAD ){
 	}
 
 	// malloc and build array for Dup STs
-	p_index_LUT_DUPS = (index_DUP_LUT_t *)_pico_alloc( sizeof( index_DUP_LUT_t ) * dups );
+	p_index_LUT_DUPS = (index_DUP_LUT_t *)pmm::man.pp_m_new( sizeof( index_DUP_LUT_t ) * dups );
 	if ( p_index_LUT_DUPS == nullptr ) {
 		_pico_printf( pmm::pl_normal, " Couldn't allocate memory!\n" );
 	}
@@ -621,7 +621,7 @@ static pmm::model_t *_fm_load( PM_PARAMS_LOAD ){
 			p_index_LUT2 = p_index_LUT[i].next;
 			do {
 				p_index_LUT3 = p_index_LUT2->next;
-				_pico_free( p_index_LUT2 );
+				pmm::man.pp_m_delete( p_index_LUT2 );
 				p_index_LUT2 = p_index_LUT3;
 				dups--;
 			} while ( p_index_LUT2 != nullptr );
@@ -633,11 +633,11 @@ static pmm::model_t *_fm_load( PM_PARAMS_LOAD ){
 	}
 
 	// Free malloc'ed LUTs
-	_pico_free( p_index_LUT );
-	_pico_free( p_index_LUT_DUPS );
+	pmm::man.pp_m_delete( p_index_LUT );
+	pmm::man.pp_m_delete( p_index_LUT_DUPS );
 
 	/* return the new pico model */
-	_pico_free( bb0 );
+	pmm::man.pp_m_delete( bb0 );
 	return picoModel;
 
 }

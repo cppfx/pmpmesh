@@ -33,6 +33,8 @@
 #pragma once
 
 #include <string_view>
+#include <string>
+#include <functional>
 
 namespace pmm
 {
@@ -58,7 +60,7 @@ using vec3_t = float[3];
 using vec4_t = float[4];
 using color_t = pmm::ub8_t[4];
 using index_t = int;
-using std_size_t = decltype(sizeof 0);
+using size_type = decltype(sizeof 0);
 
 enum surface_type
 {
@@ -193,18 +195,26 @@ public:
 
 class pp_manager final
 {
+private:
+	using file_loader_type = std::function<int(std::string, pmm::ub8_t **)>; // bufsize <- name, buffer
+	file_loader_type __file_loader;
 public:
 	int pp_init();      // Initialize the pmpmesh library
 	void pp_close();    // Close the pmpmesh library
 	int pp_error();     // Return last error code (see PME_ * defines)
+public:
+	void * pp_m_new(pmm::size_type bytes) const;
+	void * pp_k_new(pmm::size_type num, pmm::size_type bytes) const;
+	void * pp_m_renew(void ** ptr, pmm::size_type oldsize, pmm::size_type newsize) const;
+	void   pp_m_delete(void * ptr) const;	// memory
+	void   pp_f_delete(void * ptr) const;   // file
+public:
+	void pp_set_file_loader(const file_loader_type & file_loader__);
+	int pp_load_file(const std::string & name__, pmm::ub8_t ** buffer__);
 };
 
 inline pmm::pp_manager man{};
 
-void pp_set_malloc_func( void *( *func )( pmm::std_size_t ) );
-void pp_set_free_func( void ( *func )( void* ) );
-void pp_set_load_file_func( void ( *func )( const char*, unsigned char**, int* ) );
-void pp_set_free_file_func( void ( *func )( void* ) );
 void pp_set_print_func( void ( *func )( int, const char* ) );
 
 const pmm::module_t ** pp_module_list( int *numModules );
@@ -212,13 +222,13 @@ const pmm::module_t ** pp_module_list( int *numModules );
 pmm::model_t * pp_load_model( const char *name, int frameNum );
 
 //										(inputStream, buffer, length)
-using pp_input_stream_read_func = pmm::std_size_t (*)(void *, unsigned char *, pmm::std_size_t);
+using pp_input_stream_read_func = pmm::size_type (*)(void *, unsigned char *, pmm::size_type);
 
 pmm::model_t* pp_module_load_model_stream(
 	const pmm::module_t * module,
 	void* inputStream,
 	pmm::pp_input_stream_read_func inputStreamRead,
-	pmm::std_size_t streamLength,
+	pmm::size_type streamLength,
 	int frameNum,
 	const char *fileName
 );

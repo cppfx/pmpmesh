@@ -21,15 +21,15 @@
 void lwFreePlugin( lwPlugin *p ){
 	if ( p ) {
 		if ( p->ord ) {
-			_pico_free( p->ord );
+			pmm::man.pp_m_delete( p->ord );
 		}
 		if ( p->name ) {
-			_pico_free( p->name );
+			pmm::man.pp_m_delete( p->name );
 		}
 		if ( p->data ) {
-			_pico_free( p->data );
+			pmm::man.pp_m_delete( p->data );
 		}
-		_pico_free( p );
+		pmm::man.pp_m_delete( p );
 	}
 }
 
@@ -44,35 +44,35 @@ void lwFreePlugin( lwPlugin *p ){
 void lwFreeTexture( lwTexture *t ){
 	if ( t ) {
 		if ( t->ord ) {
-			_pico_free( t->ord );
+			pmm::man.pp_m_delete( t->ord );
 		}
 		switch ( t->type ) {
 		case ID_IMAP:
 			if ( t->param.imap.vmap_name ) {
-				_pico_free( t->param.imap.vmap_name );
+				pmm::man.pp_m_delete( t->param.imap.vmap_name );
 			}
 			if ( t->tmap.ref_object ) {
-				_pico_free( t->tmap.ref_object );
+				pmm::man.pp_m_delete( t->tmap.ref_object );
 			}
 			break;
 		case ID_PROC:
 			if ( t->param.proc.name ) {
-				_pico_free( t->param.proc.name );
+				pmm::man.pp_m_delete( t->param.proc.name );
 			}
 			if ( t->param.proc.data ) {
-				_pico_free( t->param.proc.data );
+				pmm::man.pp_m_delete( t->param.proc.data );
 			}
 			break;
 		case ID_GRAD:
 			if ( t->param.grad.key ) {
-				_pico_free( t->param.grad.key );
+				pmm::man.pp_m_delete( t->param.grad.key );
 			}
 			if ( t->param.grad.ikey ) {
-				_pico_free( t->param.grad.ikey );
+				pmm::man.pp_m_delete( t->param.grad.ikey );
 			}
 			break;
 		}
-		_pico_free( t );
+		pmm::man.pp_m_delete( t );
 	}
 }
 
@@ -87,10 +87,10 @@ void lwFreeTexture( lwTexture *t ){
 void lwFreeSurface( lwSurface *surf ){
 	if ( surf ) {
 		if ( surf->name ) {
-			_pico_free( surf->name );
+			pmm::man.pp_m_delete( surf->name );
 		}
 		if ( surf->srcname ) {
-			_pico_free( surf->srcname );
+			pmm::man.pp_m_delete( surf->srcname );
 		}
 
 		lwListFree(surf->shader, (void (*)(void *)) lwFreePlugin);
@@ -107,7 +107,7 @@ void lwFreeSurface( lwSurface *surf ){
 		lwListFree(surf->translucency.tex, freeTexture);
 		lwListFree(surf->bump.tex, freeTexture);
 
-		_pico_free( surf );
+		pmm::man.pp_m_delete( surf );
 	}
 }
 
@@ -565,7 +565,7 @@ int lwGetGradient( picoMemStream_t *fp, int rsz, lwTexture *tex ){
 
 		case ID_FKEY:
 			nkeys = sz / sizeof( lwGradKey );
-			tex->param.grad.key = reinterpret_cast<decltype(tex->param.grad.key)>(_pico_calloc( nkeys, sizeof( lwGradKey ) ));
+			tex->param.grad.key = reinterpret_cast<decltype(tex->param.grad.key)>(pmm::man.pp_k_new( nkeys, sizeof( lwGradKey ) ));
 			if ( !tex->param.grad.key ) {
 				return 0;
 			}
@@ -578,7 +578,7 @@ int lwGetGradient( picoMemStream_t *fp, int rsz, lwTexture *tex ){
 
 		case ID_IKEY:
 			nkeys = sz / 2;
-			tex->param.grad.ikey = reinterpret_cast<decltype(tex->param.grad.ikey)>(_pico_calloc( nkeys, sizeof( short ) ));
+			tex->param.grad.ikey = reinterpret_cast<decltype(tex->param.grad.ikey)>(pmm::man.pp_k_new( nkeys, sizeof( short ) ));
 			if ( !tex->param.grad.ikey ) {
 				return 0;
 			}
@@ -636,7 +636,7 @@ lwTexture *lwGetTexture( picoMemStream_t *fp, int bloksz, unsigned int type ){
 	unsigned short sz;
 	int ok;
 
-	tex = reinterpret_cast<decltype(tex)>(_pico_calloc( 1, sizeof( lwTexture ) ));
+	tex = reinterpret_cast<decltype(tex)>(pmm::man.pp_k_new( 1, sizeof( lwTexture ) ));
 	if ( !tex ) {
 		return nullptr;
 	}
@@ -650,7 +650,7 @@ lwTexture *lwGetTexture( picoMemStream_t *fp, int bloksz, unsigned int type ){
 
 	sz = getU2( fp );
 	if ( !lwGetTHeader( fp, sz, tex ) ) {
-		_pico_free( tex );
+		pmm::man.pp_m_delete( tex );
 		return nullptr;
 	}
 
@@ -686,7 +686,7 @@ lwPlugin *lwGetShader( picoMemStream_t *fp, int bloksz ){
 	unsigned short sz;
 	int hsz, rlen, pos;
 
-	shdr = reinterpret_cast<decltype(shdr)>(_pico_calloc( 1, sizeof( lwPlugin ) ));
+	shdr = reinterpret_cast<decltype(shdr)>(pmm::man.pp_k_new( 1, sizeof( lwPlugin ) ));
 	if ( !shdr ) {
 		return nullptr;
 	}
@@ -833,7 +833,7 @@ static int add_texture( lwSurface *surf, lwTexture *tex ){
 lwSurface *lwDefaultSurface( void ){
 	lwSurface *surf;
 
-	surf = reinterpret_cast<decltype(surf)>(_pico_calloc( 1, sizeof( lwSurface ) ));
+	surf = reinterpret_cast<decltype(surf)>(pmm::man.pp_k_new( 1, sizeof( lwSurface ) ));
 	if ( !surf ) {
 		return nullptr;
 	}
@@ -869,7 +869,7 @@ lwSurface *lwGetSurface( picoMemStream_t *fp, int cksize ){
 
 	/* allocate the Surface class */
 
-	surf = reinterpret_cast<decltype(surf)>(_pico_calloc( 1, sizeof( lwSurface ) ));
+	surf = reinterpret_cast<decltype(surf)>(pmm::man.pp_k_new( 1, sizeof( lwSurface ) ));
 	if ( !surf ) {
 		goto Fail;
 	}

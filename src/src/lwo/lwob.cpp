@@ -61,7 +61,7 @@ static int add_clip( char *s, lwClip **clist, int *nclips ){
 	lwClip *clip;
 	char *p;
 
-	clip = reinterpret_cast<decltype(clip)>(_pico_calloc( 1, sizeof(lwClip)));
+	clip = reinterpret_cast<decltype(clip)>(pmm::man.pp_k_new( 1, sizeof(lwClip)));
 	if ( !clip ) {
 		return 0;
 	}
@@ -105,9 +105,9 @@ static int add_tvel( float pos[], float vel[], lwEnvelope **elist, int *nenvs ){
 	int i;
 
 	for ( i = 0; i < 3; i++ ) {
-		env = reinterpret_cast<decltype(env)>(_pico_calloc(1, sizeof(lwEnvelope)));
-		key0 = reinterpret_cast<decltype(key0)>(_pico_calloc(1, sizeof(lwKey)));
-		key1 = reinterpret_cast<decltype(key1)>(_pico_calloc(1, sizeof(lwKey)));
+		env = reinterpret_cast<decltype(env)>(pmm::man.pp_k_new(1, sizeof(lwEnvelope)));
+		key0 = reinterpret_cast<decltype(key0)>(pmm::man.pp_k_new(1, sizeof(lwKey)));
+		key1 = reinterpret_cast<decltype(key1)>(pmm::man.pp_k_new(1, sizeof(lwKey)));
 		if ( !env || !key0 || !key1 ) {
 			return 0;
 		}
@@ -122,7 +122,7 @@ static int add_tvel( float pos[], float vel[], lwEnvelope **elist, int *nenvs ){
 
 		env->index = *nenvs + i + 1;
 		env->type = 0x0301 + i;
-		env->name = reinterpret_cast<decltype(env->name)>(_pico_alloc( 11 ));
+		env->name = reinterpret_cast<decltype(env->name)>(pmm::man.pp_m_new( 11 ));
 		if ( env->name ) {
 			strcpy( env->name, "Position.X" );
 			env->name[ 9 ] += i;
@@ -150,7 +150,7 @@ static int add_tvel( float pos[], float vel[], lwEnvelope **elist, int *nenvs ){
 static lwTexture *get_texture( char *s ){
 	lwTexture *tex;
 
-	tex = reinterpret_cast<decltype(tex)>(_pico_calloc(1, sizeof(lwTexture)));
+	tex = reinterpret_cast<decltype(tex)>(pmm::man.pp_k_new(1, sizeof(lwTexture)));
 	if ( !tex ) {
 		return nullptr;
 	}
@@ -180,7 +180,7 @@ static lwTexture *get_texture( char *s ){
 		}
 		tex->param.imap.aa_strength = 1.0f;
 		tex->param.imap.amplitude.val = 1.0f;
-		_pico_free( s );
+		pmm::man.pp_m_delete( s );
 	}
 	else {
 		tex->type = ID_PROC;
@@ -211,7 +211,7 @@ lwSurface *lwGetSurface5( picoMemStream_t *fp, int cksize, lwObject *obj ){
 
 	/* allocate the Surface class */
 
-	surf = reinterpret_cast<decltype(surf)>(_pico_calloc(1, sizeof(lwSurface)));
+	surf = reinterpret_cast<decltype(surf)>(pmm::man.pp_k_new(1, sizeof(lwSurface)));
 	if ( !surf ) {
 		goto Fail;
 	}
@@ -533,7 +533,7 @@ lwSurface *lwGetSurface5( picoMemStream_t *fp, int cksize, lwObject *obj ){
 			break;
 
 		case ID_SHDR:
-			shdr = reinterpret_cast<decltype(shdr)>(_pico_calloc(1, sizeof(lwPlugin)));
+			shdr = reinterpret_cast<decltype(shdr)>(pmm::man.pp_k_new(1, sizeof(lwPlugin)));
 			if ( !shdr ) {
 				goto Fail;
 			}
@@ -662,18 +662,18 @@ int lwGetPolygons5( picoMemStream_t *fp, int cksize, lwPolygonList *plist, int p
 			bp += 2;
 		}
 		j -= 1;
-		pp->surf = ( lwSurface * ) (pmm::std_size_t) j;
+		pp->surf = ( lwSurface * ) (pmm::size_type) j;
 
 		pp++;
 		pv += nv;
 	}
 
-	_pico_free( buf );
+	pmm::man.pp_m_delete( buf );
 	return 1;
 
 Fail:
 	if ( buf ) {
-		_pico_free( buf );
+		pmm::man.pp_m_delete( buf );
 	}
 	lwFreePolygons( plist );
 	return 0;
@@ -735,12 +735,12 @@ lwObject *lwGetObject5( const char *filename, picoMemStream_t *fp, unsigned int 
 
 	/* allocate an object and a default layer */
 
-	object = reinterpret_cast<decltype(object)>(_pico_calloc(1, sizeof(lwObject)));
+	object = reinterpret_cast<decltype(object)>(pmm::man.pp_k_new(1, sizeof(lwObject)));
 	if ( !object ) {
 		goto Fail;
 	}
 
-	layer = reinterpret_cast<decltype(layer)>(_pico_calloc(1, sizeof(lwLayer)));
+	layer = reinterpret_cast<decltype(layer)>(pmm::man.pp_k_new(1, sizeof(lwLayer)));
 	if ( !layer ) {
 		goto Fail;
 	}

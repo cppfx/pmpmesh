@@ -120,7 +120,7 @@ void _terrain_load_tga_buffer( unsigned char *buffer, unsigned char **pic, int *
 		*height = rows;
 	}
 
-	targa_rgba = reinterpret_cast<decltype(targa_rgba)>(_pico_alloc( numPixels * 4 ));
+	targa_rgba = reinterpret_cast<decltype(targa_rgba)>(pmm::man.pp_m_new( numPixels * 4 ));
 	*pic = targa_rgba;
 
 	if ( targa_header.id_length != 0 ) {
@@ -384,7 +384,7 @@ static pmm::model_t *_terrain_load( PM_PARAMS_LOAD ) {
 		if ( !_pico_stricmp( p->token, "shader" ) ) {
 			if ( _pico_parse( p, 0 ) && p->token[ 0 ] ) {
 				if ( shader != nullptr ) {
-					_pico_free( shader );
+					pmm::man.pp_m_delete( shader );
 				}
 				shader = _pico_clone_alloc( p->token );
 			}
@@ -394,7 +394,7 @@ static pmm::model_t *_terrain_load( PM_PARAMS_LOAD ) {
 		else if ( !_pico_stricmp( p->token, "heightmap" ) ) {
 			if ( _pico_parse( p, 0 ) && p->token[ 0 ] ) {
 				if ( heightmapFile != nullptr ) {
-					_pico_free( heightmapFile );
+					pmm::man.pp_m_delete( heightmapFile );
 				}
 				heightmapFile = _pico_clone_alloc( p->token );
 			}
@@ -404,7 +404,7 @@ static pmm::model_t *_terrain_load( PM_PARAMS_LOAD ) {
 		else if ( !_pico_stricmp( p->token, "colormap" ) ) {
 			if ( _pico_parse( p, 0 ) && p->token[ 0 ] ) {
 				if ( colormapFile != nullptr ) {
-					_pico_free( colormapFile );
+					pmm::man.pp_m_delete( colormapFile );
 				}
 				colormapFile = _pico_clone_alloc( p->token );
 			}
@@ -423,18 +423,18 @@ static pmm::model_t *_terrain_load( PM_PARAMS_LOAD ) {
 
 	/* load heightmap */
 	heightmap = imageBuffer = nullptr;
-	_pico_load_file( heightmapFile, &imageBuffer, &imageBufSize );
+	imageBufSize = pmm::man.pp_load_file(heightmapFile, &imageBuffer);
 	_terrain_load_tga_buffer( imageBuffer, &heightmap, &w, &h );
-	_pico_free( heightmapFile );
-	_pico_free_file( imageBuffer );
+	pmm::man.pp_m_delete( heightmapFile );
+	pmm::man.pp_f_delete(imageBuffer);
 
 	if ( heightmap == nullptr || w < 2 || h < 2 ) {
 		_pico_printf( pmm::pl_error, "PicoTerrain model with invalid heightmap" );
 		if ( shader != nullptr ) {
-			_pico_free( shader );
+			pmm::man.pp_m_delete( shader );
 		}
 		if ( colormapFile != nullptr ) {
-			_pico_free( colormapFile );
+			pmm::man.pp_m_delete( colormapFile );
 		}
 		_pico_free_parser( p );
 		return nullptr;
@@ -445,14 +445,14 @@ static pmm::model_t *_terrain_load( PM_PARAMS_LOAD ) {
 
 	/* load colormap */
 	colormap = imageBuffer = nullptr;
-	_pico_load_file( colormapFile, &imageBuffer, &imageBufSize );
+	imageBufSize = pmm::man.pp_load_file(colormapFile, &imageBuffer);
 	_terrain_load_tga_buffer( imageBuffer, &colormap, &cw, &ch );
-	_pico_free( colormapFile );
-	_pico_free_file( imageBuffer );
+	pmm::man.pp_m_delete( colormapFile );
+	pmm::man.pp_f_delete(imageBuffer);
 
 	if ( cw != w || ch != h ) {
 		_pico_printf( pmm::pl_warning, "PicoTerrain colormap/heightmap size mismatch" );
-		_pico_free( colormap );
+		pmm::man.pp_m_delete( colormap );
 		colormap = nullptr;
 	}
 
@@ -490,7 +490,7 @@ static pmm::model_t *_terrain_load( PM_PARAMS_LOAD ) {
 	if ( picoShader == nullptr ) {
 		_pico_printf( pmm::pl_error, "Unable to allocate a new model shader" );
 		pmm::pp_free_model( picoModel );
-		_pico_free( shader );
+		pmm::man.pp_m_delete( shader );
 		return nullptr;
 	}
 
@@ -498,7 +498,7 @@ static pmm::model_t *_terrain_load( PM_PARAMS_LOAD ) {
 	_pico_setfext( shader, "" );
 	_pico_unixify( shader );
 	pmm::pp_set_shader_name( picoShader, shader );
-	_pico_free( shader );
+	pmm::man.pp_m_delete( shader );
 
 	/* associate current surface with newly created shader */
 	pmm::pp_set_surface_shader( picoSurface, picoShader );
@@ -568,8 +568,8 @@ static pmm::model_t *_terrain_load( PM_PARAMS_LOAD ) {
 
 	/* free stuff */
 	_pico_free_parser( p );
-	_pico_free( heightmap );
-	_pico_free( colormap );
+	pmm::man.pp_m_delete( heightmap );
+	pmm::man.pp_m_delete( colormap );
 
 	/* return the new pico model */
 	return picoModel;
